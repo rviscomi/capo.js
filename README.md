@@ -17,6 +17,8 @@ This script helps you identify which elements are out of order.
 2. Run it in a new [DevTools snippet](https://developer.chrome.com/docs/devtools/javascript/snippets/)
 3. Explore the console logs
 
+<img width="1552" alt="capo screenshot" src="https://github.com/rviscomi/capo.js/assets/1120896/b29672f9-1f05-4a05-a85e-df27acd153bd">
+
 ## Summary view
 
 The script logs two info groups to the console: the actual order of the `<head>`, and the prioritized order. In this collapsed view, you can see at a glance whether there are any high priority elements out of order.
