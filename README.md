@@ -1,2 +1,2 @@
 # capo
-Get your head checked
+Assess `<head>` prioritization
