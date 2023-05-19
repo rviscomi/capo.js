@@ -31,6 +31,10 @@ Here are a few examples.
 
 <img width="842" alt="image" src="https://github.com/rviscomi/capo.js/assets/1120896/fe6bb67c-697a-4fdf-aa28-52429239fcf5">
 
+## stackoverflow.com
+
+<img width="626" alt="image" src="https://github.com/rviscomi/capo.js/assets/1120896/8964fed2-e933-4795-ada6-79c56cbc416d">
+
 ## Detailed view
 
 Expanding the actual or priority views reveals the detailed view. This includes an itemized list of each `<head>` element and its priority as well as a reference to the actual or prioritized `<head>` element.
