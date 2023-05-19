@@ -1,4 +1,4 @@
-# capo.js
+# [rviscomi/capo.js](https://github.com/rviscomi/capo.js)
 _Get your `<head>` in order_
 
 Inspired by [Harry Roberts](https://twitter.com/csswizardry)' work on [ct.js](https://csswizardry.com/ct/) and [Vitaly Friedman](https://twitter.com/smashingmag)'s [Nordic.js 2022 presentation](https://youtu.be/uqLl-Yew2o8?t=2873):
