@@ -21,9 +21,9 @@ This script helps you identify which elements are out of order.
 
 ## Summary view
 
-The script logs two info groups to the console: the actual order of the `<head>`, and the prioritized order. In this collapsed view, you can see at a glance whether there are any high priority elements out of order.
+The script logs two info groups to the console: the actual order of the `<head>`, and the optimal order. In this collapsed view, you can see at a glance whether there are any high impact elements out of order.
 
-Each priority has a corresponding color, with red being the highest and blue/grey being the lowest. See [capo.js](https://github.com/rviscomi/capo.js/blob/main/capo.js#L1-L13) for the exact mapping.
+Each "weight" has a corresponding color, with red being the highest and blue/grey being the lowest. See [capo.js](https://github.com/rviscomi/capo.js/blob/main/capo.js#L1-L13) for the exact mapping.
 
 Here are a few examples.
 
@@ -45,10 +45,10 @@ Here are a few examples.
 
 ## Detailed view
 
-Expanding the actual or priority views reveals the detailed view. This includes an itemized list of each `<head>` element and its priority as well as a reference to the actual or prioritized `<head>` element.
+Expanding the actual or sorted views reveals the detailed view. This includes an itemized list of each `<head>` element and its weight as well as a reference to the actual or sorted `<head>` element.
 
 ### www.nytimes.com
 
-Here you can see a drilled-down view of the end of the `<head>` for the NYT site, where high priority origin trial meta elements are set too late.
+Here you can see a drilled-down view of the end of the `<head>` for the NYT site, where high impact origin trial meta elements are set too late.
 
 <img width="472" alt="image" src="https://github.com/rviscomi/capo.js/assets/1120896/c0342d54-9e23-4b91-8df1-277c251ee0c5">

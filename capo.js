@@ -1,4 +1,4 @@
-const Priorities = {
+const ElementWeights = {
   META: 10,
   TITLE: 9,
   PRECONNECT: 8,
@@ -12,7 +12,7 @@ const Priorities = {
   OTHER: 0
 };
 
-const PriorityDetectors = {
+const ElementDetectors = {
   META: isMeta,
   TITLE: isTitle,
   PRECONNECT: isPreconnect,
@@ -25,7 +25,7 @@ const PriorityDetectors = {
   PREFETCH_PRERENDER: isPrefetchPrerender
 }
 
-const PRIORITY_COLORS = [
+const WEIGHT_COLORS = [
   '#9e0142',
   '#d53e4f',
   '#f46d43',
@@ -94,66 +94,66 @@ function isPrefetchPrerender(element) {
   return element.matches('link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])');
 }
 
-function getPriority(element) {
-  for ([id, detector] of Object.entries(PriorityDetectors)) {
+function getWeight(element) {
+  for ([id, detector] of Object.entries(ElementDetectors)) {
     if (detector(element)) {
-      return Priorities[id];
+      return ElementWeights[id];
     }
   }
 
-  return Priorities.OTHER;
+  return ElementWeights.OTHER;
 }
 
-function getHeadPriorities() {
+function getHeadWeights() {
   const headChildren = Array.from(document.head.children);
   return headChildren.map(element => {
-    return [element, getPriority(element)];
+    return [element, getWeight(element)];
   });
 }
 
-function visualizePriorities(priorities) {
-  const visual = priorities.map(_ => '%c ').join('');
-  const styles = priorities.map(priority => {
-    const color = PRIORITY_COLORS[10 - priority];
+function visualizeWeights(weights) {
+  const visual = weights.map(_ => '%c ').join('');
+  const styles = weights.map(weight => {
+    const color = WEIGHT_COLORS[10 - weight];
     return `background-color: ${color}; padding: 5px; margin: -1px;`
   });
 
   return {visual, styles};
 }
 
-function visualizePriority(priority) {
-  const visual = `%c${new Array(priority + 1).fill('█').join('')}`;
-  const style = `color: ${PRIORITY_COLORS[10 - priority]}`;
+function visualizeWeight(weight) {
+  const visual = `%c${new Array(weight + 1).fill('█').join('')}`;
+  const style = `color: ${WEIGHT_COLORS[10 - weight]}`;
 
   return {visual, style};
 }
 
-function logPriorities() {
-  const headPriorities = getHeadPriorities();
-  const actualViz = visualizePriorities(headPriorities.map(([_, priority]) => priority));
+function logWeights() {
+  const headWeights = getHeadWeights();
+  const actualViz = visualizeWeights(headWeights.map(([_, weight]) => weight));
   
   console.groupCollapsed(`${LOGGING_PREFIX}Actual %c<head>%c order\n${actualViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...actualViz.styles);
-  headPriorities.forEach(([element, priority]) => {
-    const viz = visualizePriority(priority);
-    console.log(viz.visual, viz.style, priority + 1, element);
+  headWeights.forEach(([element, weight]) => {
+    const viz = visualizeWeight(weight);
+    console.log(viz.visual, viz.style, weight + 1, element);
   });
   console.log('Actual %c<head>%c element', 'font-family: monospace', 'font-family: inherit', document.head);
   console.groupEnd();
 
-  const sortedPriorities = headPriorities.sort((a, b) => {
+  const sortedWeights = headWeights.sort((a, b) => {
     return b[1] - a[1];
   });
-  const priorityViz = visualizePriorities(sortedPriorities.map(([_, priority]) => priority));
+  const sortedViz = visualizeWeights(sortedWeights.map(([_, weight]) => weight));
   
-  console.groupCollapsed(`${LOGGING_PREFIX}Priority %c<head>%c order\n${priorityViz.visual}`, 'font-family: monospace', 'font-family: inherit', ...priorityViz.styles);
-  const priorityHead = document.createElement('head');
-  sortedPriorities.forEach(([element, priority]) => {
-    const viz = visualizePriority(priority);
-    console.log(viz.visual, viz.style, priority + 1, element);
-    priorityHead.appendChild(element.cloneNode(true));
+  console.groupCollapsed(`${LOGGING_PREFIX}Sorted %c<head>%c order\n${sortedViz.visual}`, 'font-family: monospace', 'font-family: inherit', ...sortedViz.styles);
+  const sortedHead = document.createElement('head');
+  sortedWeights.forEach(([element, weight]) => {
+    const viz = visualizeWeight(weight);
+    console.log(viz.visual, viz.style, weight + 1, element);
+    sortedHead.appendChild(element.cloneNode(true));
   });
-  console.log('Prioritized %c<head>%c element', 'font-family: monospace', 'font-family: inherit', priorityHead);
+  console.log('Sorted %c<head>%c element', 'font-family: monospace', 'font-family: inherit', sortedHead);
   console.groupEnd();
 }
 
-logPriorities();
+logWeights();
