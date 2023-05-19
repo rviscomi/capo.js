@@ -11,6 +11,12 @@ How you order elements in the `<head>` can have an effect on the (perceived) per
 
 This script helps you identify which elements are out of order.
 
+## How to use it
+
+1. Copy [capo.js](https://raw.githubusercontent.com/rviscomi/capo.js/main/capo.js)
+2. Run it in a new [DevTools snippet](https://developer.chrome.com/docs/devtools/javascript/snippets/)
+3. Explore the console logs
+
 ## Summary view
 
 The script logs two info groups to the console: the actual order of the `<head>`, and the prioritized order. In this collapsed view, you can see at a glance whether there are any high priority elements out of order.
