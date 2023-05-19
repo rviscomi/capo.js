@@ -35,7 +35,8 @@ const PRIORITY_COLORS = [
   '#abdda4',
   '#66c2a5',
   '#3288bd',
-  '#5e4fa2'
+  '#5e4fa2',
+  '#cccccc'
 ];
 
 const LOGGING_PREFIX = 'Capo';
@@ -94,18 +95,31 @@ function getPriority(element) {
 function getHeadPriorities() {
   const headChildren = Array.from(document.head.children);
   return headChildren.map(element => {
-    return [element.cloneNode(true), getPriority(element)];
+    return [element, getPriority(element)];
   });
 }
 
-function visualizePriorities() {
-  const headPriorities = getHeadPriorities().map(([element, priority]) => {
-    const visual = new Array(priority + 1).fill('█').join('');
-    return [visual, priority, element];
-  });
-  console.groupCollapsed(`${LOGGING_PREFIX}: Actual <head> order`);
-  headPriorities.forEach(([visual, priority, element]) => {
-    console.log(`%c${visual}`, `color: ${PRIORITY_COLORS[10 - priority]}`, priority, element);
+function visualizePriorities(priorities) {
+  const visual = priorities.map(_ => '%c█').join('');
+  const styles = priorities.map(priority => `color: ${PRIORITY_COLORS[10 - priority]}; margin-left: -1px;`);
+
+  return {visual, styles};
+}
+
+function visualizePriority(priority) {
+  const visual = `%c${new Array(priority + 1).fill('█').join('')}`;
+  const style = `color: ${PRIORITY_COLORS[10 - priority]}`;
+
+  return {visual, style};
+}
+
+function logPriorities() {
+  const headPriorities = getHeadPriorities();
+  const actualViz = visualizePriorities(headPriorities.map(([_, priority]) => priority));
+  console.groupCollapsed(`${LOGGING_PREFIX}: Actual <head> order\n${actualViz.visual}`, ...actualViz.styles);
+  headPriorities.forEach(([element, priority]) => {
+    const viz = visualizePriority(priority);
+    console.log(viz.visual, viz.style, priority, element);
   });
   console.log('Actual <head> element', document.head);
   console.groupEnd();
@@ -113,14 +127,16 @@ function visualizePriorities() {
   const sortedPriorities = headPriorities.sort((a, b) => {
     return b[1] - a[1];
   });
-  console.groupCollapsed(`${LOGGING_PREFIX}: Priority <head> order`);
+  const priorityViz = visualizePriorities(sortedPriorities.map(([_, priority]) => priority));
+  console.groupCollapsed(`${LOGGING_PREFIX}: Priority <head> order\n${priorityViz.visual}`, ...priorityViz.styles);
   const priorityHead = document.createElement('head');
-  sortedPriorities.forEach(([visual, priority, element]) => {
-    console.log(`%c${visual}`, `color: ${PRIORITY_COLORS[10 - priority]}`, priority, element);
-    priorityHead.appendChild(element);
+  sortedPriorities.forEach(([element, priority]) => {
+    const viz = visualizePriority(priority);
+    console.log(viz.visual, viz.style, priority, element);
+    priorityHead.appendChild(element.cloneNode(true));
   });
   console.log('Prioritized <head> element', priorityHead);
   console.groupEnd();
 }
 
-visualizePriorities();
+logPriorities();
