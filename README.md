@@ -14,7 +14,7 @@ This script helps you identify which elements are out of order.
 ## How to use it
 
 1. Copy [capo.js](https://raw.githubusercontent.com/rviscomi/capo.js/main/capo.js)
-2. Run it in a new [DevTools snippet](https://developer.chrome.com/docs/devtools/javascript/snippets/)
+2. Run it in a new [DevTools snippet](https://developer.chrome.com/docs/devtools/javascript/snippets/), or use a [bookmarklet](https://caiorss.github.io/bookmarklet-maker/) generator
 3. Explore the console logs
 
 <img width="1552" alt="capo screenshot" src="https://github.com/rviscomi/capo.js/assets/1120896/b29672f9-1f05-4a05-a85e-df27acd153bd">
