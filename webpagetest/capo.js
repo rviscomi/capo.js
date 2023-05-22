@@ -1,5 +1,4 @@
-// Uncomment the following line when running this as a custom metric on webpagetest.org.
-//[capo]
+[capo]
 
 const WPT_BODIES = $WPT_BODIES;
 const RAW_HTML = WPT_BODIES[0].response_body;
@@ -57,12 +56,14 @@ function isImportStyles(element) {
     return importRe.test(element.textContent);
   }
 
-  /* TODO: Support external stylesheets.
   if (element.matches('link[rel=stylesheet][href]')) {
-    let response = fetch(element.href);
-    response = response.text();
-    return importRe.test(response);
-  } */
+    const base = new URL(location.href).origin;
+    const href = element.getAttribute('href');
+    const stylesheet = new URL(href, base).href;
+
+    const entry = WPT_BODIES.find(i => i.url == stylesheet);
+    return importRe.test(entry?.response_body);
+  }
 
   return false;
 }
