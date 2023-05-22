@@ -3,7 +3,7 @@ _Get your `<head>` in order_
 
 Inspired by [Harry Roberts](https://twitter.com/csswizardry)' work on [ct.css](https://csswizardry.com/ct/) and [Vitaly Friedman](https://twitter.com/smashingmag)'s [Nordic.js 2022 presentation](https://youtu.be/uqLl-Yew2o8?t=2873):
 
-![](order.png)
+![image](https://github.com/rviscomi/capo.js/assets/1120896/2319bf3e-21b3-48dd-afcd-a1d379a1daeb)
 
 ## Why it matters
 
