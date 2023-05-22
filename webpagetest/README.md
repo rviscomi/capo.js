@@ -2,7 +2,7 @@
 
 To run this on WebPageTest:
 
-1. Go to webpagetest.org
+1. Go to [webpagetest.org](https://www.webpagetest.org/)
 2. Enter a URL
 3. Paste [webpagetest/capo.js](https://github.com/rviscomi/capo.js/blob/main/webpagetest/capo.js) in the `Custom` tab under advanced settings
 
