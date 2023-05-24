@@ -6,7 +6,7 @@
 
 <img width="1483" alt="Using capo on BigQuery" src="https://github.com/rviscomi/capo.js/assets/1120896/783b1787-210e-4c95-a2f5-1d551afae331">
 
-To analyze pages in HTTP Archive, pass the HTML response body to the [`httparchive.fn.CAPO`](console.cloud.google.com/bigquery?ws=!1m5!1m4!6m3!1shttparchive!2sfn!3sCAPO) function:
+To analyze pages in HTTP Archive, pass the HTML response body to the [`httparchive.fn.CAPO`](https://console.cloud.google.com/bigquery?ws=!1m5!1m4!6m3!1shttparchive!2sfn!3sCAPO) function:
 
 ```sql
 SELECT
