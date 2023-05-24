@@ -10,6 +10,8 @@ To run this on WebPageTest:
 
 On the Details pags of the results, you can extract the actual sort order from the `capo` object. For example, here are the [results](https://www.webpagetest.org/result/230521_BiDcBD_6Y6/1/details/) for almanac.httparchive.org:
 
+<img width="1373" alt="WPT custom metric results" src="https://github.com/rviscomi/capo.js/assets/1120896/c478a486-dace-4996-b129-74d84c5f5efe">
+
 ```js
 [
     "[\"███████████\",10,\"META[charset=\\\"UTF-8\\\"]\"]",
