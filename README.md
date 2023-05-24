@@ -23,6 +23,8 @@ For applications that add lots of dynamic content to the `<head>` on the client,
 
 You can use the [`capo` WebPageTest custom metric](webpagetest/) to evaluate only the server-rendered HTML `<head>`. Note that because this approach doesn't output to the console, we lose the visualization.
 
+You can also use the [`httparchive.fn.CAPO`](bigquery/) function on BigQuery to process HTML response bodies in the HTTP Archive dataset. Similar to the WebPageTest approach, the output is very basic.
+
 Alternatively, you can use local overrides in DevTools to manually inject the capo.js script into the document so that it runs before anything else, eg the first child of `<body>`. Harry Roberts also has a nifty [video](https://www.youtube.com/watch?v=UOn0b5kn3jk) showing how to use this feature. This has some drawbacks as well, for example the inline script might be blocked by CSP.
 
 Another idea would be to use something like Cloudflare workers to inject the script into the HTML stream. To work around CSP issues, you can write the worker in such a way that it parses out the correct `nonce` and adds it to the inline script. _(Note: Not tested, but please share examples if you get it working! _😄_)_
