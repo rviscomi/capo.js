@@ -2,6 +2,7 @@ CREATE OR REPLACE FUNCTION httparchive.fn.CAPO(html STRING)
 RETURNS ARRAY<STRUCT<vizWeight STRING, weight INT64, element STRING>>
 LANGUAGE js
 OPTIONS (library = 'gs://httparchive/lib/cheerio.js') AS '''
+try {
 const $ = cheerio.load(html);
 
 const ElementWeights = {
@@ -105,4 +106,7 @@ return Array.from($('head > *')).map(element => {
     element: stringifyElement(element)
   };
 });
+} catch (e) {
+  return null;
+}
 ''';
