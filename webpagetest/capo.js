@@ -46,7 +46,7 @@ function isPreconnect(element) {
 }
 
 function isAsyncScript(element) {
-  return element.matches('script[async]');
+  return element.matches('script[src][async]');
 }
 
 function isImportStyles(element) {
@@ -81,7 +81,7 @@ function isPreload(element) {
 }
 
 function isDeferScript(element) {
-  return element.matches('script[defer]');
+  return element.matches('script[src][defer]');
 }
 
 function isPrefetchPrerender(element) {

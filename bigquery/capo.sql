@@ -46,7 +46,7 @@ function isPreconnect(element) {
 }
 
 function isAsyncScript(element) {
-  return $(element).is('script[async]');
+  return $(element).is('script[src][async]');
 }
 
 function isImportStyles(element) {
@@ -73,7 +73,7 @@ function isPreload(element) {
 }
 
 function isDeferScript(element) {
-  return $(element).is('script[defer]');
+  return $(element).is('script[src][defer]');
 }
 
 function isPrefetchPrerender(element) {
