@@ -114,4 +114,23 @@ function getHeadWeights() {
   });
 }
 
-return JSON.stringify(getHeadWeights(), null, 2);
+function getSortedHead() {
+  const headChildren = Array.from(RAW_DOCUMENT.head.children);
+  const headWeights = headChildren.map(element => {
+    const weight = getWeight(element);
+    return [weight, element];
+  });
+  const sortedWeights = headWeights.sort((a, b) => {
+    return b[1] - a[1];
+  });
+  const sortedHead = document.createElement('head');
+  sortedWeights.forEach(([weight, element]) => {
+    sortedHead.appendChild(element.cloneNode(true));
+  });
+  return sortedHead.outerHTML;
+}
+
+return JSON.stringify({
+  actual: getHeadWeights(),
+  sorted: getSortedHead()
+}, null, 2);
