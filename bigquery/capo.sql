@@ -61,7 +61,7 @@ function isImportStyles(element) {
 }
 
 function isSyncScript(element) {
-  return $(element).is('script:not([defer],[async],[type*=json])')
+  return $(element).is('script:not([src][defer],[src][async],[type*=json])')
 }
 
 function isSyncStyles(element) {
