@@ -83,7 +83,7 @@ function isSyncStyles(element) {
 }
 
 function isPreload(element) {
-  return element.matches('link[rel=preload]');
+  return element.matches('link:is([rel=preload], [rel=modulepreload])');
 }
 
 function isDeferScript(element) {
