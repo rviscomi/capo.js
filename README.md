@@ -21,6 +21,12 @@ This script helps you identify which elements are out of order.
 
 For applications that add lots of dynamic content to the `<head>` on the client, it'd be more accurate to look at the server-rendered `<head>` instead.
 
+### Chrome extension
+
+![Capo.js Chrome extension](https://github.com/rviscomi/capo.js/assets/1120896/389bcec0-567d-448f-9897-eee5ca373e6b)
+
+WIP see [crx/](crx/)
+
 ### WebPageTest
 
 You can use the [`capo` WebPageTest custom metric](webpagetest/) to evaluate only the server-rendered HTML `<head>`. Note that because this approach doesn't output to the console, we lose the visualization.
