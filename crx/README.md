@@ -1,6 +1,6 @@
 # Chrome extension
 
-![capo-crx](https://github.com/rviscomi/capo.js/assets/1120896/e4b05bb2-1b99-4916-be8e-5d52544d561f)
+![capo.js Chrome extension](https://github.com/rviscomi/capo.js/assets/1120896/db59218f-9785-4e49-9904-66b2ba3cc9e6)
 
 
 Click the Capo.js extension icon to open the `<head>` visualization and log additional info to the console.
