@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Capo: get your <head> in order",
+  "description": "Visualize how optimal the ordering of the <head> element is on any web page.",
+  "version": "1.0.0",
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+  "action": {
+    "default_icon": "images/icon128.png",
+    "default_popup": "capo.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; style-src 'self';"
+  },
+  "icons": {
+    "128": "images/icon128.png",
+    "256": "images/icon256.png"
+  }
+}
