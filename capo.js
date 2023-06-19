@@ -75,7 +75,7 @@ function isImportStyles(element) {
 }
 
 function isSyncScript(element) {
-  return element.matches('script:not([src][defer],[src][type*=module],[src][async],[type*=json])');
+  return element.matches('script:not([src][defer],[src][type=module],[src][async],[type*=json])');
 }
 
 function isSyncStyles(element) {
