@@ -30,7 +30,7 @@ function getCapoHeadElement([weight, element]) {
   span.classList.add('capo-head-element');
   span.dataset.weight = weight;
   span.dataset.element = element;
-  span.title = `[${weight}] ${element}`;
+  span.title = `[${weight + 1}] ${element}`;
   return span;
 }
 
