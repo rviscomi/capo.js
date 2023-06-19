@@ -34,7 +34,7 @@ const ElementDetectors = {
 
 
 function isMeta(element) {
-  return $(element).is('meta:is([charset], [http-equiv], [name=viewport])');
+  return $(element).is('meta:is([charset], [http-equiv], [name=viewport]), base');
 }
 
 function isTitle(element) {
