@@ -42,7 +42,7 @@ const WEIGHT_COLORS = [
 const LOGGING_PREFIX = 'Capo: ';
 
 function isMeta(element) {
-  return element.matches('meta:is([charset], [http-equiv], [name=viewport])');
+  return element.matches('meta:is([charset], [http-equiv], [name=viewport]), base');
 }
 
 function isTitle(element) {
