@@ -226,6 +226,21 @@ function capo() {
     return element.getAttributeNames().reduce((id, attr) => id += `[${attr}="${element.getAttribute(attr)}"]`, element.nodeName);
   }
 
+  function validateHead() {
+    const titleElements = document.querySelectorAll('head title');
+    const titleElementCount = titleElements.length;
+    if (titleElementCount != 1) {
+      console.warn(`${LOGGING_PREFIX}Expected exactly 1 <title> element, found ${titleElementCount}`, titleElements);
+    }
+
+    const baseElements = document.querySelectorAll('head base');
+    const baseElementCount = baseElements.length;
+    if (baseElementCount > 1) {
+      console.warn(`${LOGGING_PREFIX}Expected at most 1 <base> element, found ${baseElementCount}`, baseElements);
+    }
+  }
+
+  validateHead();
   logWeights();
 
   return JSON.stringify({
