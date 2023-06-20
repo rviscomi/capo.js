@@ -141,7 +141,7 @@ function capo() {
   }
   
   function isSyncScript(element) {
-    return element.matches('script:not([src][defer],[src][async],[type*=json])')
+    return element.matches('script:not([src][defer],[src][type=module],[src][async],[type*=json])')
   }
   
   function isSyncStyles(element) {
@@ -153,7 +153,7 @@ function capo() {
   }
   
   function isDeferScript(element) {
-    return element.matches('script[src][defer]');
+    return element.matches('script[src][defer], script:not([src][async])[src][type=module]');
   }
   
   function isPrefetchPrerender(element) {

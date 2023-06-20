@@ -87,7 +87,7 @@ function isPreload(element) {
 }
 
 function isDeferScript(element) {
-  return element.matches('script[src][defer]') || element.matches('script:not([src][async])[src][type=module]');
+  return element.matches('script[src][defer], script:not([src][async])[src][type=module]');
 }
 
 function isPrefetchPrerender(element) {
