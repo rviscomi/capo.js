@@ -13,6 +13,8 @@ This script helps you identify which elements are out of order.
 
 ## How to use it
 
+✨ _New: Install the [Capo Chrome extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb)_ ✨
+
 1. Copy [capo.js](https://raw.githubusercontent.com/rviscomi/capo.js/main/capo.js)
 2. Run it in a new [DevTools snippet](https://developer.chrome.com/docs/devtools/javascript/snippets/), or use a [bookmarklet](https://caiorss.github.io/bookmarklet-maker/) generator
 3. Explore the console logs
