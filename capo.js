@@ -39,7 +39,51 @@ const WEIGHT_COLORS = [
   '#cccccc'
 ];
 
+const VALID_HEAD_ELEMENTS = new Set([
+  'base',
+  'link',
+  'meta',
+  'noscript',
+  'script',
+  'style',
+  'template',
+  'title'
+]);
+
 const LOGGING_PREFIX = 'Capo: ';
+
+
+async function getStaticHTML() {
+  const url = document.location.href;
+  let response = await fetch(url);
+  let responseText = await response.text();
+  return responseText;
+}
+
+let head;
+let isStaticHead = false;
+async function getStaticOrDynamicHead() {
+  if (head) {
+    return head;
+  }
+
+  try {
+    let html = await getStaticHTML();
+    html = html.replace(/(<\/?)(head)/ig, '$1static-head');
+    const staticDoc = document.implementation.createHTMLDocument('New Document');
+    staticDoc.documentElement.innerHTML = html;
+    head = staticDoc.querySelector('static-head');
+    
+    if (head) {
+      isStaticHead = true;
+    } else {
+      head = document.head;
+    }
+  } catch {
+    head = document.head;
+  }
+  return head;
+}
 
 function isMeta(element) {
   return element.matches('meta:is([charset], [http-equiv], [name=viewport]), base');
@@ -105,7 +149,7 @@ function getWeight(element) {
 }
 
 function getHeadWeights() {
-  const headChildren = Array.from(document.head.children);
+  const headChildren = Array.from(head.children);
   return headChildren.map(element => {
     return [element, getWeight(element)];
   });
@@ -131,13 +175,17 @@ function visualizeWeight(weight) {
 function logWeights() {
   const headWeights = getHeadWeights();
   const actualViz = visualizeWeights(headWeights.map(([_, weight]) => weight));
+
+  if (!isStaticHead) {
+    console.warn(`${LOGGING_PREFIX}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, document.head);
+  }
   
   console.groupCollapsed(`${LOGGING_PREFIX}Actual %c<head>%c order\n${actualViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...actualViz.styles);
   headWeights.forEach(([element, weight]) => {
     const viz = visualizeWeight(weight);
     console.log(viz.visual, viz.style, weight + 1, element);
   });
-  console.log('Actual %c<head>%c element', 'font-family: monospace', 'font-family: inherit', document.head);
+  console.log('Actual %c<head>%c element', 'font-family: monospace', 'font-family: inherit', head);
   console.groupEnd();
 
   const sortedWeights = headWeights.sort((a, b) => {
@@ -156,19 +204,33 @@ function logWeights() {
   console.groupEnd();
 }
 
+function isValidElement(element) {
+  return VALID_HEAD_ELEMENTS.has(e.tagName.toLowerCase());
+}
+
 function validateHead() {
-  const titleElements = document.querySelectorAll('head title');
+  const titleElements = head.querySelectorAll('title');
   const titleElementCount = titleElements.length;
   if (titleElementCount != 1) {
     console.warn(`${LOGGING_PREFIX}Expected exactly 1 <title> element, found ${titleElementCount}`, titleElements);
   }
 
-  const baseElements = document.querySelectorAll('head base');
+  const baseElements = head.querySelectorAll('base');
   const baseElementCount = baseElements.length;
   if (baseElementCount > 1) {
     console.warn(`${LOGGING_PREFIX}Expected at most 1 <base> element, found ${baseElementCount}`, baseElements);
   }
+
+  if (!isStaticHead) {
+    return;
+  }
+  Array.from(head.querySelectorAll('*')).forEach(e => {
+    if (!isValidElement(e)) {
+      console.warn(`${LOGGING_PREFIX}Invalid element`, e);
+    }
+  });
 }
 
+await getStaticOrDynamicHead();
 validateHead();
 logWeights();
