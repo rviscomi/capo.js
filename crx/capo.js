@@ -25,89 +25,37 @@ function print(result) {
   document.body.addEventListener('click', handleCapoClick);
 }
 
-function getCapoHeadElement({weight, selector, isValid}) {
+function getCapoHeadElement({weight, selector, innerHTML, isValid}) {
   const span = document.createElement('span');
   span.classList.add('capo-head-element');
   span.classList.toggle('invalid', !isValid);
   span.dataset.weight = weight;
   span.dataset.selector = selector;
+  span.dataset.innerHTML = innerHTML;
   span.title = `[${weight + 1}] ${selector}`;
   return span;
 }
 
 async function handleCapoClick(event) {
-  const {weight, selector} = event.target.dataset;
+  const {weight, selector, innerHTML} = event.target.dataset;
   const isValid = !event.target.classList.contains('invalid');
   console.log('capo', weight, selector);
   const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
   await chrome.scripting.executeScript({
     target: {tabId: tab.id},
-    args: [weight, selector, isValid],
-    // TODO: Call capo again, but with args that tell it which inner function to run, reusing its code.
-    func: (weight, selector, isValid) => {
-      /* Note: AI-generated function. */
-      function createElementFromSelector(selector) {
-        // Extract the tag name from the selector
-        const tagName = selector.match(/^[A-Za-z]+/)[0];
-
-        if (!tagName) {
-          return;
-        }
-      
-        // Create the new element
-        const element = document.createElement(tagName);
-      
-        // Extract the attribute key-value pairs from the selector
-        const attributes = selector.match(/\[([A-Za-z-]+)="([^"]+)"\]/g) || [];
-      
-        // Set the attributes on the new element
-        attributes.forEach(attribute => {
-          const [key, value] = attribute
-            .replace('[', '')
-            .replace(']', '')
-            .split('=');
-          element.setAttribute(key, value.slice(1, -1));
-        });
-      
-        return element;
-      }
-      
-      weight = +weight;
-      const WEIGHT_COLORS = [
-        '#9e0142',
-        '#d53e4f',
-        '#f46d43',
-        '#fdae61',
-        '#fee08b',
-        '#e6f598',
-        '#abdda4',
-        '#66c2a5',
-        '#3288bd',
-        '#5e4fa2',
-        '#cccccc'
-      ];
-      const visual = `%c${new Array(weight + 1).fill('█').join('')}`;
-      const style = `color: ${WEIGHT_COLORS[10 - weight]}`;
-      // Try to find the element in the live document.
-      let element = document.head.querySelector(selector);
-      // Otherwise recreate it.
-      if (!element) {
-        element = createElementFromSelector(selector);
-      }
-      // If all else fails, just use the selector.
-      if (!element) {
-        element = selector;
-      }
-      if (isValid) {
-        console.log(`Capo: ${visual}`, style, weight + 1, element);
-      } else {
-        console.warn(`Capo: ${visual}`, style, weight + 1, element, '❌ invalid element');
-      }
-    }
+    args: [{
+      fn: 'logElement',
+      args: [weight, selector, innerHTML, isValid]
+    }],
+    func: capo
   });
 }
 
-async function capo() {
+async function capo({fn, args}={}) {
+  const FN_EXPORTS = {
+    logElement
+  };
+
   const ElementWeights = {
     META: 10,
     TITLE: 9,
@@ -321,6 +269,33 @@ async function capo() {
   function stringifyElement(element) {
     return element.getAttributeNames().reduce((id, attr) => id += `[${attr}=${JSON.stringify(element.getAttribute(attr))}]`, element.nodeName);
   }
+
+  // Note: AI-generated function.
+  function createElementFromSelector(selector) {
+    // Extract the tag name from the selector
+    const tagName = selector.match(/^[A-Za-z]+/)[0];
+
+    if (!tagName) {
+      return;
+    }
+  
+    // Create the new element
+    const element = document.createElement(tagName);
+  
+    // Extract the attribute key-value pairs from the selector
+    const attributes = selector.match(/\[([A-Za-z-]+)="([^"]+)"\]/g) || [];
+  
+    // Set the attributes on the new element
+    attributes.forEach(attribute => {
+      const [key, value] = attribute
+        .replace('[', '')
+        .replace(']', '')
+        .split('=');
+      element.setAttribute(key, value.slice(1, -1));
+    });
+  
+    return element;
+  }
   
   function getLoggableElement(element) {
     if (!isStaticHead) {
@@ -351,6 +326,19 @@ async function capo() {
     }
     
     return element;
+  }
+
+  function logElement(weight, selector, innerHTML, isValid) {
+    const viz = visualizeWeight(weight);
+    let element = createElementFromSelector(selector);
+    element.innerHTML = innerHTML;
+    element = getLoggableElement(element);
+
+    if (isValid) {
+      console.log(viz.visual, viz.style, weight + 1, element);
+    } else {
+      console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
+    }
   }
 
   function isValidElement(element) {
@@ -416,6 +404,11 @@ async function capo() {
   }
 
   await getStaticOrDynamicHead();
+
+  if (fn in FN_EXPORTS) {
+    return FN_EXPORTS[fn](...args);
+  }
+
   validateHead();
   logWeights();
 
@@ -423,6 +416,7 @@ async function capo() {
     actual: getHeadWeights().map(([element, weight, isValid]) => ({
       weight,
       selector: stringifyElement(element),
+      innerHTML: element.innerHTML,
       isValid
     })),
   }, null, 2);
