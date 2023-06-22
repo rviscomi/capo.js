@@ -110,16 +110,17 @@ async function capo({fn, args}={}) {
   
   const LOGGING_PREFIX = 'Capo: ';
 
-
+  let head;
+  
+  let isStaticHead = false;
+  
+  
   async function getStaticHTML() {
     const url = document.location.href;
-    let response = await fetch(url);
-    let responseText = await response.text();
-    return responseText;
+    const response = await fetch(url);
+    return await response.text();
   }
   
-  let head;
-  let isStaticHead = false;
   async function getStaticOrDynamicHead() {
     if (head) {
       return head;
