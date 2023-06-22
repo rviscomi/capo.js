@@ -337,8 +337,9 @@ async function capo() {
     // The way the static elements are parsed makes their innerHTML different.
     // Recreate the element in DOM and compare its innerHTML with those of the candidates.
     // This ensures a consistent parsing and positive string matches.
+    const candidateWrapper = document.createElement('div');
     const elementWrapper = document.createElement('div');
-    let candidateWrapper = document.createElement('div');
+    elementWrapper.innerHTML = element.innerHTML;
     const candidate = candidates.find(c => {
       candidateWrapper.innerHTML = c.innerHTML;
       return candidateWrapper.innerHTML == elementWrapper.innerHTML;
