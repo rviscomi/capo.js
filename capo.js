@@ -39,7 +39,52 @@ const WEIGHT_COLORS = [
   '#cccccc'
 ];
 
+const VALID_HEAD_ELEMENTS = new Set([
+  'base',
+  'link',
+  'meta',
+  'noscript',
+  'script',
+  'style',
+  'template',
+  'title'
+]);
+
 const LOGGING_PREFIX = 'Capo: ';
+
+let head;
+
+let isStaticHead = false;
+
+
+async function getStaticHTML() {
+  const url = document.location.href;
+  const response = await fetch(url);
+  return await response.text();
+}
+
+async function getStaticOrDynamicHead() {
+  if (head) {
+    return head;
+  }
+
+  try {
+    let html = await getStaticHTML();
+    html = html.replace(/(<\/?)(head)/ig, '$1static-head');
+    const staticDoc = document.implementation.createHTMLDocument('New Document');
+    staticDoc.documentElement.innerHTML = html;
+    head = staticDoc.querySelector('static-head');
+    
+    if (head) {
+      isStaticHead = true;
+    } else {
+      head = document.head;
+    }
+  } catch {
+    head = document.head;
+  }
+  return head;
+}
 
 function isMeta(element) {
   return element.matches('meta:is([charset], [http-equiv], [name=viewport]), base');
@@ -105,9 +150,9 @@ function getWeight(element) {
 }
 
 function getHeadWeights() {
-  const headChildren = Array.from(document.head.children);
+  const headChildren = Array.from(head.children);
   return headChildren.map(element => {
-    return [element, getWeight(element)];
+    return [getLoggableElement(element), getWeight(element), isValidElement(element)];
   });
 }
 
@@ -115,7 +160,7 @@ function visualizeWeights(weights) {
   const visual = weights.map(_ => '%c ').join('');
   const styles = weights.map(weight => {
     const color = WEIGHT_COLORS[10 - weight];
-    return `background-color: ${color}; padding: 5px; margin: -1px;`
+    return `background-color: ${color}; padding: 5px; margin: 0 -1px;`
   });
 
   return {visual, styles};
@@ -128,16 +173,59 @@ function visualizeWeight(weight) {
   return {visual, style};
 }
 
+function stringifyElement(element) {
+  return element.getAttributeNames().reduce((id, attr) => id += `[${attr}=${JSON.stringify(element.getAttribute(attr))}]`, element.nodeName);
+}
+  
+function getLoggableElement(element) {
+  if (!isStaticHead) {
+    return element;
+  }
+
+  const selector = stringifyElement(element);
+  const candidates = Array.from(document.head.querySelectorAll(selector));
+  if (candidates.length == 0) {
+    return element;
+  }
+  if (candidates.length == 1) {
+    return candidates[0];
+  }
+
+  // The way the static elements are parsed makes their innerHTML different.
+  // Recreate the element in DOM and compare its innerHTML with those of the candidates.
+  // This ensures a consistent parsing and positive string matches.
+  const candidateWrapper = document.createElement('div');
+  const elementWrapper = document.createElement('div');
+  elementWrapper.innerHTML = element.innerHTML;
+  const candidate = candidates.find(c => {
+    candidateWrapper.innerHTML = c.innerHTML;
+    return candidateWrapper.innerHTML == elementWrapper.innerHTML;
+  });
+  if (candidate) {
+    return candidate;
+  }
+  
+  return element;
+}
+
 function logWeights() {
   const headWeights = getHeadWeights();
   const actualViz = visualizeWeights(headWeights.map(([_, weight]) => weight));
+
+  if (!isStaticHead) {
+    console.warn(`${LOGGING_PREFIX}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, document.head);
+  }
   
   console.groupCollapsed(`${LOGGING_PREFIX}Actual %c<head>%c order\n${actualViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...actualViz.styles);
-  headWeights.forEach(([element, weight]) => {
+  headWeights.forEach(([element, weight, isValid]) => {
     const viz = visualizeWeight(weight);
-    console.log(viz.visual, viz.style, weight + 1, element);
+    if (isStaticHead && !isValid) {
+      console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
+    } else {
+      console.log(viz.visual, viz.style, weight + 1, element);
+    }
   });
-  console.log('Actual %c<head>%c element', 'font-family: monospace', 'font-family: inherit', document.head);
+  console.log('Actual %c<head>%c element', 'font-family: monospace', 'font-family: inherit', head);
   console.groupEnd();
 
   const sortedWeights = headWeights.sort((a, b) => {
@@ -147,28 +235,81 @@ function logWeights() {
   
   console.groupCollapsed(`${LOGGING_PREFIX}Sorted %c<head>%c order\n${sortedViz.visual}`, 'font-family: monospace', 'font-family: inherit', ...sortedViz.styles);
   const sortedHead = document.createElement('head');
-  sortedWeights.forEach(([element, weight]) => {
+  sortedWeights.forEach(([element, weight, isValid]) => {
     const viz = visualizeWeight(weight);
-    console.log(viz.visual, viz.style, weight + 1, element);
+    if (isStaticHead && !isValid) {
+      console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
+    } else {
+      console.log(viz.visual, viz.style, weight + 1, element);
+    }
     sortedHead.appendChild(element.cloneNode(true));
   });
   console.log('Sorted %c<head>%c element', 'font-family: monospace', 'font-family: inherit', sortedHead);
   console.groupEnd();
 }
 
+function isValidElement(element) {
+  // Element itself is not valid.
+  if (!VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase())) {
+    return false;
+  }
+  
+  // Children are not valid.
+  if (element.matches(`:has(:not(${Array.from(VALID_HEAD_ELEMENTS).join(', ')}))`)) {
+    return false;
+  }
+
+  // <title> is not the first of its type.
+  if (element.matches('title:is(:nth-of-type(n+2))')) {
+    return false;
+  }
+
+  // <base> is not the first of its type.
+  if (element.matches('base:is(:nth-of-type(n+2))')) {
+    return false;
+  }
+
+  // CSP meta tag comes after a script.
+  if (element.matches('script ~ meta[http-equiv="Content-Security-Policy" i]')) {
+    return false;
+  }
+
+  return true;
+}
+
 function validateHead() {
-  const titleElements = document.querySelectorAll('head title');
+  const titleElements = Array.from(head.querySelectorAll('title')).map(getLoggableElement);
   const titleElementCount = titleElements.length;
   if (titleElementCount != 1) {
     console.warn(`${LOGGING_PREFIX}Expected exactly 1 <title> element, found ${titleElementCount}`, titleElements);
   }
 
-  const baseElements = document.querySelectorAll('head base');
+  const baseElements = Array.from(head.querySelectorAll('base')).map(getLoggableElement);
   const baseElementCount = baseElements.length;
   if (baseElementCount > 1) {
     console.warn(`${LOGGING_PREFIX}Expected at most 1 <base> element, found ${baseElementCount}`, baseElements);
   }
+
+  const postScriptCSP = head.querySelector('script ~ meta[http-equiv="Content-Security-Policy" i]');
+  if (postScriptCSP) {
+    console.warn(`${LOGGING_PREFIX}CSP meta tag must be placed before any <script> elements to avoid disabling the preload scanner.`, getLoggableElement(postScriptCSP));
+  }
+
+  if (!isStaticHead) {
+    return;
+  }
+  head.querySelectorAll('*').forEach(element => {
+    if (VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase())) {
+      return;
+    }
+    let root = element;
+    while (root.parentElement != head) {
+      root = root.parentElement;
+    }
+    console.warn(`${LOGGING_PREFIX}${element.tagName} elements are not allowed in the <head>`, getLoggableElement(root));
+  });
 }
 
+await getStaticOrDynamicHead();
 validateHead();
 logWeights();
