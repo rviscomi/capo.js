@@ -329,15 +329,16 @@ async function capo({fn, args}={}) {
   }
 
   function logElement(weight, selector, innerHTML, isValid) {
+    weight = +weight;
     const viz = visualizeWeight(weight);
     let element = createElementFromSelector(selector);
     element.innerHTML = innerHTML;
     element = getLoggableElement(element);
 
     if (isValid) {
-      console.log(viz.visual, viz.style, weight + 1, element);
+      console.log(`${LOGGING_PREFIX}${viz.visual}`, viz.style, weight + 1, element);
     } else {
-      console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
+      console.warn(`${LOGGING_PREFIX}${viz.visual}`, viz.style, weight + 1, element, '❌ invalid element');
     }
   }
 
