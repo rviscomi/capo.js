@@ -37,14 +37,14 @@ function getCapoHeadElement({weight, selector, isValid}) {
 
 async function handleCapoClick(event) {
   const {weight, selector} = event.target.dataset;
-  const invalid = event.target.classList.contains('invalid');
+  const isValid = !event.target.classList.contains('invalid');
   console.log('capo', weight, selector);
   const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
-  const [{result}] = await chrome.scripting.executeScript({
+  await chrome.scripting.executeScript({
     target: {tabId: tab.id},
-    args: [weight, selector],
+    args: [weight, selector, isValid],
     // TODO: Call capo again, but with args that tell it which inner function to run, reusing its code.
-    func: (weight, selector) => {
+    func: (weight, selector, isValid) => {
       /* Note: AI-generated function. */
       function createElementFromSelector(selector) {
         // Extract the tag name from the selector
@@ -98,7 +98,11 @@ async function handleCapoClick(event) {
       if (!element) {
         element = selector;
       }
-      console.log(`Capo: ${visual}`, style, weight + 1, element)
+      if (isValid) {
+        console.log(`Capo: ${visual}`, style, weight + 1, element);
+      } else {
+        console.warn(`Capo: ${visual}`, style, weight + 1, element, '❌ invalid element');
+      }
     }
   });
 }
@@ -257,7 +261,7 @@ async function capo() {
   function getHeadWeights() {
     const headChildren = Array.from(head.children);
     return headChildren.map(element => {
-      return [getLoggableElement(element), getWeight(element)];
+      return [getLoggableElement(element), getWeight(element), isValidElement(element)];
     });
   }
   
@@ -283,9 +287,8 @@ async function capo() {
     const actualViz = visualizeWeights(headWeights.map(([_, weight]) => weight));
     
     console.groupCollapsed(`${LOGGING_PREFIX}Actual %c<head>%c order\n${actualViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...actualViz.styles);
-    headWeights.forEach(([element, weight]) => {
+    headWeights.forEach(([element, weight, isValid]) => {
       const viz = visualizeWeight(weight);
-      const isValid = isValidElement(element);
       if (isStaticHead && !isValid) {
         console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
       } else {
@@ -302,9 +305,8 @@ async function capo() {
     
     console.groupCollapsed(`${LOGGING_PREFIX}Sorted %c<head>%c order\n${sortedViz.visual}`, 'font-family: monospace', 'font-family: inherit', ...sortedViz.styles);
     const sortedHead = document.createElement('head');
-    sortedWeights.forEach(([element, weight]) => {
+    sortedWeights.forEach(([element, weight, isValid]) => {
       const viz = visualizeWeight(weight);
-      const isValid = isValidElement(element);
       if (isStaticHead && !isValid) {
         console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
       } else {
@@ -361,7 +363,22 @@ async function capo() {
     if (element.matches(`:has(:not(${Array.from(VALID_HEAD_ELEMENTS).join(', ')}))`)) {
       return false;
     }
-
+  
+    // <title> is not the first of its type.
+    if (element.matches('title:is(:nth-of-type(n+2))')) {
+      return false;
+    }
+  
+    // <base> is not the first of its type.
+    if (element.matches('base:is(:nth-of-type(n+2))')) {
+      return false;
+    }
+  
+    // CSP meta tag comes after a script.
+    if (element.matches('script ~ meta[http-equiv="Content-Security-Policy" i]')) {
+      return false;
+    }
+  
     return true;
   }
 
@@ -403,10 +420,10 @@ async function capo() {
   logWeights();
 
   return JSON.stringify({
-    actual: getHeadWeights().map(([element, weight]) => ({
+    actual: getHeadWeights().map(([element, weight, isValid]) => ({
       weight,
       selector: stringifyElement(element),
-      isValid: isValidElement(element)
+      isValid
     })),
   }, null, 2);
 }

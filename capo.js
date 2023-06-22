@@ -151,7 +151,7 @@ function getWeight(element) {
 function getHeadWeights() {
   const headChildren = Array.from(head.children);
   return headChildren.map(element => {
-    return [getLoggableElement(element), getWeight(element)];
+    return [getLoggableElement(element), getWeight(element), isValidElement(element)];
   });
 }
 
@@ -216,9 +216,8 @@ function logWeights() {
   }
   
   console.groupCollapsed(`${LOGGING_PREFIX}Actual %c<head>%c order\n${actualViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...actualViz.styles);
-  headWeights.forEach(([element, weight]) => {
+  headWeights.forEach(([element, weight, isValid]) => {
     const viz = visualizeWeight(weight);
-    const isValid = isValidElement(element);
     if (isStaticHead && !isValid) {
       console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
     } else {
@@ -235,9 +234,8 @@ function logWeights() {
   
   console.groupCollapsed(`${LOGGING_PREFIX}Sorted %c<head>%c order\n${sortedViz.visual}`, 'font-family: monospace', 'font-family: inherit', ...sortedViz.styles);
   const sortedHead = document.createElement('head');
-  sortedWeights.forEach(([element, weight]) => {
+  sortedWeights.forEach(([element, weight, isValid]) => {
     const viz = visualizeWeight(weight);
-    const isValid = isValidElement(element);
     if (isStaticHead && !isValid) {
       console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
     } else {
@@ -257,6 +255,21 @@ function isValidElement(element) {
   
   // Children are not valid.
   if (element.matches(`:has(:not(${Array.from(VALID_HEAD_ELEMENTS).join(', ')}))`)) {
+    return false;
+  }
+
+  // <title> is not the first of its type.
+  if (element.matches('title:is(:nth-of-type(n+2))')) {
+    return false;
+  }
+
+  // <base> is not the first of its type.
+  if (element.matches('base:is(:nth-of-type(n+2))')) {
+    return false;
+  }
+
+  // CSP meta tag comes after a script.
+  if (element.matches('script ~ meta[http-equiv="Content-Security-Policy" i]')) {
     return false;
   }
 
