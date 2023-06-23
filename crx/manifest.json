@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Capo: get your <head> in order",
-  "description": "Visualize the optimal ordering of <head> elements on any web page",
+  "name": "Capo: get your &lt;head&gt; in order",
+  "description": "Visualize the optimal ordering of &lt;head&gt; elements on any web page",
   "version": "1.2.0",
   "permissions": [
     "scripting",
