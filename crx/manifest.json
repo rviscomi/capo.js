@@ -5,12 +5,14 @@
   "version": "1.2.0",
   "permissions": [
     "scripting",
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
   "action": {
     "default_icon": "images/icon128.png",
     "default_popup": "capo.html"
   },
+  "options_page": "options/options.html",
   "content_security_policy": {
     "extension_pages": "default-src 'self'; style-src 'self';"
   },
