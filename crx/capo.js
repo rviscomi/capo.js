@@ -230,6 +230,16 @@ async function capo({fn, args}={}) {
   
     return {visual, style};
   }
+
+  function decodeToken(token) {
+    const buf = base64decode(token);
+    const view = new DataView(buf.buffer)
+    const version = view.getUint8()
+    const signature = buf.slice(1, 65)
+    const length = view.getUint32(65, false)
+    const payload = JSON.parse((new TextDecoder()).decode(buf.slice(69, 69 + length)))
+    return {payload, version, length, signature}
+}
   
   function logWeights() {
     const headWeights = getHeadWeights();
@@ -241,7 +251,12 @@ async function capo({fn, args}={}) {
       if (isStaticHead && !isValid) {
         console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
       } else {
-        console.log(viz.visual, viz.style, weight + 1, element);
+        let args = [viz.visual, viz.style, weight + 1, element];
+        if (element.matches('meta[http-equiv="origin-trial"i]')) {
+          const {payload} = decodeToken(element.content);
+          args.push(payload);
+        }
+        console.log(...args);
       }
     });
     console.log('Actual %c<head>%c element', 'font-family: monospace', 'font-family: inherit', head);
