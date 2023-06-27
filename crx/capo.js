@@ -260,12 +260,17 @@ async function capo({fn, args}={}) {
 
     if (isOriginTrial(element)) {
       const token = element.getAttribute('content');
-      const payload = decodeToken(token);
-      args.push(payload);
+      try {
+        const payload = decodeToken(token);
+        args.push(payload);
 
-      if (payload.expiry < new Date()) {
+        if (payload.expiry < new Date()) {
+          loggingLevel = 'warn';
+          args.push('❌ expired');
+        }
+      } catch {
         loggingLevel = 'warn';
-        args.push('❌ expired');
+        args.push('❌ invalid token');
       }
     }
 

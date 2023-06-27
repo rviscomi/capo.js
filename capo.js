@@ -240,14 +240,14 @@ function logElement({viz, weight, element, isValid, omitPrefix = false}) {
     try {
       const payload = decodeToken(token);
       args.push(payload);
+
+      if (payload.expiry < new Date()) {
+        loggingLevel = 'warn';
+        args.push('❌ expired');
+      }
     } catch {
       loggingLevel = 'warn';
       args.push('❌ invalid token');
-    }
-
-    if (payload.expiry < new Date()) {
-      loggingLevel = 'warn';
-      args.push('❌ expired');
     }
   }
 
