@@ -1,14 +1,13 @@
 ---
 title: Get your &lt;head> in order
 description: Getting starting with capo.js
-template: splash
 hero:
   tagline: Getting started with capo.js
   image:
     file: ../../assets/capo256.png
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Take the quick start guide
+      link: /guides/quick-start/
       icon: right-arrow
       variant: primary
     - text: Browse the source
@@ -18,13 +17,15 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-Inspired by [Harry Roberts](https://twitter.com/csswizardry)' work on [ct.css](https://csswizardry.com/ct/) and [Vitaly Friedman](https://twitter.com/smashingmag)'s [Nordic.js 2022 presentation](https://youtu.be/uqLl-Yew2o8?t=2873).
+:::tip[Inspiration]
+This tool was directly inspired by [Harry Roberts](https://twitter.com/csswizardry)' work on [ct.css](https://csswizardry.com/ct/) and [Vitaly Friedman](https://twitter.com/vitalyf)'s [2022 presentation](https://youtu.be/uqLl-Yew2o8?t=2873) at Nordic.js.
+:::
 
 ## Why it matters
 
 How you order elements in the `<head>` can have an effect on the (perceived) performance of the page.
 
-This script helps you identify which elements are out of order.
+Capo helps you identify which elements are out of order.
 
 ## How to use it
 
@@ -66,19 +67,19 @@ Each "weight" has a corresponding color, with red being the highest and blue/gre
 
 Here are a few examples.
 
-### www.nytimes.com
+### `www.nytimes.com`
 
 <img width="1314" alt="image" src="https://github.com/rviscomi/capo.js/assets/1120896/5c19e758-9f88-42c1-81e8-9f757a6c92be"/>
 
-### docs.github.io
+### `docs.github.io`
 
 <img width="819" alt="image" src="https://github.com/rviscomi/capo.js/assets/1120896/798a0e99-04dd-4d27-a241-b5d77320a46e"/>
 
-### web.dev
+### `web.dev`
 
 <img width="842" alt="image" src="https://github.com/rviscomi/capo.js/assets/1120896/fe6bb67c-697a-4fdf-aa28-52429239fcf5"/>
 
-## stackoverflow.com
+### `stackoverflow.com`
 
 <img width="626" alt="image" src="https://github.com/rviscomi/capo.js/assets/1120896/8964fed2-e933-4795-ada6-79c56cbc416d"/>
 
@@ -86,7 +87,7 @@ Here are a few examples.
 
 Expanding the actual or sorted views reveals the detailed view. This includes an itemized list of each `<head>` element and its weight as well as a reference to the actual or sorted `<head>` element.
 
-### www.nytimes.com
+### `www.nytimes.com`
 
 Here you can see a drilled-down view of the end of the `<head>` for the NYT site, where high impact origin trial meta elements are set too late.
 
