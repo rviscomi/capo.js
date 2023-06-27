@@ -245,6 +245,10 @@ async function capo({fn, args}={}) {
     return payload;
   }
 
+  function isSameOrigin(a, b) {
+    return new URL(a).origin === new URL(b).origin;
+  }
+
   function logElement({viz, weight, element, isValid, omitPrefix = false}) {
     if (!omitPrefix) {
       viz.visual = `${LOGGING_PREFIX}${viz.visual}`;
@@ -267,6 +271,10 @@ async function capo({fn, args}={}) {
         if (payload.expiry < new Date()) {
           loggingLevel = 'warn';
           args.push('❌ expired');
+        }
+        if (!isSameOrigin(payload.origin, document.location.href)) {
+          loggingLevel = 'warn';
+          args.push('❌ invalid origin');
         }
       } catch {
         loggingLevel = 'warn';
