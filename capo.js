@@ -279,7 +279,7 @@ function logElement({viz, weight, element, isValid, omitPrefix = false}) {
         loggingLevel = 'warn';
         args.push('❌ expired');
       }
-      if (!isSameOrigin(payload.origin, document.location.href)) {
+      if (!payload.isThirdParty && !isSameOrigin(payload.origin, document.location.href)) {
         loggingLevel = 'warn';
         args.push('❌ invalid origin');
       }
