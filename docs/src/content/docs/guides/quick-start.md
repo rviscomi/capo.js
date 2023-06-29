@@ -3,36 +3,52 @@ title: Quick start guide to capo.js
 description: What's Capo, how do you use it, and why should you care?
 ---
 
-:::tip[Inspiration]
-This tool was directly inspired by [Harry Roberts](https://twitter.com/csswizardry)' work on [ct.css](https://csswizardry.com/ct/) and [Vitaly Friedman](https://twitter.com/vitalyf)'s [2022 presentation](https://youtu.be/uqLl-Yew2o8?t=2873) at Nord.
-:::
+`capo.js` is a tool for assessing the quality of the document `<head>`. You can run it in your browser as a Chrome extension or DevTools snippet, in a testing environment like WebPageTest, or an analytical datastore like BigQuery.
 
-Capo.js is a tool for assessing the quality of the document `<head>`. You can run it in your browser as a Chrome extension or DevTools snippet, in a testing environment like WebPageTest, or analytical datastore like BigQuery.
+An unoptimized `<head>` can lead to poor performance and a poor user experience. `capo.js` can help you identify and fix these issues.
 
-An unoptimized `<head>` can lead to poor performance and a poor user experience. Capo.js can help you identify and fix these issues.
-
-## _Veloce_ 
+## _Veloce_: Chrome extension
 
 :::note[Recommended]
-The [Capo extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) is the recommended way to use capo.js.
+The [Capo extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) is the easiest way to use `capo.js`.
 :::
 
-The fastest way to start using capo.js is to install the [Capo extension for Chrome](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb):
+The best way to start using `capo.js` is to install the [Capo extension for Chrome](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb):
 
 1. Navigate to the [Capo extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) in the Chrome Web Store
 2. Click the **Add to Chrome** button
 3. On any page, click the Capo icon (&lt;👤>) in the browser toolbar
+    - Open the DevTools Console to see additional logs
 
 Learn more about [using the extension](/guides/extension/) and interpreting the results.
 
-## _Svelto_
+## _Svelto_: Snippet
 
-The next best way to use capo.js is as a executable snippet in your browser.
+The next best way to use `capo.js` is as an executable snippet in your browser.
 
-## _Rapido_
+1. Copy the [`capo.js` snippet](https://raw.githubusercontent.com/rviscomi/capo.js/main/capo.js)
+2. Save as a new DevTools snippet
+    - Open the DevTools Sources panel
+    - Create a new snippet
+    - Paste the snippet into the editor
+    - Save as "Capo"
+3. Run the snippet on any web page
+    - Open the DevTools Console panel
+    - Select the "Capo" snippet
+    - Click the "Run" button (or <kbd>Cmd</kbd> + <kbd>Enter</kbd>)
 
-- WebPageTest
+Alternatively, you can save the snippet as a bookmarklet:
 
-## _Forte_
+1. Copy the [`capo.js` snippet](https://raw.githubusercontent.com/rviscomi/capo.js/main/capo.js)
+2. Create the bookmarklet using a tool like [this one](https://caiorss.github.io/bookmarklet-maker/)
+3. Execute the bookmarklet on any web page to run `capo.js`
 
-- BigQuery 
+Learn more about [using the snippet](/guides/snippet/).
+
+## _Rapido_: WebPageTest
+
+Coming soon
+
+## _Forte_: BigQuery
+
+Coming soon
