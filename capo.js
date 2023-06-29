@@ -314,9 +314,9 @@ function isValidElement(element) {
   if (element.matches('base:is(:nth-of-type(n+2))')) {
     return false;
   }
-
-  // CSP meta tag comes after a script.
-  if (element.matches('script ~ meta[http-equiv="Content-Security-Policy" i]')) {
+  
+  // CSP meta tag anywhere.
+  if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) {
     return false;
   }
 
@@ -335,10 +335,10 @@ function validateHead() {
   if (baseElementCount > 1) {
     console.warn(`${LOGGING_PREFIX}Expected at most 1 <base> element, found ${baseElementCount}`, baseElements);
   }
-
-  const postScriptCSP = head.querySelector('script ~ meta[http-equiv="Content-Security-Policy" i]');
-  if (postScriptCSP) {
-    console.warn(`${LOGGING_PREFIX}CSP meta tag must be placed before any <script> elements to avoid disabling the preload scanner.`, getLoggableElement(postScriptCSP));
+  
+  const metaCSP = head.querySelector('meta[http-equiv="Content-Security-Policy" i]');
+  if (metaCSP) {
+    console.warn(`${LOGGING_PREFIX}CSP meta tags disable the preload scanner due to a bug in Chrome. Use the CSP header instead. Learn more: https://crbug.com/1458493`, getLoggableElement(metaCSP));
   }
 
   if (!isStaticHead) {

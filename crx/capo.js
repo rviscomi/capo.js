@@ -200,6 +200,10 @@ async function capo({fn, args}={}) {
   function isOriginTrial(element) {
     return element.matches('meta[http-equiv="origin-trial"i]');
   }
+
+  function isMetaCSP(element) {
+    return element.matches('meta[http-equiv="Content-Security-Policy" i]');
+  }
   
   function getWeight(element) {
     for ([id, detector] of Object.entries(ElementDetectors)) {
@@ -257,7 +261,11 @@ async function capo({fn, args}={}) {
     let loggingLevel = 'log';
     const args = [viz.visual, viz.style, weight + 1, element];
 
-    if (isStaticHead && !isValid) {
+
+    if (isMetaCSP(element)) {
+      loggingLevel = 'warn';
+      args.push('❌ meta CSP discouraged. See https://crbug.com/1458493.')
+    } else if (isStaticHead && !isValid) {
       loggingLevel = 'warn';
       args.push('❌ invalid element');
     }
@@ -406,8 +414,8 @@ async function capo({fn, args}={}) {
       return false;
     }
   
-    // CSP meta tag comes after a script.
-    if (element.matches('script ~ meta[http-equiv="Content-Security-Policy" i]')) {
+    // CSP meta tag anywhere.
+    if (isMetaCSP(element)) {
       return false;
     }
   
@@ -427,9 +435,9 @@ async function capo({fn, args}={}) {
       console.warn(`${LOGGING_PREFIX}Expected at most 1 <base> element, found ${baseElementCount}`, baseElements);
     }
   
-    const postScriptCSP = head.querySelector('script ~ meta[http-equiv="Content-Security-Policy" i]');
-    if (postScriptCSP) {
-      console.warn(`${LOGGING_PREFIX}CSP meta tag must be placed before any <script> elements to avoid disabling the preload scanner.`, getLoggableElement(postScriptCSP));
+    const metaCSP = head.querySelector('meta[http-equiv="Content-Security-Policy" i]');
+    if (metaCSP) {
+      console.warn(`${LOGGING_PREFIX}CSP meta tags disable the preload scanner due to a bug in Chrome. Use the CSP header instead. Learn more: https://crbug.com/1458493`, getLoggableElement(metaCSP));
     }
   
     if (!isStaticHead) {
