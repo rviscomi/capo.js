@@ -143,6 +143,10 @@ function isOriginTrial(element) {
   return element.matches('meta[http-equiv="origin-trial"i]');
 }
 
+function isMetaCSP(element) {
+  return element.matches('meta[http-equiv="Content-Security-Policy" i]');
+}
+
 function getWeight(element) {
   for ([id, detector] of Object.entries(ElementDetectors)) {
     if (detector(element)) {
@@ -234,7 +238,10 @@ function logElement({viz, weight, element, isValid, omitPrefix = false}) {
   let loggingLevel = 'log';
   const args = [viz.visual, viz.style, weight + 1, element];
 
-  if (isStaticHead && !isValid) {
+  if (isMetaCSP(element)) {
+    loggingLevel = 'warn';
+    args.push('❌ meta CSP discouraged. See https://crbug.com/1458493.')
+  } else if (isStaticHead && !isValid) {
     loggingLevel = 'warn';
     args.push('❌ invalid element');
   }
@@ -316,7 +323,7 @@ function isValidElement(element) {
   }
   
   // CSP meta tag anywhere.
-  if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) {
+  if (isMetaCSP(element)) {
     return false;
   }
 
