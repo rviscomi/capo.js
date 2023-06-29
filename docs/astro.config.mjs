@@ -2,6 +2,8 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 export default defineConfig({
+  site: 'https://rviscomi.github.io',
+  base: '/capo.js',
   integrations: [
     starlight({
       title: 'capo.js',
