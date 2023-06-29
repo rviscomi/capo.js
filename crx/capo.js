@@ -44,7 +44,7 @@ async function handleCapoClick(event) {
   await chrome.scripting.executeScript({
     target: {tabId: tab.id},
     args: [{
-      fn: 'logElement',
+      fn: 'logElementFromSelector',
       args: [weight, selector, innerHTML, isValid]
     }],
     func: capo
@@ -53,7 +53,7 @@ async function handleCapoClick(event) {
 
 async function capo({fn, args}={}) {
   const FN_EXPORTS = {
-    logElement
+    logElementFromSelector
   };
 
   const ElementWeights = {
@@ -196,6 +196,14 @@ async function capo({fn, args}={}) {
   function isPrefetchPrerender(element) {
     return element.matches('link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])');
   }
+
+  function isOriginTrial(element) {
+    return element.matches('meta[http-equiv="origin-trial"i]');
+  }
+
+  function isMetaCSP(element) {
+    return element.matches('meta[http-equiv="Content-Security-Policy" i]');
+  }
   
   function getWeight(element) {
     for ([id, detector] of Object.entries(ElementDetectors)) {
@@ -230,7 +238,61 @@ async function capo({fn, args}={}) {
   
     return {visual, style};
   }
-  
+
+  // Adapted from https://glitch.com/~ot-decode.
+  function decodeToken(token) {
+    const buffer = new Uint8Array([...atob(token)].map(a => a.charCodeAt(0)));
+    const view = new DataView(buffer.buffer)
+    const length = view.getUint32(65, false)
+    const payload = JSON.parse((new TextDecoder()).decode(buffer.slice(69, 69 + length)));
+    payload.expiry = new Date(payload.expiry * 1000);
+    return payload;
+  }
+
+  function isSameOrigin(a, b) {
+    return new URL(a).origin === new URL(b).origin;
+  }
+
+  function logElement({viz, weight, element, isValid, omitPrefix = false}) {
+    if (!omitPrefix) {
+      viz.visual = `${LOGGING_PREFIX}${viz.visual}`;
+    }
+
+    let loggingLevel = 'log';
+    const args = [viz.visual, viz.style, weight + 1, element];
+
+
+    if (isMetaCSP(element)) {
+      loggingLevel = 'warn';
+      args.push('❌ meta CSP discouraged. See https://crbug.com/1458493.')
+    } else if (isStaticHead && !isValid) {
+      loggingLevel = 'warn';
+      args.push('❌ invalid element');
+    }
+
+    if (isOriginTrial(element)) {
+      const token = element.getAttribute('content');
+      try {
+        const payload = decodeToken(token);
+        args.push(payload);
+
+        if (payload.expiry < new Date()) {
+          loggingLevel = 'warn';
+          args.push('❌ expired');
+        }
+        if (!isSameOrigin(payload.origin, document.location.href)) {
+          loggingLevel = 'warn';
+          args.push('❌ invalid origin');
+        }
+      } catch {
+        loggingLevel = 'warn';
+        args.push('❌ invalid token');
+      }
+    }
+
+    console[loggingLevel](...args);
+  }
+
   function logWeights() {
     const headWeights = getHeadWeights();
     const actualViz = visualizeWeights(headWeights.map(([_, weight]) => weight));
@@ -238,11 +300,7 @@ async function capo({fn, args}={}) {
     console.groupCollapsed(`${LOGGING_PREFIX}Actual %c<head>%c order\n${actualViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...actualViz.styles);
     headWeights.forEach(([element, weight, isValid]) => {
       const viz = visualizeWeight(weight);
-      if (isStaticHead && !isValid) {
-        console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
-      } else {
-        console.log(viz.visual, viz.style, weight + 1, element);
-      }
+      logElement({viz, weight, element, isValid, omitPrefix: true});
     });
     console.log('Actual %c<head>%c element', 'font-family: monospace', 'font-family: inherit', head);
     console.groupEnd();
@@ -256,11 +314,7 @@ async function capo({fn, args}={}) {
     const sortedHead = document.createElement('head');
     sortedWeights.forEach(([element, weight, isValid]) => {
       const viz = visualizeWeight(weight);
-      if (isStaticHead && !isValid) {
-        console.warn(viz.visual, viz.style, weight + 1, element, '❌ invalid element');
-      } else {
-        console.log(viz.visual, viz.style, weight + 1, element);
-      }
+      logElement({viz, weight, element, isValid, omitPrefix: true});
       sortedHead.appendChild(element.cloneNode(true));
     });
     console.log('Sorted %c<head>%c element', 'font-family: monospace', 'font-family: inherit', sortedHead);
@@ -329,18 +383,14 @@ async function capo({fn, args}={}) {
     return element;
   }
 
-  function logElement(weight, selector, innerHTML, isValid) {
+  function logElementFromSelector(weight, selector, innerHTML, isValid) {
     weight = +weight;
     const viz = visualizeWeight(weight);
     let element = createElementFromSelector(selector);
     element.innerHTML = innerHTML;
     element = getLoggableElement(element);
 
-    if (isValid) {
-      console.log(`${LOGGING_PREFIX}${viz.visual}`, viz.style, weight + 1, element);
-    } else {
-      console.warn(`${LOGGING_PREFIX}${viz.visual}`, viz.style, weight + 1, element, '❌ invalid element');
-    }
+    logElement({viz, weight, element, isValid});
   }
 
   function isValidElement(element) {
@@ -364,8 +414,8 @@ async function capo({fn, args}={}) {
       return false;
     }
   
-    // CSP meta tag comes after a script.
-    if (element.matches('script ~ meta[http-equiv="Content-Security-Policy" i]')) {
+    // CSP meta tag anywhere.
+    if (isMetaCSP(element)) {
       return false;
     }
   
@@ -385,9 +435,9 @@ async function capo({fn, args}={}) {
       console.warn(`${LOGGING_PREFIX}Expected at most 1 <base> element, found ${baseElementCount}`, baseElements);
     }
   
-    const postScriptCSP = head.querySelector('script ~ meta[http-equiv="Content-Security-Policy" i]');
-    if (postScriptCSP) {
-      console.warn(`${LOGGING_PREFIX}CSP meta tag must be placed before any <script> elements to avoid disabling the preload scanner.`, getLoggableElement(postScriptCSP));
+    const metaCSP = head.querySelector('meta[http-equiv="Content-Security-Policy" i]');
+    if (metaCSP) {
+      console.warn(`${LOGGING_PREFIX}CSP meta tags disable the preload scanner due to a bug in Chrome. Use the CSP header instead. Learn more: https://crbug.com/1458493`, getLoggableElement(metaCSP));
     }
   
     if (!isStaticHead) {
