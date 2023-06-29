@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Capo Options</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <form id="options">
+      <input id="preferStatic" name="preferStatic" type="checkbox" class="option">
+      <label for="preferStatic">
+        Prefer to evaluate the static, server-rendered <code>&lt;head></code> (<a href="#">learn more</a>)
+      </label>
+
+      <select id="palette" name="palette" class="option">
+        <option value="default">Default</option>
+        <option value="pink">Pink</option>
+        <option value="blue">Blue</option>
+      </select>
+      <label for="palette">Color palette</label>
+
+      <footer>
+        <a href="https://github.com/rviscomi/capo.js">rviscomi/capo.js</a>
+      </footer>
+    </form>
+
+    <script src="options.js" type="module"></script>
+  </body>
+</html>

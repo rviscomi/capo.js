@@ -1,3 +1,13 @@
+const AssessmentMode = {
+  STATIC: 'static',
+  DYNAMIC: 'dynamic'
+};
+
+const Options = {
+  // Overwrite this if you prefer dynamic assessment.
+  PREFERRED_ASSESSMENT_MODE: AssessmentMode.STATIC
+};
+
 const ElementWeights = {
   META: 10,
   TITLE: 9,
@@ -65,6 +75,11 @@ async function getStaticHTML() {
 
 async function getStaticOrDynamicHead() {
   if (head) {
+    return head;
+  }
+
+  if (Options.PREFERRED_ASSESSMENT_MODE == AssessmentMode.DYNAMIC) {
+    head = document.head;
     return head;
   }
 
