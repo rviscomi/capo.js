@@ -264,9 +264,9 @@ function logElement({viz, weight, element, isValid, omitPrefix = false}) {
   if (isMetaCSP(element)) {
     loggingLevel = 'warn';
     args.push('❌ meta CSP discouraged. See https://crbug.com/1458493.')
-  } else if (isStaticHead && !isValid) {
+  } else if (!isValid && (Options.PREFERRED_ASSESSMENT_MODE == AssessmentMode.DYNAMIC || isStaticHead)) {
     loggingLevel = 'warn';
-    args.push('❌ invalid element');
+    args.push(`❌ invalid element (${element.tagName})`);
   }
 
   if (isOriginTrial(element)) {

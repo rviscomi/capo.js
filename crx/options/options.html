@@ -6,23 +6,30 @@
   </head>
   <body>
     <form id="options">
-      <input id="preferStatic" name="preferStatic" type="checkbox" class="option">
-      <label for="preferStatic">
-        Prefer to evaluate the static, server-rendered <code>&lt;head></code> (<a href="#">learn more</a>)
+      <input id="prefer-static" name="prefer-static" type="checkbox" class="option">
+      <label for="prefer-static">
+        Prefer to evaluate the static, server-rendered <code>&lt;head></code>
+        (<a href="https://rviscomi.github.io/capo.js/guides/extension/">learn more</a>)
       </label>
 
-      <select id="palette" name="palette" class="option">
+      <input id="validation" name="validation" type="checkbox" class="option">
+      <label for="validation">
+        Validate the elements in the <code>&lt;head></code>
+        (<a href="https://rviscomi.github.io/capo.js/guides/extension/">learn more</a>)
+      </label>
+
+      <select id="palette" name="palette" class="option" disabled>
         <option value="default">Default</option>
         <option value="pink">Pink</option>
         <option value="blue">Blue</option>
       </select>
-      <label for="palette">Color palette</label>
+      <label for="palette">Color palette <em>(coming soon)</em></label>
 
       <footer>
-        <a href="https://github.com/rviscomi/capo.js">rviscomi/capo.js</a>
+        <p>Options saved automatically</p>
+        <p><a href="https://github.com/rviscomi/capo.js">rviscomi/capo.js</a></p>
       </footer>
     </form>
-
     <script src="options.js" type="module"></script>
   </body>
 </html>
