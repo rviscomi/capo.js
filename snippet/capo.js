@@ -35,14 +35,14 @@ const $eb5be8077a65b10b$export$d68d0fda4a10dbc2 = $eb5be8077a65b10b$export$92151
 const $eb5be8077a65b10b$export$738c3b9a44c87ecc = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.BLUE);
 
 
-class $572ba3e4dcd864b9$export$e93312b7773dfcac {
+class $d410929ede0a2ee4$export$8f8422ac5947a789 {
     constructor(document, options){
         this.document = document;
         this.options = options;
-        this.isStatic = false;
+        this.isStaticHead = false;
         this.head = null;
     }
-    getElement() {
+    getHead() {
         return this.head;
     }
     async getStaticHTML() {
@@ -62,12 +62,96 @@ class $572ba3e4dcd864b9$export$e93312b7773dfcac {
             const staticDoc = this.document.implementation.createHTMLDocument("New Document");
             staticDoc.documentElement.innerHTML = html;
             this.head = staticDoc.querySelector("static-head");
-            if (this.head) this.isStatic = true;
+            if (this.head) this.isStaticHead = true;
             else this.head = this.document.head;
         } catch  {
             this.head = this.document.head;
         }
         return this.head;
+    }
+    stringifyElement(element) {
+        return element.getAttributeNames().reduce((id, attr)=>id += `[${attr}=${JSON.stringify(element.getAttribute(attr))}]`, element.nodeName);
+    }
+    getLoggableElement(element) {
+        if (!this.isStaticHead) return element;
+        const selector = this.stringifyElement(element);
+        const candidates = Array.from(this.document.head.querySelectorAll(selector));
+        if (candidates.length == 0) return element;
+        if (candidates.length == 1) return candidates[0];
+        // The way the static elements are parsed makes their innerHTML different.
+        // Recreate the element in DOM and compare its innerHTML with those of the candidates.
+        // This ensures a consistent parsing and positive string matches.
+        const candidateWrapper = this.document.createElement("div");
+        const elementWrapper = this.document.createElement("div");
+        elementWrapper.innerHTML = element.innerHTML;
+        const candidate = candidates.find((c)=>{
+            candidateWrapper.innerHTML = c.innerHTML;
+            return candidateWrapper.innerHTML == elementWrapper.innerHTML;
+        });
+        if (candidate) return candidate;
+        return element;
+    }
+    logElement({ viz: viz, weight: weight, element: element, isValid: isValid, customValidations: customValidations, omitPrefix: omitPrefix = false }) {
+        if (!omitPrefix) viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
+        let loggingLevel = "log";
+        const args = [
+            viz.visual,
+            viz.style,
+            weight + 1,
+            element
+        ];
+        if (!this.options.isValidationEnabled()) {
+            console[loggingLevel](...args);
+            return;
+        }
+        const { payload: payload, warnings: warnings } = customValidations;
+        if (payload) args.push(payload);
+        if (warnings?.length) {
+            // Element-specific warnings.
+            loggingLevel = "warn";
+            warnings.forEach((warning)=>args.push(`❌ ${warning}`));
+        } else if (!isValid && (this.options.prefersDynamicAssessment() || this.isStaticHead)) {
+            // General warnings.
+            loggingLevel = "warn";
+            args.push(`❌ invalid element (${element.tagName})`);
+        }
+        console[loggingLevel](...args);
+    }
+    getHeadVisualization(weights) {
+        const visual = weights.map((_)=>"%c ").join("");
+        const styles = weights.map((weight)=>{
+            const color = this.options.palette[10 - weight];
+            return `background-color: ${color}; padding: 5px; margin: 0 -1px;`;
+        });
+        return {
+            visual: visual,
+            styles: styles
+        };
+    }
+    getElementVisualization(weight) {
+        const visual = `%c${new Array(weight + 1).fill("█").join("")}`;
+        const style = `color: ${this.options.palette[10 - weight]}`;
+        return {
+            visual: visual,
+            style: style
+        };
+    }
+    visualizeHead(groupName, headElement, headWeights) {
+        const headViz = this.getHeadVisualization(headWeights.map(({ weight: weight })=>weight));
+        console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %c<head>%c order\n${headViz.visual}`, "font-family: monospace", "font-family: inherit", ...headViz.styles);
+        headWeights.forEach(({ weight: weight, element: element, isValid: isValid, customValidations: customValidations })=>{
+            const viz = this.getElementVisualization(weight);
+            this.logElement({
+                viz: viz,
+                weight: weight,
+                element: element,
+                isValid: isValid,
+                customValidations: customValidations,
+                omitPrefix: true
+            });
+        });
+        console.log(`${groupName} %c<head>%c element`, "font-family: monospace", "font-family: inherit", headElement);
+        console.groupEnd();
     }
 }
 
@@ -157,28 +241,41 @@ function $9c3989fcb9437829$export$5cc4a311ddbe699c(head) {
 }
 
 
-const $5b739339de321a37$export$822eeec733be27fd = {
-    STATIC: "static",
-    DYNAMIC: "dynamic"
-};
+
 class $5b739339de321a37$export$c019608e5b5bb4cb {
-    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5b739339de321a37$export$822eeec733be27fd.STATIC, validation: validation = true }){
+    constructor({ preferredAssessmentMode: preferredAssessmentMode = AssessmentMode.STATIC, validation: validation = true, palette: palette = $eb5be8077a65b10b$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " }){
         if (!this.isValidAssessmentMode(preferredAssessmentMode)) throw new Error(`Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`);
         if (!this.isValidValidation(validation)) throw new Error(`Invalid option: validation, expected boolean, got "${validation}".`);
+        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected an array of colors, got "${palette}".`);
+        if (!this.isValidLoggingPrefix(loggingPrefix)) throw new Error(`Invalid option: logging prefix, expected string, got "${loggingPrefix}".`);
         this.preferredAssessmentMode = preferredAssessmentMode;
         this.validation = validation;
+        this.palette = palette;
+        this.loggingPrefix = loggingPrefix;
+    }
+    static get AssessmentMode() {
+        return {
+            STATIC: "static",
+            DYNAMIC: "dynamic"
+        };
     }
     isValidAssessmentMode(assessmentMode) {
-        return Object.values($5b739339de321a37$export$822eeec733be27fd).includes(assessmentMode);
+        return Object.values($5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
     }
     isValidValidation(validation) {
         return typeof validation === "boolean";
     }
+    isValidPalette(palette) {
+        return Array.isArray(palette) && palette.length === 11 && palette.every((color)=>typeof color === "string");
+    }
+    isValidLoggingPrefix(loggingPrefix) {
+        return typeof loggingPrefix === "string";
+    }
     prefersStaticAssessment() {
-        return this.preferredAssessmentMode === $5b739339de321a37$export$822eeec733be27fd.STATIC;
+        return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
     }
     prefersDynamicAssessment() {
-        return this.preferredAssessmentMode === $5b739339de321a37$export$822eeec733be27fd.DYNAMIC;
+        return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
     }
     isValidationEnabled() {
         return this.validation;
@@ -288,124 +385,35 @@ function $580f7ed6bc170ae8$var$isSameOrigin(a, b) {
 
 const $fd3091053c5dfffc$var$options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)({
     // [ STATIC | DYNAMIC ]
-    preferredAssessmentMode: (0, $5b739339de321a37$export$822eeec733be27fd).DYNAMIC,
+    preferredAssessmentMode: (0, $5b739339de321a37$export$c019608e5b5bb4cb).AssessmentMode.STATIC,
     // [ true | false ]
-    validation: true
+    validation: true,
+    // [ DEFAULT | PINK | BLUE | generateSwatches(<hue>) ]
+    palette: $eb5be8077a65b10b$export$e6952b12ade67489,
+    // <string>
+    loggingPrefix: "Capo: "
 });
-// [ DEFAULT | PINK | BLUE | generateSwatches(<hue>) ]
-const $fd3091053c5dfffc$var$WEIGHT_COLORS = $eb5be8077a65b10b$export$e6952b12ade67489;
-const $fd3091053c5dfffc$var$head = new (0, $572ba3e4dcd864b9$export$e93312b7773dfcac)(document, $fd3091053c5dfffc$var$options);
-const $fd3091053c5dfffc$var$LOGGING_PREFIX = "Capo: ";
-function $fd3091053c5dfffc$var$visualizeWeights(weights) {
-    const visual = weights.map((_)=>"%c ").join("");
-    const styles = weights.map((weight)=>{
-        const color = $fd3091053c5dfffc$var$WEIGHT_COLORS[10 - weight];
-        return `background-color: ${color}; padding: 5px; margin: 0 -1px;`;
-    });
-    return {
-        visual: visual,
-        styles: styles
-    };
-}
-function $fd3091053c5dfffc$var$visualizeWeight(weight) {
-    const visual = `%c${new Array(weight + 1).fill("█").join("")}`;
-    const style = `color: ${$fd3091053c5dfffc$var$WEIGHT_COLORS[10 - weight]}`;
-    return {
-        visual: visual,
-        style: style
-    };
-}
-function $fd3091053c5dfffc$var$stringifyElement(element) {
-    return element.getAttributeNames().reduce((id, attr)=>id += `[${attr}=${JSON.stringify(element.getAttribute(attr))}]`, element.nodeName);
-}
-function $fd3091053c5dfffc$var$getLoggableElement(element) {
-    if (!$fd3091053c5dfffc$var$head.isStatic) return element;
-    const selector = $fd3091053c5dfffc$var$stringifyElement(element);
-    const candidates = Array.from(document.head.querySelectorAll(selector));
-    if (candidates.length == 0) return element;
-    if (candidates.length == 1) return candidates[0];
-    // The way the static elements are parsed makes their innerHTML different.
-    // Recreate the element in DOM and compare its innerHTML with those of the candidates.
-    // This ensures a consistent parsing and positive string matches.
-    const candidateWrapper = document.createElement("div");
-    const elementWrapper = document.createElement("div");
-    elementWrapper.innerHTML = element.innerHTML;
-    const candidate = candidates.find((c)=>{
-        candidateWrapper.innerHTML = c.innerHTML;
-        return candidateWrapper.innerHTML == elementWrapper.innerHTML;
-    });
-    if (candidate) return candidate;
-    return element;
-}
-function $fd3091053c5dfffc$var$logElement({ viz: viz, weight: weight, element: element, isValid: isValid, omitPrefix: omitPrefix = false }) {
-    if (!omitPrefix) viz.visual = `${$fd3091053c5dfffc$var$LOGGING_PREFIX}${viz.visual}`;
-    let loggingLevel = "log";
-    const args = [
-        viz.visual,
-        viz.style,
-        weight + 1,
-        element
-    ];
-    if (!$fd3091053c5dfffc$var$options.isValidationEnabled()) {
-        console[loggingLevel](...args);
-        return;
-    }
-    const { payload: payload, warnings: warnings } = $580f7ed6bc170ae8$export$6c93e2175c028eeb(element);
-    if (payload) args.push(payload);
-    if (warnings?.length) {
-        // Element-specific warnings.
-        loggingLevel = "warn";
-        warnings.forEach((warning)=>args.push(`❌ ${warning}`));
-    } else if (!isValid && ($fd3091053c5dfffc$var$options.prefersDynamicAssessment() || $fd3091053c5dfffc$var$head.isStatic)) {
-        // General warnings.
-        loggingLevel = "warn";
-        args.push(`❌ invalid element (${element.tagName})`);
-    }
-    console[loggingLevel](...args);
-}
+const $fd3091053c5dfffc$var$io = new (0, $d410929ede0a2ee4$export$8f8422ac5947a789)(document, $fd3091053c5dfffc$var$options);
 function $fd3091053c5dfffc$var$logWeights() {
-    const headElement = $fd3091053c5dfffc$var$head.getElement();
+    const headElement = $fd3091053c5dfffc$var$io.getHead();
     const headWeights = $9c3989fcb9437829$export$5cc4a311ddbe699c(headElement).map(({ element: element, weight: weight })=>{
-        return [
-            $fd3091053c5dfffc$var$getLoggableElement(element),
-            weight,
-            $fd3091053c5dfffc$var$isValidElement(element)
-        ];
-    });
-    const actualViz = $fd3091053c5dfffc$var$visualizeWeights(headWeights.map(([_, weight])=>weight));
-    if (!$fd3091053c5dfffc$var$head.isStatic && $fd3091053c5dfffc$var$options.prefersStaticAssessment()) console.warn(`${$fd3091053c5dfffc$var$LOGGING_PREFIX}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, headElement);
-    console.groupCollapsed(`${$fd3091053c5dfffc$var$LOGGING_PREFIX}Actual %c<head>%c order\n${actualViz.visual}`, "font-family: monospace", "font-family: inherit", ...actualViz.styles);
-    headWeights.forEach(([element, weight, isValid])=>{
-        const viz = $fd3091053c5dfffc$var$visualizeWeight(weight);
-        $fd3091053c5dfffc$var$logElement({
-            viz: viz,
+        return {
             weight: weight,
-            element: element,
-            isValid: isValid,
-            omitPrefix: true
-        });
+            element: $fd3091053c5dfffc$var$io.getLoggableElement(element),
+            isValid: $fd3091053c5dfffc$var$isValidElement(element),
+            customValidations: $580f7ed6bc170ae8$export$6c93e2175c028eeb(element)
+        };
     });
-    console.log("Actual %c<head>%c element", "font-family: monospace", "font-family: inherit", headElement);
-    console.groupEnd();
+    if (!$fd3091053c5dfffc$var$io.isStaticHead && $fd3091053c5dfffc$var$options.prefersStaticAssessment()) console.warn(`${$fd3091053c5dfffc$var$options.loggingPrefix}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, headElement);
+    $fd3091053c5dfffc$var$io.visualizeHead("Actual", headElement, headWeights);
     const sortedWeights = headWeights.sort((a, b)=>{
-        return b[1] - a[1];
+        return b.weight - a.weight;
     });
-    const sortedViz = $fd3091053c5dfffc$var$visualizeWeights(sortedWeights.map(([_, weight])=>weight));
-    console.groupCollapsed(`${$fd3091053c5dfffc$var$LOGGING_PREFIX}Sorted %c<head>%c order\n${sortedViz.visual}`, "font-family: monospace", "font-family: inherit", ...sortedViz.styles);
     const sortedHead = document.createElement("head");
-    sortedWeights.forEach(([element, weight, isValid])=>{
-        const viz = $fd3091053c5dfffc$var$visualizeWeight(weight);
-        $fd3091053c5dfffc$var$logElement({
-            viz: viz,
-            weight: weight,
-            element: element,
-            isValid: isValid,
-            omitPrefix: true
-        });
+    sortedWeights.forEach(({ element: element })=>{
         sortedHead.appendChild(element.cloneNode(true));
     });
-    console.log("Sorted %c<head>%c element", "font-family: monospace", "font-family: inherit", sortedHead);
-    console.groupEnd();
+    $fd3091053c5dfffc$var$io.visualizeHead("Sorted", sortedHead, sortedWeights);
 }
 function $fd3091053c5dfffc$var$isValidElement(element) {
     if (!$fd3091053c5dfffc$var$options.isValidationEnabled()) return true;
@@ -413,14 +421,14 @@ function $fd3091053c5dfffc$var$isValidElement(element) {
 }
 function $fd3091053c5dfffc$var$validateHead() {
     if (!$fd3091053c5dfffc$var$options.isValidationEnabled()) return;
-    const validationWarnings = $580f7ed6bc170ae8$export$b01ab94d0cd042a0($fd3091053c5dfffc$var$head.getElement());
+    const validationWarnings = $580f7ed6bc170ae8$export$b01ab94d0cd042a0($fd3091053c5dfffc$var$io.getHead());
     validationWarnings.forEach(({ warning: warning, elements: elements = [], element: element })=>{
-        elements = elements.map($fd3091053c5dfffc$var$getLoggableElement);
-        console.warn(`${$fd3091053c5dfffc$var$LOGGING_PREFIX}${warning}`, ...elements, element);
+        elements = elements.map($fd3091053c5dfffc$var$io.getLoggableElement);
+        console.warn(`${$fd3091053c5dfffc$var$options.loggingPrefix}${warning}`, ...elements, element);
     });
 }
 (async ()=>{
-    await $fd3091053c5dfffc$var$head.getStaticOrDynamicHead();
+    await $fd3091053c5dfffc$var$io.getStaticOrDynamicHead();
     $fd3091053c5dfffc$var$validateHead();
     $fd3091053c5dfffc$var$logWeights();
 })();
