@@ -110,6 +110,27 @@ async function capo({fn, args}={}) {
   
   const LOGGING_PREFIX = 'Capo: ';
 
+  const AssessmentMode = {
+    STATIC: 'static',
+    DYNAMIC: 'dynamic'
+  };
+  
+  const Palette = {
+    DEFAULT: 'default'
+  };
+  
+  const Options = {
+    PREFERRED_ASSESSMENT_MODE: AssessmentMode.STATIC,
+    VALIDATION: true,
+    PALETTE: Palette.DEFAULT
+  };
+  
+  async function initOptions() {
+    const data = await chrome.storage.sync.get('options');
+    Object.assign(Options, data.options);
+    console.log('Capo options', Options);
+  }
+
   let head;
   
   let isStaticHead = false;
@@ -122,7 +143,13 @@ async function capo({fn, args}={}) {
   }
   
   async function getStaticOrDynamicHead() {
+    console.log('getStaticOrDynamicHead', head, Options.PREFERRED_ASSESSMENT_MODE)
     if (head) {
+      return head;
+    }
+
+    if (Options.PREFERRED_ASSESSMENT_MODE == AssessmentMode.DYNAMIC) {
+      head = document.head;
       return head;
     }
   
@@ -261,13 +288,17 @@ async function capo({fn, args}={}) {
     let loggingLevel = 'log';
     const args = [viz.visual, viz.style, weight + 1, element];
 
+    if (!Options.VALIDATION) {
+      console[loggingLevel](...args);
+      return;
+    }
 
     if (isMetaCSP(element)) {
       loggingLevel = 'warn';
       args.push('❌ meta CSP discouraged. See https://crbug.com/1458493.')
-    } else if (isStaticHead && !isValid) {
+    } else if (!isValid && (Options.PREFERRED_ASSESSMENT_MODE == AssessmentMode.DYNAMIC || isStaticHead)) {
       loggingLevel = 'warn';
-      args.push('❌ invalid element');
+      args.push(`❌ invalid element (${element.tagName})`);
     }
 
     if (isOriginTrial(element)) {
@@ -296,6 +327,10 @@ async function capo({fn, args}={}) {
   function logWeights() {
     const headWeights = getHeadWeights();
     const actualViz = visualizeWeights(headWeights.map(([_, weight]) => weight));
+
+    if (!isStaticHead && Options.PREFERRED_ASSESSMENT_MODE == AssessmentMode.STATIC) {
+      console.warn(`${LOGGING_PREFIX}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, document.head);
+    }
     
     console.groupCollapsed(`${LOGGING_PREFIX}Actual %c<head>%c order\n${actualViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...actualViz.styles);
     headWeights.forEach(([element, weight, isValid]) => {
@@ -394,6 +429,10 @@ async function capo({fn, args}={}) {
   }
 
   function isValidElement(element) {
+    if (!Options.VALIDATION) {
+      return true;
+    }
+
     // Element itself is not valid.
     if (!VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase())) {
       return false;
@@ -423,6 +462,10 @@ async function capo({fn, args}={}) {
   }
 
   function validateHead() {
+    if (!Options.VALIDATION) {
+      return;
+    }
+
     const titleElements = Array.from(head.querySelectorAll('title')).map(getLoggableElement);
     const titleElementCount = titleElements.length;
     if (titleElementCount != 1) {
@@ -455,6 +498,7 @@ async function capo({fn, args}={}) {
     });
   }
 
+  await initOptions();
   await getStaticOrDynamicHead();
 
   if (fn in FN_EXPORTS) {

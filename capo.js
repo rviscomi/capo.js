@@ -1,3 +1,16 @@
+const AssessmentMode = {
+  STATIC: 'static',
+  DYNAMIC: 'dynamic'
+};
+
+const Options = {
+  // Overwrite this if you prefer dynamic assessment.
+  PREFERRED_ASSESSMENT_MODE: AssessmentMode.STATIC,
+
+  // Set this to false if you don't want any validation.
+  VALIDATION: true
+};
+
 const ElementWeights = {
   META: 10,
   TITLE: 9,
@@ -65,6 +78,11 @@ async function getStaticHTML() {
 
 async function getStaticOrDynamicHead() {
   if (head) {
+    return head;
+  }
+
+  if (Options.PREFERRED_ASSESSMENT_MODE == AssessmentMode.DYNAMIC) {
+    head = document.head;
     return head;
   }
 
@@ -238,12 +256,17 @@ function logElement({viz, weight, element, isValid, omitPrefix = false}) {
   let loggingLevel = 'log';
   const args = [viz.visual, viz.style, weight + 1, element];
 
+  if (!Options.VALIDATION) {
+    console[loggingLevel](...args);
+    return;
+  }
+
   if (isMetaCSP(element)) {
     loggingLevel = 'warn';
     args.push('❌ meta CSP discouraged. See https://crbug.com/1458493.')
-  } else if (isStaticHead && !isValid) {
+  } else if (!isValid && (Options.PREFERRED_ASSESSMENT_MODE == AssessmentMode.DYNAMIC || isStaticHead)) {
     loggingLevel = 'warn';
-    args.push('❌ invalid element');
+    args.push(`❌ invalid element (${element.tagName})`);
   }
 
   if (isOriginTrial(element)) {
@@ -273,7 +296,7 @@ function logWeights() {
   const headWeights = getHeadWeights();
   const actualViz = visualizeWeights(headWeights.map(([_, weight]) => weight));
 
-  if (!isStaticHead) {
+  if (!isStaticHead && Options.PREFERRED_ASSESSMENT_MODE == AssessmentMode.STATIC) {
     console.warn(`${LOGGING_PREFIX}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, document.head);
   }
   
@@ -302,6 +325,10 @@ function logWeights() {
 }
 
 function isValidElement(element) {
+  if (!Options.VALIDATION) {
+    return true;
+  }
+
   // Element itself is not valid.
   if (!VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase())) {
     return false;
@@ -331,6 +358,10 @@ function isValidElement(element) {
 }
 
 function validateHead() {
+  if (!Options.VALIDATION) {
+    return;
+  }
+
   const titleElements = Array.from(head.querySelectorAll('title')).map(getLoggableElement);
   const titleElementCount = titleElements.length;
   if (titleElementCount != 1) {
@@ -348,6 +379,7 @@ function validateHead() {
     console.warn(`${LOGGING_PREFIX}CSP meta tags disable the preload scanner due to a bug in Chrome. Use the CSP header instead. Learn more: https://crbug.com/1458493`, getLoggableElement(metaCSP));
   }
 
+  // The following validation rules only apply to static <head> elements.
   if (!isStaticHead) {
     return;
   }
