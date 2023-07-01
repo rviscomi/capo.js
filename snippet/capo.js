@@ -1,40 +1,4 @@
 (() => {
-const $eb5be8077a65b10b$var$Hues = {
-    PINK: 320,
-    BLUE: 200
-};
-function $eb5be8077a65b10b$export$921514c0345db5eb(hue) {
-    return [
-        `oklch(5% .1 ${hue})`,
-        `oklch(13% .2 ${hue})`,
-        `oklch(25% .2 ${hue})`,
-        `oklch(35% .25 ${hue})`,
-        `oklch(50% .27 ${hue})`,
-        `oklch(67% .31 ${hue})`,
-        `oklch(72% .25 ${hue})`,
-        `oklch(80% .2 ${hue})`,
-        `oklch(90% .1 ${hue})`,
-        `oklch(99% .0.5 ${hue})`,
-        "#ccc"
-    ];
-}
-const $eb5be8077a65b10b$export$e6952b12ade67489 = [
-    "#9e0142",
-    "#d53e4f",
-    "#f46d43",
-    "#fdae61",
-    "#fee08b",
-    "#e6f598",
-    "#abdda4",
-    "#66c2a5",
-    "#3288bd",
-    "#5e4fa2",
-    "#cccccc"
-];
-const $eb5be8077a65b10b$export$d68d0fda4a10dbc2 = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.PINK);
-const $eb5be8077a65b10b$export$738c3b9a44c87ecc = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.BLUE);
-
-
 class $d410929ede0a2ee4$export$8f8422ac5947a789 {
     constructor(document, options){
         this.document = document;
@@ -42,19 +6,11 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         this.isStaticHead = false;
         this.head = null;
     }
-    getHead() {
-        return this.head;
-    }
-    async getStaticHTML() {
-        const url = this.document.location.href;
-        const response = await fetch(url);
-        return await response.text();
-    }
-    async getStaticOrDynamicHead() {
-        if (this.head) return this.head;
+    async init() {
+        if (this.head) return;
         if (this.options.prefersDynamicAssessment()) {
             this.head = this.document.head;
-            return this.head;
+            return;
         }
         try {
             let html = await this.getStaticHTML();
@@ -64,9 +20,18 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
             this.head = staticDoc.querySelector("static-head");
             if (this.head) this.isStaticHead = true;
             else this.head = this.document.head;
-        } catch  {
+        } catch (e) {
+            console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
             this.head = this.document.head;
         }
+        if (!this.isStaticHead) console.warn(`${this.options.loggingPrefix}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, this.head);
+    }
+    async getStaticHTML() {
+        const url = this.document.location.href;
+        const response = await fetch(url);
+        return await response.text();
+    }
+    getHead() {
         return this.head;
     }
     stringifyElement(element) {
@@ -241,35 +206,59 @@ function $9c3989fcb9437829$export$5cc4a311ddbe699c(head) {
 }
 
 
+const $eb5be8077a65b10b$var$Hues = {
+    PINK: 320,
+    BLUE: 200
+};
+function $eb5be8077a65b10b$export$921514c0345db5eb(hue) {
+    return [
+        `oklch(5% .1 ${hue})`,
+        `oklch(13% .2 ${hue})`,
+        `oklch(25% .2 ${hue})`,
+        `oklch(35% .25 ${hue})`,
+        `oklch(50% .27 ${hue})`,
+        `oklch(67% .31 ${hue})`,
+        `oklch(72% .25 ${hue})`,
+        `oklch(80% .2 ${hue})`,
+        `oklch(90% .1 ${hue})`,
+        `oklch(99% .0.5 ${hue})`,
+        "#ccc"
+    ];
+}
+const $eb5be8077a65b10b$export$e6952b12ade67489 = [
+    "#9e0142",
+    "#d53e4f",
+    "#f46d43",
+    "#fdae61",
+    "#fee08b",
+    "#e6f598",
+    "#abdda4",
+    "#66c2a5",
+    "#3288bd",
+    "#5e4fa2",
+    "#cccccc"
+];
+const $eb5be8077a65b10b$export$d68d0fda4a10dbc2 = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.PINK);
+const $eb5be8077a65b10b$export$738c3b9a44c87ecc = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.BLUE);
+const $eb5be8077a65b10b$export$9a82c28ef488e918 = {
+    DEFAULT: $eb5be8077a65b10b$export$e6952b12ade67489,
+    PINK: $eb5be8077a65b10b$export$d68d0fda4a10dbc2,
+    BLUE: $eb5be8077a65b10b$export$738c3b9a44c87ecc
+};
+
 
 class $5b739339de321a37$export$c019608e5b5bb4cb {
-    constructor({ preferredAssessmentMode: preferredAssessmentMode = AssessmentMode.STATIC, validation: validation = true, palette: palette = $eb5be8077a65b10b$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " }){
-        if (!this.isValidAssessmentMode(preferredAssessmentMode)) throw new Error(`Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`);
-        if (!this.isValidValidation(validation)) throw new Error(`Invalid option: validation, expected boolean, got "${validation}".`);
-        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected an array of colors, got "${palette}".`);
-        if (!this.isValidLoggingPrefix(loggingPrefix)) throw new Error(`Invalid option: logging prefix, expected string, got "${loggingPrefix}".`);
-        this.preferredAssessmentMode = preferredAssessmentMode;
-        this.validation = validation;
-        this.palette = palette;
-        this.loggingPrefix = loggingPrefix;
+    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $eb5be8077a65b10b$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " } = {}){
+        this.setPreferredAssessmentMode(preferredAssessmentMode);
+        this.setValidation(validation);
+        this.setPalette(palette);
+        this.setLoggingPrefix(loggingPrefix);
     }
     static get AssessmentMode() {
         return {
             STATIC: "static",
             DYNAMIC: "dynamic"
         };
-    }
-    isValidAssessmentMode(assessmentMode) {
-        return Object.values($5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
-    }
-    isValidValidation(validation) {
-        return typeof validation === "boolean";
-    }
-    isValidPalette(palette) {
-        return Array.isArray(palette) && palette.length === 11 && palette.every((color)=>typeof color === "string");
-    }
-    isValidLoggingPrefix(loggingPrefix) {
-        return typeof loggingPrefix === "string";
     }
     prefersStaticAssessment() {
         return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
@@ -279,6 +268,40 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
     }
     isValidationEnabled() {
         return this.validation;
+    }
+    setPreferredAssessmentMode(preferredAssessmentMode) {
+        if (!this.isValidAssessmentMode(preferredAssessmentMode)) throw new Error(`Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`);
+        this.preferredAssessmentMode = preferredAssessmentMode;
+    }
+    setValidation(validation) {
+        if (!this.isValidValidation(validation)) throw new Error(`Invalid option: validation, expected boolean, got "${validation}".`);
+        this.validation = validation;
+    }
+    setPalette(palette) {
+        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected [${Object.keys($eb5be8077a65b10b$export$9a82c28ef488e918).join("|")}] or an array of colors, got "${palette}".`);
+        if (typeof palette === "string") {
+            this.palette = $eb5be8077a65b10b$export$9a82c28ef488e918[palette];
+            return;
+        }
+        this.palette = palette;
+    }
+    setLoggingPrefix(loggingPrefix) {
+        if (!this.isValidLoggingPrefix(loggingPrefix)) throw new Error(`Invalid option: logging prefix, expected string, got "${loggingPrefix}".`);
+        this.loggingPrefix = loggingPrefix;
+    }
+    isValidAssessmentMode(assessmentMode) {
+        return Object.values($5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
+    }
+    isValidValidation(validation) {
+        return typeof validation === "boolean";
+    }
+    isValidPalette(palette) {
+        if (typeof palette === "string") return Object.keys($eb5be8077a65b10b$export$9a82c28ef488e918).includes(palette);
+        if (!Array.isArray(palette)) return false;
+        return palette.length === 11 && palette.every((color)=>typeof color === "string");
+    }
+    isValidLoggingPrefix(loggingPrefix) {
+        return typeof loggingPrefix === "string";
     }
 }
 
@@ -383,42 +406,8 @@ function $580f7ed6bc170ae8$var$isSameOrigin(a, b) {
 }
 
 
-const $fd3091053c5dfffc$var$options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)({
-    // [ STATIC | DYNAMIC ]
-    preferredAssessmentMode: (0, $5b739339de321a37$export$c019608e5b5bb4cb).AssessmentMode.STATIC,
-    // [ true | false ]
-    validation: true,
-    // [ DEFAULT | PINK | BLUE | generateSwatches(<hue>) ]
-    palette: $eb5be8077a65b10b$export$e6952b12ade67489,
-    // <string>
-    loggingPrefix: "Capo: "
-});
+const $fd3091053c5dfffc$var$options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)(window?.CapoOptions);
 const $fd3091053c5dfffc$var$io = new (0, $d410929ede0a2ee4$export$8f8422ac5947a789)(document, $fd3091053c5dfffc$var$options);
-function $fd3091053c5dfffc$var$logWeights() {
-    const headElement = $fd3091053c5dfffc$var$io.getHead();
-    const headWeights = $9c3989fcb9437829$export$5cc4a311ddbe699c(headElement).map(({ element: element, weight: weight })=>{
-        return {
-            weight: weight,
-            element: $fd3091053c5dfffc$var$io.getLoggableElement(element),
-            isValid: $fd3091053c5dfffc$var$isValidElement(element),
-            customValidations: $580f7ed6bc170ae8$export$6c93e2175c028eeb(element)
-        };
-    });
-    if (!$fd3091053c5dfffc$var$io.isStaticHead && $fd3091053c5dfffc$var$options.prefersStaticAssessment()) console.warn(`${$fd3091053c5dfffc$var$options.loggingPrefix}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, headElement);
-    $fd3091053c5dfffc$var$io.visualizeHead("Actual", headElement, headWeights);
-    const sortedWeights = headWeights.sort((a, b)=>{
-        return b.weight - a.weight;
-    });
-    const sortedHead = document.createElement("head");
-    sortedWeights.forEach(({ element: element })=>{
-        sortedHead.appendChild(element.cloneNode(true));
-    });
-    $fd3091053c5dfffc$var$io.visualizeHead("Sorted", sortedHead, sortedWeights);
-}
-function $fd3091053c5dfffc$var$isValidElement(element) {
-    if (!$fd3091053c5dfffc$var$options.isValidationEnabled()) return true;
-    return !$580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element);
-}
 function $fd3091053c5dfffc$var$validateHead() {
     if (!$fd3091053c5dfffc$var$options.isValidationEnabled()) return;
     const validationWarnings = $580f7ed6bc170ae8$export$b01ab94d0cd042a0($fd3091053c5dfffc$var$io.getHead());
@@ -427,8 +416,26 @@ function $fd3091053c5dfffc$var$validateHead() {
         console.warn(`${$fd3091053c5dfffc$var$options.loggingPrefix}${warning}`, ...elements, element);
     });
 }
+function $fd3091053c5dfffc$var$logWeights() {
+    const headElement = $fd3091053c5dfffc$var$io.getHead();
+    const headWeights = $9c3989fcb9437829$export$5cc4a311ddbe699c(headElement).map(({ element: element, weight: weight })=>{
+        return {
+            weight: weight,
+            element: $fd3091053c5dfffc$var$io.getLoggableElement(element),
+            isValid: !$580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element),
+            customValidations: $580f7ed6bc170ae8$export$6c93e2175c028eeb(element)
+        };
+    });
+    $fd3091053c5dfffc$var$io.visualizeHead("Actual", headElement, headWeights);
+    const sortedWeights = headWeights.sort((a, b)=>b.weight - a.weight);
+    const sortedHead = document.createElement("head");
+    sortedWeights.forEach(({ element: element })=>{
+        sortedHead.appendChild(element.cloneNode(true));
+    });
+    $fd3091053c5dfffc$var$io.visualizeHead("Sorted", sortedHead, sortedWeights);
+}
 (async ()=>{
-    await $fd3091053c5dfffc$var$io.getStaticOrDynamicHead();
+    await $fd3091053c5dfffc$var$io.init();
     $fd3091053c5dfffc$var$validateHead();
     $fd3091053c5dfffc$var$logWeights();
 })();

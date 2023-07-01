@@ -7,24 +7,14 @@ export class IO {
     this.head = null;
   }
 
-  getHead() {
-    return this.head;
-  }
-
-  async getStaticHTML() {
-    const url = this.document.location.href;
-    const response = await fetch(url);
-    return await response.text();
-    }
-
-  async getStaticOrDynamicHead() {
+  async init() {
     if (this.head) {
-      return this.head;
+      return;
     }
 
     if (this.options.prefersDynamicAssessment()) {
       this.head = this.document.head;
-      return this.head;
+      return;
     }
 
     try {
@@ -39,9 +29,23 @@ export class IO {
       } else {
         this.head = this.document.head;
       }
-    } catch {
+    } catch (e) {
+      console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
       this.head = this.document.head;
     }
+
+    if (!this.isStaticHead) {
+      console.warn(`${this.options.loggingPrefix}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, this.head);
+    }
+  }
+
+  async getStaticHTML() {
+    const url = this.document.location.href;
+    const response = await fetch(url);
+    return await response.text();
+  }
+
+  getHead() {
     return this.head;
   }
 

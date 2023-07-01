@@ -35,3 +35,9 @@ export const DEFAULT = [
 
 export const PINK = generateSwatches(Hues.PINK);
 export const BLUE = generateSwatches(Hues.BLUE);
+
+export const Palettes = {
+  DEFAULT: DEFAULT,
+  PINK: PINK,
+  BLUE: BLUE
+};
