@@ -19,7 +19,7 @@ export class IO {
 
     try {
       let html = await this.getStaticHTML();
-      html = html.replace(/(<\/?)(head)/ig, '$1static-head');
+      html = html.replace(/(\<\/?)(head)/ig, '$1static-head');
       const staticDoc = this.document.implementation.createHTMLDocument('New Document');
       staticDoc.documentElement.innerHTML = html;
       this.head = staticDoc.querySelector('static-head');
@@ -115,6 +115,17 @@ export class IO {
     console[loggingLevel](...args);
   }
 
+  logValidationWarnings(warnings) {
+    if (!this.options.isValidationEnabled()) {
+      return;
+    }
+  
+    warnings.forEach(({warning, elements=[], element}) => {
+      elements = elements.map(this.getLoggableElement.bind(this));
+      console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element);
+    });
+  }
+
   getHeadVisualization(weights) {
     const visual = weights.map(_ => '%c ').join('');
     const styles = weights.map(weight => {
@@ -135,14 +146,14 @@ export class IO {
   visualizeHead(groupName, headElement, headWeights) {
     const headViz = this.getHeadVisualization(headWeights.map(({weight}) => weight));
 
-    console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %c<head>%c order\n${headViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...headViz.styles);
+    console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %chead%c order\n${headViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...headViz.styles);
     
     headWeights.forEach(({weight, element, isValid, customValidations}) => {
       const viz = this.getElementVisualization(weight);
       this.logElement({viz, weight, element, isValid, customValidations, omitPrefix: true});
     });
     
-    console.log(`${groupName} %c<head>%c element`, 'font-family: monospace', 'font-family: inherit', headElement);
+    console.log(`${groupName} %chead%c element`, 'font-family: monospace', 'font-family: inherit', headElement);
     
     console.groupEnd();
   }

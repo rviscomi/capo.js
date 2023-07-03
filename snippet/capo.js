@@ -1,4 +1,31 @@
 (() => {
+function $parcel$export(e, n, v, s) {
+  Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
+}
+function $0eec6c831ab0f90a$export$8679af897d1c058e(io, validation) {
+    const validationWarnings = validation.getValidationWarnings(io.getHead());
+    io.logValidationWarnings(validationWarnings);
+}
+function $0eec6c831ab0f90a$export$b65597cffe09aebc(io, validation, rules) {
+    const headElement = io.getHead();
+    const headWeights = rules.getHeadWeights(headElement).map(({ element: element, weight: weight })=>{
+        return {
+            weight: weight,
+            element: io.getLoggableElement(element),
+            isValid: !validation.hasValidationWarning(element),
+            customValidations: validation.getCustomValidations(element)
+        };
+    });
+    io.visualizeHead("Actual", headElement, headWeights);
+    const sortedWeights = headWeights.sort((a, b)=>b.weight - a.weight);
+    const sortedHead = document.createElement("head");
+    sortedWeights.forEach(({ element: element })=>{
+        sortedHead.appendChild(element.cloneNode(true));
+    });
+    io.visualizeHead("Sorted", sortedHead, sortedWeights);
+}
+
+
 class $d410929ede0a2ee4$export$8f8422ac5947a789 {
     constructor(document, options){
         this.document = document;
@@ -14,7 +41,7 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         }
         try {
             let html = await this.getStaticHTML();
-            html = html.replace(/(<\/?)(head)/ig, "$1static-head");
+            html = html.replace(/(\<\/?)(head)/ig, "$1static-head");
             const staticDoc = this.document.implementation.createHTMLDocument("New Document");
             staticDoc.documentElement.innerHTML = html;
             this.head = staticDoc.querySelector("static-head");
@@ -82,6 +109,13 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         }
         console[loggingLevel](...args);
     }
+    logValidationWarnings(warnings) {
+        if (!this.options.isValidationEnabled()) return;
+        warnings.forEach(({ warning: warning, elements: elements = [], element: element })=>{
+            elements = elements.map(this.getLoggableElement.bind(this));
+            console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element);
+        });
+    }
     getHeadVisualization(weights) {
         const visual = weights.map((_)=>"%c ").join("");
         const styles = weights.map((weight)=>{
@@ -103,7 +137,7 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
     }
     visualizeHead(groupName, headElement, headWeights) {
         const headViz = this.getHeadVisualization(headWeights.map(({ weight: weight })=>weight));
-        console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %c<head>%c order\n${headViz.visual}`, "font-family: monospace", "font-family: inherit", ...headViz.styles);
+        console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %chead%c order\n${headViz.visual}`, "font-family: monospace", "font-family: inherit", ...headViz.styles);
         headWeights.forEach(({ weight: weight, element: element, isValid: isValid, customValidations: customValidations })=>{
             const viz = this.getElementVisualization(weight);
             this.logElement({
@@ -115,94 +149,9 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
                 omitPrefix: true
             });
         });
-        console.log(`${groupName} %c<head>%c element`, "font-family: monospace", "font-family: inherit", headElement);
+        console.log(`${groupName} %chead%c element`, "font-family: monospace", "font-family: inherit", headElement);
         console.groupEnd();
     }
-}
-
-
-const $9c3989fcb9437829$var$ElementWeights = {
-    META: 10,
-    TITLE: 9,
-    PRECONNECT: 8,
-    ASYNC_SCRIPT: 7,
-    IMPORT_STYLES: 6,
-    SYNC_SCRIPT: 5,
-    SYNC_STYLES: 4,
-    PRELOAD: 3,
-    DEFER_SCRIPT: 2,
-    PREFETCH_PRERENDER: 1,
-    OTHER: 0
-};
-const $9c3989fcb9437829$var$ElementDetectors = {
-    META: $9c3989fcb9437829$var$isMeta,
-    TITLE: $9c3989fcb9437829$var$isTitle,
-    PRECONNECT: $9c3989fcb9437829$var$isPreconnect,
-    ASYNC_SCRIPT: $9c3989fcb9437829$var$isAsyncScript,
-    IMPORT_STYLES: $9c3989fcb9437829$var$isImportStyles,
-    SYNC_SCRIPT: $9c3989fcb9437829$var$isSyncScript,
-    SYNC_STYLES: $9c3989fcb9437829$var$isSyncStyles,
-    PRELOAD: $9c3989fcb9437829$var$isPreload,
-    DEFER_SCRIPT: $9c3989fcb9437829$var$isDeferScript,
-    PREFETCH_PRERENDER: $9c3989fcb9437829$var$isPrefetchPrerender
-};
-function $9c3989fcb9437829$var$isMeta(element) {
-    return element.matches("meta:is([charset], [http-equiv], [name=viewport]), base");
-}
-function $9c3989fcb9437829$var$isTitle(element) {
-    return element.matches("title");
-}
-function $9c3989fcb9437829$var$isPreconnect(element) {
-    return element.matches("link[rel=preconnect]");
-}
-function $9c3989fcb9437829$var$isAsyncScript(element) {
-    return element.matches("script[src][async]");
-}
-function $9c3989fcb9437829$var$isImportStyles(element) {
-    const importRe = /@import/;
-    if (element.matches("style")) return importRe.test(element.textContent);
-    /* TODO: Support external stylesheets.
-  if (element.matches('link[rel=stylesheet][href]')) {
-    let response = fetch(element.href);
-    response = response.text();
-    return importRe.test(response);
-  } */ return false;
-}
-function $9c3989fcb9437829$var$isSyncScript(element) {
-    return element.matches("script:not([src][defer],[src][type=module],[src][async],[type*=json])");
-}
-function $9c3989fcb9437829$var$isSyncStyles(element) {
-    return element.matches("link[rel=stylesheet],style");
-}
-function $9c3989fcb9437829$var$isPreload(element) {
-    return element.matches("link:is([rel=preload], [rel=modulepreload])");
-}
-function $9c3989fcb9437829$var$isDeferScript(element) {
-    return element.matches("script[src][defer], script:not([src][async])[src][type=module]");
-}
-function $9c3989fcb9437829$var$isPrefetchPrerender(element) {
-    return element.matches("link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])");
-}
-function $9c3989fcb9437829$export$38a04d482ec50f88(element) {
-    return element.matches('meta[http-equiv="origin-trial"i]');
-}
-function $9c3989fcb9437829$export$14b1a2f64a600585(element) {
-    return element.matches('meta[http-equiv="Content-Security-Policy" i]');
-}
-function $9c3989fcb9437829$var$getWeight(element) {
-    for ([id, detector] of Object.entries($9c3989fcb9437829$var$ElementDetectors)){
-        if (detector(element)) return $9c3989fcb9437829$var$ElementWeights[id];
-    }
-    return $9c3989fcb9437829$var$ElementWeights.OTHER;
-}
-function $9c3989fcb9437829$export$5cc4a311ddbe699c(head) {
-    const headChildren = Array.from(head.children);
-    return headChildren.map((element)=>{
-        return {
-            element: element,
-            weight: $9c3989fcb9437829$var$getWeight(element)
-        };
-    });
 }
 
 
@@ -306,6 +255,102 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
 }
 
 
+var $9c3989fcb9437829$exports = {};
+
+$parcel$export($9c3989fcb9437829$exports, "isOriginTrial", () => $9c3989fcb9437829$export$38a04d482ec50f88);
+$parcel$export($9c3989fcb9437829$exports, "isMetaCSP", () => $9c3989fcb9437829$export$14b1a2f64a600585);
+$parcel$export($9c3989fcb9437829$exports, "getHeadWeights", () => $9c3989fcb9437829$export$5cc4a311ddbe699c);
+const $9c3989fcb9437829$var$ElementWeights = {
+    META: 10,
+    TITLE: 9,
+    PRECONNECT: 8,
+    ASYNC_SCRIPT: 7,
+    IMPORT_STYLES: 6,
+    SYNC_SCRIPT: 5,
+    SYNC_STYLES: 4,
+    PRELOAD: 3,
+    DEFER_SCRIPT: 2,
+    PREFETCH_PRERENDER: 1,
+    OTHER: 0
+};
+const $9c3989fcb9437829$var$ElementDetectors = {
+    META: $9c3989fcb9437829$var$isMeta,
+    TITLE: $9c3989fcb9437829$var$isTitle,
+    PRECONNECT: $9c3989fcb9437829$var$isPreconnect,
+    ASYNC_SCRIPT: $9c3989fcb9437829$var$isAsyncScript,
+    IMPORT_STYLES: $9c3989fcb9437829$var$isImportStyles,
+    SYNC_SCRIPT: $9c3989fcb9437829$var$isSyncScript,
+    SYNC_STYLES: $9c3989fcb9437829$var$isSyncStyles,
+    PRELOAD: $9c3989fcb9437829$var$isPreload,
+    DEFER_SCRIPT: $9c3989fcb9437829$var$isDeferScript,
+    PREFETCH_PRERENDER: $9c3989fcb9437829$var$isPrefetchPrerender
+};
+function $9c3989fcb9437829$var$isMeta(element) {
+    return element.matches("meta:is([charset], [http-equiv], [name=viewport]), base");
+}
+function $9c3989fcb9437829$var$isTitle(element) {
+    return element.matches("title");
+}
+function $9c3989fcb9437829$var$isPreconnect(element) {
+    return element.matches("link[rel=preconnect]");
+}
+function $9c3989fcb9437829$var$isAsyncScript(element) {
+    return element.matches("script[src][async]");
+}
+function $9c3989fcb9437829$var$isImportStyles(element) {
+    const importRe = /@import/;
+    if (element.matches("style")) return importRe.test(element.textContent);
+    /* TODO: Support external stylesheets.
+  if (element.matches('link[rel=stylesheet][href]')) {
+    let response = fetch(element.href);
+    response = response.text();
+    return importRe.test(response);
+  } */ return false;
+}
+function $9c3989fcb9437829$var$isSyncScript(element) {
+    return element.matches("script:not([src][defer],[src][type=module],[src][async],[type*=json])");
+}
+function $9c3989fcb9437829$var$isSyncStyles(element) {
+    return element.matches("link[rel=stylesheet],style");
+}
+function $9c3989fcb9437829$var$isPreload(element) {
+    return element.matches("link:is([rel=preload], [rel=modulepreload])");
+}
+function $9c3989fcb9437829$var$isDeferScript(element) {
+    return element.matches("script[src][defer], script:not([src][async])[src][type=module]");
+}
+function $9c3989fcb9437829$var$isPrefetchPrerender(element) {
+    return element.matches("link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])");
+}
+function $9c3989fcb9437829$export$38a04d482ec50f88(element) {
+    return element.matches('meta[http-equiv="origin-trial"i]');
+}
+function $9c3989fcb9437829$export$14b1a2f64a600585(element) {
+    return element.matches('meta[http-equiv="Content-Security-Policy" i]');
+}
+function $9c3989fcb9437829$var$getWeight(element) {
+    for ([id, detector] of Object.entries($9c3989fcb9437829$var$ElementDetectors)){
+        if (detector(element)) return $9c3989fcb9437829$var$ElementWeights[id];
+    }
+    return $9c3989fcb9437829$var$ElementWeights.OTHER;
+}
+function $9c3989fcb9437829$export$5cc4a311ddbe699c(head) {
+    const headChildren = Array.from(head.children);
+    return headChildren.map((element)=>{
+        return {
+            element: element,
+            weight: $9c3989fcb9437829$var$getWeight(element)
+        };
+    });
+}
+
+
+var $580f7ed6bc170ae8$exports = {};
+
+$parcel$export($580f7ed6bc170ae8$exports, "isValidElement", () => $580f7ed6bc170ae8$export$a8257692ac88316c);
+$parcel$export($580f7ed6bc170ae8$exports, "hasValidationWarning", () => $580f7ed6bc170ae8$export$eeefd08c3a6f8db7);
+$parcel$export($580f7ed6bc170ae8$exports, "getValidationWarnings", () => $580f7ed6bc170ae8$export$b01ab94d0cd042a0);
+$parcel$export($580f7ed6bc170ae8$exports, "getCustomValidations", () => $580f7ed6bc170ae8$export$6c93e2175c028eeb);
 
 const $580f7ed6bc170ae8$var$VALID_HEAD_ELEMENTS = new Set([
     "base",
@@ -406,38 +451,13 @@ function $580f7ed6bc170ae8$var$isSameOrigin(a, b) {
 }
 
 
-const $fd3091053c5dfffc$var$options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)(window?.CapoOptions);
-const $fd3091053c5dfffc$var$io = new (0, $d410929ede0a2ee4$export$8f8422ac5947a789)(document, $fd3091053c5dfffc$var$options);
-function $fd3091053c5dfffc$var$validateHead() {
-    if (!$fd3091053c5dfffc$var$options.isValidationEnabled()) return;
-    const validationWarnings = $580f7ed6bc170ae8$export$b01ab94d0cd042a0($fd3091053c5dfffc$var$io.getHead());
-    validationWarnings.forEach(({ warning: warning, elements: elements = [], element: element })=>{
-        elements = elements.map($fd3091053c5dfffc$var$io.getLoggableElement);
-        console.warn(`${$fd3091053c5dfffc$var$options.loggingPrefix}${warning}`, ...elements, element);
-    });
+async function $fd3091053c5dfffc$var$run() {
+    const options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)(self?.CapoOptions);
+    const io = new (0, $d410929ede0a2ee4$export$8f8422ac5947a789)(document, options);
+    await io.init();
+    $0eec6c831ab0f90a$export$8679af897d1c058e(io, $580f7ed6bc170ae8$exports);
+    $0eec6c831ab0f90a$export$b65597cffe09aebc(io, $580f7ed6bc170ae8$exports, $9c3989fcb9437829$exports);
 }
-function $fd3091053c5dfffc$var$logWeights() {
-    const headElement = $fd3091053c5dfffc$var$io.getHead();
-    const headWeights = $9c3989fcb9437829$export$5cc4a311ddbe699c(headElement).map(({ element: element, weight: weight })=>{
-        return {
-            weight: weight,
-            element: $fd3091053c5dfffc$var$io.getLoggableElement(element),
-            isValid: !$580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element),
-            customValidations: $580f7ed6bc170ae8$export$6c93e2175c028eeb(element)
-        };
-    });
-    $fd3091053c5dfffc$var$io.visualizeHead("Actual", headElement, headWeights);
-    const sortedWeights = headWeights.sort((a, b)=>b.weight - a.weight);
-    const sortedHead = document.createElement("head");
-    sortedWeights.forEach(({ element: element })=>{
-        sortedHead.appendChild(element.cloneNode(true));
-    });
-    $fd3091053c5dfffc$var$io.visualizeHead("Sorted", sortedHead, sortedWeights);
-}
-(async ()=>{
-    await $fd3091053c5dfffc$var$io.init();
-    $fd3091053c5dfffc$var$validateHead();
-    $fd3091053c5dfffc$var$logWeights();
-})();
+$fd3091053c5dfffc$var$run();
 
 })();
