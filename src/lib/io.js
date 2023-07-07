@@ -84,6 +84,43 @@ export class IO {
     return element;
   }
 
+  // Note: AI-generated function.
+  createElementFromSelector(selector) {
+    // Extract the tag name from the selector
+    const tagName = selector.match(/^[A-Za-z]+/)[0];
+
+    if (!tagName) {
+      return;
+    }
+  
+    // Create the new element
+    const element = document.createElement(tagName);
+  
+    // Extract the attribute key-value pairs from the selector
+    const attributes = selector.match(/\[([A-Za-z-]+)="([^"]+)"\]/g) || [];
+  
+    // Set the attributes on the new element
+    attributes.forEach(attribute => {
+      const [key, value] = attribute
+        .replace('[', '')
+        .replace(']', '')
+        .split('=');
+      element.setAttribute(key, value.slice(1, -1));
+    });
+  
+    return element;
+  }
+
+  logElementFromSelector({weight, selector, innerHTML, isValid, customValidations={}}) {
+    weight = +weight;
+    const viz = this.getElementVisualization(weight);
+    let element = this.createElementFromSelector(selector);
+    element.innerHTML = innerHTML;
+    element = this.getLoggableElement(element);
+
+    this.logElement({viz, weight, element, isValid, customValidations});
+  }
+
   logElement({viz, weight, element, isValid, customValidations, omitPrefix = false}) {
     if (!omitPrefix) {
       viz.visual = `${this.options.loggingPrefix}${viz.visual}`;

@@ -2,79 +2,6 @@
 function $parcel$export(e, n, v, s) {
   Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
 }
-var $parcel$global =
-typeof globalThis !== 'undefined'
-  ? globalThis
-  : typeof self !== 'undefined'
-  ? self
-  : typeof window !== 'undefined'
-  ? window
-  : typeof global !== 'undefined'
-  ? global
-  : {};
-var $parcel$modules = {};
-var $parcel$inits = {};
-
-var parcelRequire = $parcel$global["parcelRequire3a0c"];
-if (parcelRequire == null) {
-  parcelRequire = function(id) {
-    if (id in $parcel$modules) {
-      return $parcel$modules[id].exports;
-    }
-    if (id in $parcel$inits) {
-      var init = $parcel$inits[id];
-      delete $parcel$inits[id];
-      var module = {id: id, exports: {}};
-      $parcel$modules[id] = module;
-      init.call(module.exports, module, module.exports);
-      return module.exports;
-    }
-    var err = new Error("Cannot find module '" + id + "'");
-    err.code = 'MODULE_NOT_FOUND';
-    throw err;
-  };
-
-  parcelRequire.register = function register(id, init) {
-    $parcel$inits[id] = init;
-  };
-
-  $parcel$global["parcelRequire3a0c"] = parcelRequire;
-}
-parcelRequire.register("hCxrH", function(module, exports) {
-
-var $1hr89 = parcelRequire("1hr89");
-
-var $icOzf = parcelRequire("icOzf");
-
-var $7QNe9 = parcelRequire("7QNe9");
-
-var $dpA0m = parcelRequire("dpA0m");
-
-var $7yK8r = parcelRequire("7yK8r");
-async function run() {
-    const options = new (0, $7QNe9.Options)(self?.CapoOptions);
-    const io = new (0, $icOzf.IO)(document, options);
-    await io.init();
-    $1hr89.validateHead(io, $7yK8r);
-    $1hr89.logWeights(io, $7yK8r, $dpA0m);
-    const headWeights = $dpA0m.getHeadWeights(io.getHead());
-    console.log("headWeights", headWeights);
-    return JSON.stringify({
-        actual: headWeights.map(({ element, weight })=>({
-                weight: weight,
-                selector: io.stringifyElement(element),
-                innerHTML: element.innerHTML,
-                isValid: !$7yK8r.hasValidationWarning(element)
-            }))
-    });
-}
-return run();
-
-});
-parcelRequire.register("1hr89", function(module, exports) {
-
-$parcel$export(module.exports, "validateHead", () => $0eec6c831ab0f90a$export$8679af897d1c058e);
-$parcel$export(module.exports, "logWeights", () => $0eec6c831ab0f90a$export$b65597cffe09aebc);
 function $0eec6c831ab0f90a$export$8679af897d1c058e(io, validation) {
     const validationWarnings = validation.getValidationWarnings(io.getHead());
     io.logValidationWarnings(validationWarnings);
@@ -90,22 +17,19 @@ function $0eec6c831ab0f90a$export$b65597cffe09aebc(io, validation, rules) {
         };
     });
     io.visualizeHead("Actual", headElement, headWeights);
-    const sortedWeights = headWeights.sort((a, b)=>b.weight - a.weight);
+    const sortedWeights = Array.from(headWeights).sort((a, b)=>b.weight - a.weight);
     const sortedHead = document.createElement("head");
     sortedWeights.forEach(({ element: element })=>{
         sortedHead.appendChild(element.cloneNode(true));
     });
     io.visualizeHead("Sorted", sortedHead, sortedWeights);
+    return headWeights;
 }
 
-});
 
-parcelRequire.register("icOzf", function(module, exports) {
-
-$parcel$export(module.exports, "IO", () => $d410929ede0a2ee4$export$8f8422ac5947a789);
 class $d410929ede0a2ee4$export$8f8422ac5947a789 {
-    constructor(document, options){
-        this.document = document;
+    constructor(document1, options){
+        this.document = document1;
         this.options = options;
         this.isStaticHead = false;
         this.head = null;
@@ -159,6 +83,36 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         });
         if (candidate) return candidate;
         return element;
+    }
+    // Note: AI-generated function.
+    createElementFromSelector(selector) {
+        // Extract the tag name from the selector
+        const tagName = selector.match(/^[A-Za-z]+/)[0];
+        if (!tagName) return;
+        // Create the new element
+        const element = document.createElement(tagName);
+        // Extract the attribute key-value pairs from the selector
+        const attributes = selector.match(/\[([A-Za-z-]+)="([^"]+)"\]/g) || [];
+        // Set the attributes on the new element
+        attributes.forEach((attribute)=>{
+            const [key, value] = attribute.replace("[", "").replace("]", "").split("=");
+            element.setAttribute(key, value.slice(1, -1));
+        });
+        return element;
+    }
+    logElementFromSelector({ weight: weight, selector: selector, innerHTML: innerHTML, isValid: isValid, customValidations: customValidations = {} }) {
+        weight = +weight;
+        const viz = this.getElementVisualization(weight);
+        let element = this.createElementFromSelector(selector);
+        element.innerHTML = innerHTML;
+        element = this.getLoggableElement(element);
+        this.logElement({
+            viz: viz,
+            weight: weight,
+            element: element,
+            isValid: isValid,
+            customValidations: customValidations
+        });
     }
     logElement({ viz: viz, weight: weight, element: element, isValid: isValid, customValidations: customValidations, omitPrefix: omitPrefix = false }) {
         if (!omitPrefix) viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
@@ -231,76 +185,7 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
     }
 }
 
-});
 
-parcelRequire.register("7QNe9", function(module, exports) {
-
-$parcel$export(module.exports, "Options", () => $5b739339de321a37$export$c019608e5b5bb4cb);
-
-var $kcOfu = parcelRequire("kcOfu");
-class $5b739339de321a37$export$c019608e5b5bb4cb {
-    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $kcOfu.DEFAULT, loggingPrefix: loggingPrefix = "Capo: " } = {}){
-        this.setPreferredAssessmentMode(preferredAssessmentMode);
-        this.setValidation(validation);
-        this.setPalette(palette);
-        this.setLoggingPrefix(loggingPrefix);
-    }
-    static get AssessmentMode() {
-        return {
-            STATIC: "static",
-            DYNAMIC: "dynamic"
-        };
-    }
-    prefersStaticAssessment() {
-        return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
-    }
-    prefersDynamicAssessment() {
-        return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
-    }
-    isValidationEnabled() {
-        return this.validation;
-    }
-    setPreferredAssessmentMode(preferredAssessmentMode) {
-        if (!this.isValidAssessmentMode(preferredAssessmentMode)) throw new Error(`Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`);
-        this.preferredAssessmentMode = preferredAssessmentMode;
-    }
-    setValidation(validation) {
-        if (!this.isValidValidation(validation)) throw new Error(`Invalid option: validation, expected boolean, got "${validation}".`);
-        this.validation = validation;
-    }
-    setPalette(palette) {
-        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected [${Object.keys($kcOfu.Palettes).join("|")}] or an array of colors, got "${palette}".`);
-        if (typeof palette === "string") {
-            this.palette = $kcOfu.Palettes[palette];
-            return;
-        }
-        this.palette = palette;
-    }
-    setLoggingPrefix(loggingPrefix) {
-        if (!this.isValidLoggingPrefix(loggingPrefix)) throw new Error(`Invalid option: logging prefix, expected string, got "${loggingPrefix}".`);
-        this.loggingPrefix = loggingPrefix;
-    }
-    isValidAssessmentMode(assessmentMode) {
-        return Object.values($5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
-    }
-    isValidValidation(validation) {
-        return typeof validation === "boolean";
-    }
-    isValidPalette(palette) {
-        if (typeof palette === "string") return Object.keys($kcOfu.Palettes).includes(palette);
-        if (!Array.isArray(palette)) return false;
-        return palette.length === 11 && palette.every((color)=>typeof color === "string");
-    }
-    isValidLoggingPrefix(loggingPrefix) {
-        return typeof loggingPrefix === "string";
-    }
-}
-
-});
-parcelRequire.register("kcOfu", function(module, exports) {
-
-$parcel$export(module.exports, "DEFAULT", () => $eb5be8077a65b10b$export$e6952b12ade67489);
-$parcel$export(module.exports, "Palettes", () => $eb5be8077a65b10b$export$9a82c28ef488e918);
 const $eb5be8077a65b10b$var$Hues = {
     PINK: 320,
     BLUE: 200
@@ -341,14 +226,71 @@ const $eb5be8077a65b10b$export$9a82c28ef488e918 = {
     BLUE: $eb5be8077a65b10b$export$738c3b9a44c87ecc
 };
 
-});
+
+class $5b739339de321a37$export$c019608e5b5bb4cb {
+    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $eb5be8077a65b10b$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " } = {}){
+        this.setPreferredAssessmentMode(preferredAssessmentMode);
+        this.setValidation(validation);
+        this.setPalette(palette);
+        this.setLoggingPrefix(loggingPrefix);
+    }
+    static get AssessmentMode() {
+        return {
+            STATIC: "static",
+            DYNAMIC: "dynamic"
+        };
+    }
+    prefersStaticAssessment() {
+        return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
+    }
+    prefersDynamicAssessment() {
+        return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
+    }
+    isValidationEnabled() {
+        return this.validation;
+    }
+    setPreferredAssessmentMode(preferredAssessmentMode) {
+        if (!this.isValidAssessmentMode(preferredAssessmentMode)) throw new Error(`Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`);
+        this.preferredAssessmentMode = preferredAssessmentMode;
+    }
+    setValidation(validation) {
+        if (!this.isValidValidation(validation)) throw new Error(`Invalid option: validation, expected boolean, got "${validation}".`);
+        this.validation = validation;
+    }
+    setPalette(palette) {
+        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected [${Object.keys($eb5be8077a65b10b$export$9a82c28ef488e918).join("|")}] or an array of colors, got "${palette}".`);
+        if (typeof palette === "string") {
+            this.palette = $eb5be8077a65b10b$export$9a82c28ef488e918[palette];
+            return;
+        }
+        this.palette = palette;
+    }
+    setLoggingPrefix(loggingPrefix) {
+        if (!this.isValidLoggingPrefix(loggingPrefix)) throw new Error(`Invalid option: logging prefix, expected string, got "${loggingPrefix}".`);
+        this.loggingPrefix = loggingPrefix;
+    }
+    isValidAssessmentMode(assessmentMode) {
+        return Object.values($5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
+    }
+    isValidValidation(validation) {
+        return typeof validation === "boolean";
+    }
+    isValidPalette(palette) {
+        if (typeof palette === "string") return Object.keys($eb5be8077a65b10b$export$9a82c28ef488e918).includes(palette);
+        if (!Array.isArray(palette)) return false;
+        return palette.length === 11 && palette.every((color)=>typeof color === "string");
+    }
+    isValidLoggingPrefix(loggingPrefix) {
+        return typeof loggingPrefix === "string";
+    }
+}
 
 
-parcelRequire.register("dpA0m", function(module, exports) {
+var $9c3989fcb9437829$exports = {};
 
-$parcel$export(module.exports, "isOriginTrial", () => $9c3989fcb9437829$export$38a04d482ec50f88);
-$parcel$export(module.exports, "isMetaCSP", () => $9c3989fcb9437829$export$14b1a2f64a600585);
-$parcel$export(module.exports, "getHeadWeights", () => $9c3989fcb9437829$export$5cc4a311ddbe699c);
+$parcel$export($9c3989fcb9437829$exports, "isOriginTrial", () => $9c3989fcb9437829$export$38a04d482ec50f88);
+$parcel$export($9c3989fcb9437829$exports, "isMetaCSP", () => $9c3989fcb9437829$export$14b1a2f64a600585);
+$parcel$export($9c3989fcb9437829$exports, "getHeadWeights", () => $9c3989fcb9437829$export$5cc4a311ddbe699c);
 const $9c3989fcb9437829$var$ElementWeights = {
     META: 10,
     TITLE: 9,
@@ -433,16 +375,14 @@ function $9c3989fcb9437829$export$5cc4a311ddbe699c(head) {
     });
 }
 
-});
 
-parcelRequire.register("7yK8r", function(module, exports) {
+var $580f7ed6bc170ae8$exports = {};
 
-$parcel$export(module.exports, "isValidElement", () => $580f7ed6bc170ae8$export$a8257692ac88316c);
-$parcel$export(module.exports, "hasValidationWarning", () => $580f7ed6bc170ae8$export$eeefd08c3a6f8db7);
-$parcel$export(module.exports, "getValidationWarnings", () => $580f7ed6bc170ae8$export$b01ab94d0cd042a0);
-$parcel$export(module.exports, "getCustomValidations", () => $580f7ed6bc170ae8$export$6c93e2175c028eeb);
+$parcel$export($580f7ed6bc170ae8$exports, "isValidElement", () => $580f7ed6bc170ae8$export$a8257692ac88316c);
+$parcel$export($580f7ed6bc170ae8$exports, "hasValidationWarning", () => $580f7ed6bc170ae8$export$eeefd08c3a6f8db7);
+$parcel$export($580f7ed6bc170ae8$exports, "getValidationWarnings", () => $580f7ed6bc170ae8$export$b01ab94d0cd042a0);
+$parcel$export($580f7ed6bc170ae8$exports, "getCustomValidations", () => $580f7ed6bc170ae8$export$6c93e2175c028eeb);
 
-var $dpA0m = parcelRequire("dpA0m");
 const $580f7ed6bc170ae8$var$VALID_HEAD_ELEMENTS = new Set([
     "base",
     "link",
@@ -466,7 +406,7 @@ function $580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element) {
     // <base> is not the first of its type.
     if (element.matches("base:is(:nth-of-type(n+2))")) return true;
     // CSP meta tag anywhere.
-    if ((0, $dpA0m.isMetaCSP)(element)) return true;
+    if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return true;
     return false;
 }
 function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
@@ -500,8 +440,8 @@ function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
     return validationWarnings;
 }
 function $580f7ed6bc170ae8$export$6c93e2175c028eeb(element) {
-    if ((0, $dpA0m.isOriginTrial)(element)) return $580f7ed6bc170ae8$var$validateOriginTrial(element);
-    if ((0, $dpA0m.isMetaCSP)(element)) return $580f7ed6bc170ae8$var$validateCSP(element);
+    if ((0, $9c3989fcb9437829$export$38a04d482ec50f88)(element)) return $580f7ed6bc170ae8$var$validateOriginTrial(element);
+    if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return $580f7ed6bc170ae8$var$validateCSP(element);
     return {};
 }
 function $580f7ed6bc170ae8$var$validateCSP(element) {
@@ -541,9 +481,41 @@ function $580f7ed6bc170ae8$var$isSameOrigin(a, b) {
     return new URL(a).origin === new URL(b).origin;
 }
 
-});
 
+const $cd3fede4a88f441d$var$CAPO_GLOBAL = "__CAPO__";
+async function $cd3fede4a88f441d$var$run(io) {
+    await io.init();
+    $0eec6c831ab0f90a$export$8679af897d1c058e(io, $580f7ed6bc170ae8$exports);
+    const headWeights = $0eec6c831ab0f90a$export$b65597cffe09aebc(io, $580f7ed6bc170ae8$exports, $9c3989fcb9437829$exports);
+    return {
+        actual: headWeights.map(({ element: element, weight: weight, isValid: isValid, customValidations: customValidations })=>({
+                weight: weight,
+                selector: io.stringifyElement(element),
+                innerHTML: element.innerHTML,
+                isValid: isValid,
+                customValidations: customValidations
+            }))
+    };
+}
+async function $cd3fede4a88f441d$var$init() {
+    self[$cd3fede4a88f441d$var$CAPO_GLOBAL] = self[$cd3fede4a88f441d$var$CAPO_GLOBAL] || {};
+    const options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)(self[$cd3fede4a88f441d$var$CAPO_GLOBAL].options);
+    const io = new (0, $d410929ede0a2ee4$export$8f8422ac5947a789)(document, options);
+    // This file is executed by the extension in two scenarios:
+    //
+    //     1. User clicks the extension icon
+    //     2. User clicks an element in the color bar
+    //
+    // The existence of the selector tells us which scenario we're in.
+    const data = self[$cd3fede4a88f441d$var$CAPO_GLOBAL].click;
+    if (data) {
+        io.logElementFromSelector(data);
+        self[$cd3fede4a88f441d$var$CAPO_GLOBAL].click = undefined;
+    } else {
+        const data = await $cd3fede4a88f441d$var$run(io);
+        self[$cd3fede4a88f441d$var$CAPO_GLOBAL].data = data;
+    }
+}
+$cd3fede4a88f441d$var$init();
 
-
-parcelRequire("hCxrH");
 })();

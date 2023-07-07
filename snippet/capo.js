@@ -17,18 +17,19 @@ function $0eec6c831ab0f90a$export$b65597cffe09aebc(io, validation, rules) {
         };
     });
     io.visualizeHead("Actual", headElement, headWeights);
-    const sortedWeights = headWeights.sort((a, b)=>b.weight - a.weight);
+    const sortedWeights = Array.from(headWeights).sort((a, b)=>b.weight - a.weight);
     const sortedHead = document.createElement("head");
     sortedWeights.forEach(({ element: element })=>{
         sortedHead.appendChild(element.cloneNode(true));
     });
     io.visualizeHead("Sorted", sortedHead, sortedWeights);
+    return headWeights;
 }
 
 
 class $d410929ede0a2ee4$export$8f8422ac5947a789 {
-    constructor(document, options){
-        this.document = document;
+    constructor(document1, options){
+        this.document = document1;
         this.options = options;
         this.isStaticHead = false;
         this.head = null;
@@ -82,6 +83,36 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         });
         if (candidate) return candidate;
         return element;
+    }
+    // Note: AI-generated function.
+    createElementFromSelector(selector) {
+        // Extract the tag name from the selector
+        const tagName = selector.match(/^[A-Za-z]+/)[0];
+        if (!tagName) return;
+        // Create the new element
+        const element = document.createElement(tagName);
+        // Extract the attribute key-value pairs from the selector
+        const attributes = selector.match(/\[([A-Za-z-]+)="([^"]+)"\]/g) || [];
+        // Set the attributes on the new element
+        attributes.forEach((attribute)=>{
+            const [key, value] = attribute.replace("[", "").replace("]", "").split("=");
+            element.setAttribute(key, value.slice(1, -1));
+        });
+        return element;
+    }
+    logElementFromSelector({ weight: weight, selector: selector, innerHTML: innerHTML, isValid: isValid, customValidations: customValidations = {} }) {
+        weight = +weight;
+        const viz = this.getElementVisualization(weight);
+        let element = this.createElementFromSelector(selector);
+        element.innerHTML = innerHTML;
+        element = this.getLoggableElement(element);
+        this.logElement({
+            viz: viz,
+            weight: weight,
+            element: element,
+            isValid: isValid,
+            customValidations: customValidations
+        });
     }
     logElement({ viz: viz, weight: weight, element: element, isValid: isValid, customValidations: customValidations, omitPrefix: omitPrefix = false }) {
         if (!omitPrefix) viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
@@ -451,8 +482,9 @@ function $580f7ed6bc170ae8$var$isSameOrigin(a, b) {
 }
 
 
+const $fd3091053c5dfffc$var$CAPO_GLOBAL = "__CAPO__";
 async function $fd3091053c5dfffc$var$run() {
-    const options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)(self?.CapoOptions);
+    const options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)(self[$fd3091053c5dfffc$var$CAPO_GLOBAL]?.options);
     const io = new (0, $d410929ede0a2ee4$export$8f8422ac5947a789)(document, options);
     await io.init();
     $0eec6c831ab0f90a$export$8679af897d1c058e(io, $580f7ed6bc170ae8$exports);
