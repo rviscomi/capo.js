@@ -1,6 +1,30 @@
+:root {
+  --brand: #d53e4f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand: #66c2a5;
+  }
+  html {
+    background: var(--gray-9);
+    color: var(--gray-1);
+  }
+  h1 {
+    text-shadow: 0 0 10px var(--brand);
+  }
+}
+
+:where(html) {
+  background: white;
+  color: var(--gray-8);
+  accent-color: var(--brand, var(--link));
+  font-family: var(--font-sans);
+}
+
 body {
   padding: 10em;
-  font-size: 16px;
+  font-size: var(--font-size-2);
 }
 
 #options {
@@ -24,9 +48,23 @@ label {
   align-self: center;
 }
 
+header {
+  grid-column: 1 / 3;
+  display: flex;
+}
+
+h1 {
+  font-size: var(--font-size-7);
+  margin: 0;
+}
+
 footer {
   grid-column: 1 / 3;
   display: flex;
   justify-content: space-between;
-  font-size: 0.8em;
+  font-size: var(--font-size-0);
+}
+
+a {
+  color: var(--link, var(--brand));
 }
