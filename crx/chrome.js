@@ -1,25 +1,29 @@
-const CAPO_GLOBAL = '__CAPO__';
-
 init();
 
+async function getCurrentTab() {
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  return {tabId: tab.id};
+}
+
 async function init() {
-  const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
+  await chrome.storage.local.remove('data');
+
   await chrome.scripting.executeScript({
-    target: {tabId: tab.id},
+    target: await getCurrentTab(),
     files: ['capo.js']
-  });
-  const [{result}] = await chrome.scripting.executeScript({
-    target: {tabId: tab.id},
-    args: [CAPO_GLOBAL],
-    func: (CAPO_GLOBAL) => {
-      return JSON.stringify(self[CAPO_GLOBAL].data);
+  })
+
+  chrome.storage.onChanged.addListener((changes) => {
+    console.log('Storage changed', changes)
+    const {data} = changes;
+    if (data?.newValue) {
+      print(data.newValue);
     }
   });
-  print(JSON.parse(result));
 }
   
 function print(result) {
-  console.log(result);
+  console.log('Data', result);
   let frag = document.createDocumentFragment();
   for (let r of result.actual) {
     frag.appendChild(getCapoHeadElement(r));
@@ -37,11 +41,12 @@ function print(result) {
   document.body.addEventListener('click', handleCapoClick);
 }
 
-function getCapoHeadElement({weight, selector, innerHTML, isValid, customValidations}) {
+function getCapoHeadElement({weight, color, selector, innerHTML, isValid, customValidations}) {
   const span = document.createElement('span');
   span.classList.add('capo-head-element');
   span.classList.toggle('invalid', !isValid);
   span.dataset.weight = weight;
+  span.style.backgroundColor = color;
   span.dataset.selector = selector;
   span.dataset.innerHTML = innerHTML;
   span.dataset.customValidations = JSON.stringify(customValidations);
@@ -53,18 +58,14 @@ async function handleCapoClick(event) {
   const {weight, selector, innerHTML} = event.target.dataset;
   const customValidations = JSON.parse(event.target.dataset.customValidations);
   const isValid = !event.target.classList.contains('invalid');
-  const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
-  await chrome.scripting.executeScript({
-    target: {tabId: tab.id},
-    args: [CAPO_GLOBAL, {
+
+  await chrome.storage.local.set({
+    click: JSON.stringify({
       weight, selector, innerHTML, isValid, customValidations
-    }],
-    func: (CAPO_GLOBAL, data) => {
-      self[CAPO_GLOBAL].click = data;
-    }
+    })
   });
   await chrome.scripting.executeScript({
-    target: {tabId: tab.id},
+    target: await getCurrentTab(),
     files: ['capo.js']
   });
 }

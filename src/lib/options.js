@@ -21,6 +21,10 @@ export class Options {
     };
   }
 
+  static get Palettes() {
+    return colors.Palettes;
+  }
+
   prefersStaticAssessment() {
     return this.preferredAssessmentMode === Options.AssessmentMode.STATIC;
   }
@@ -39,6 +43,15 @@ export class Options {
     }
 
     this.preferredAssessmentMode = preferredAssessmentMode;
+  }
+
+  setPreferredAssessmentModeToStatic(prefersStatic) {
+    let mode = Options.AssessmentMode.STATIC;
+    if (!prefersStatic) {
+      mode = Options.AssessmentMode.DYNAMIC;
+    }
+    
+    this.setPreferredAssessmentMode(mode);
   }
 
   setValidation(validation) {
@@ -92,6 +105,19 @@ export class Options {
 
   isValidLoggingPrefix(loggingPrefix) {
     return typeof loggingPrefix === 'string';
+  }
+
+  isPreferredPalette(palette) {
+    return JSON.stringify(this.palette) == JSON.stringify(palette);
+  }
+
+  valueOf() {
+    return {
+      preferredAssessmentMode: this.preferredAssessmentMode,
+      validation: this.validation,
+      palette: this.palette,
+      loggingPrefix: this.loggingPrefix
+    };
   }
 
 }

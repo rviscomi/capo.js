@@ -147,10 +147,13 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
             console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element);
         });
     }
+    getColor(weight) {
+        return this.options.palette[10 - weight];
+    }
     getHeadVisualization(weights) {
         const visual = weights.map((_)=>"%c ").join("");
         const styles = weights.map((weight)=>{
-            const color = this.options.palette[10 - weight];
+            const color = this.getColor(weight);
             return `background-color: ${color}; padding: 5px; margin: 0 -1px;`;
         });
         return {
@@ -160,7 +163,8 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
     }
     getElementVisualization(weight) {
         const visual = `%c${new Array(weight + 1).fill("█").join("")}`;
-        const style = `color: ${this.options.palette[10 - weight]}`;
+        const color = this.getColor(weight);
+        const style = `color: ${color}`;
         return {
             visual: visual,
             style: style
@@ -240,6 +244,9 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
             DYNAMIC: "dynamic"
         };
     }
+    static get Palettes() {
+        return $eb5be8077a65b10b$export$9a82c28ef488e918;
+    }
     prefersStaticAssessment() {
         return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
     }
@@ -252,6 +259,11 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
     setPreferredAssessmentMode(preferredAssessmentMode) {
         if (!this.isValidAssessmentMode(preferredAssessmentMode)) throw new Error(`Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`);
         this.preferredAssessmentMode = preferredAssessmentMode;
+    }
+    setPreferredAssessmentModeToStatic(prefersStatic) {
+        let mode = $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
+        if (!prefersStatic) mode = $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
+        this.setPreferredAssessmentMode(mode);
     }
     setValidation(validation) {
         if (!this.isValidValidation(validation)) throw new Error(`Invalid option: validation, expected boolean, got "${validation}".`);
@@ -282,6 +294,17 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
     }
     isValidLoggingPrefix(loggingPrefix) {
         return typeof loggingPrefix === "string";
+    }
+    isPreferredPalette(palette) {
+        return JSON.stringify(this.palette) == JSON.stringify(palette);
+    }
+    valueOf() {
+        return {
+            preferredAssessmentMode: this.preferredAssessmentMode,
+            validation: this.validation,
+            palette: this.palette,
+            loggingPrefix: this.loggingPrefix
+        };
     }
 }
 

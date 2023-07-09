@@ -17,8 +17,12 @@
     "crx": {
       "source": "src/crx/capo.js",
       "distDir": "crx",
-      "sourceMap": false,
-      "optimize": false
+      "sourceMap": false
+    },
+    "crx-options": {
+      "source": "src/crx/options.js",
+      "distDir": "crx/options",
+      "sourceMap": false
     }
   },
   "scripts": {

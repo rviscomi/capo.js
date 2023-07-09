@@ -163,10 +163,14 @@ export class IO {
     });
   }
 
+  getColor(weight) {
+    return this.options.palette[10 - weight];
+  }
+
   getHeadVisualization(weights) {
     const visual = weights.map(_ => '%c ').join('');
     const styles = weights.map(weight => {
-      const color = this.options.palette[10 - weight];
+      const color = this.getColor(weight);
       return `background-color: ${color}; padding: 5px; margin: 0 -1px;`
     });
 
@@ -175,7 +179,8 @@ export class IO {
 
   getElementVisualization(weight) {
     const visual = `%c${new Array(weight + 1).fill('█').join('')}`;
-    const style = `color: ${this.options.palette[10 - weight]}`;
+    const color = this.getColor(weight);
+    const style = `color: ${color}`;
   
     return {visual, style};
   }
