@@ -63,7 +63,9 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         return this.head;
     }
     stringifyElement(element) {
-        return element.getAttributeNames().reduce((id, attr)=>id += `[${attr}=${JSON.stringify(element.getAttribute(attr))}]`, element.nodeName);
+        return element.getAttributeNames().reduce((id, attr)=>{
+            return id += `[${CSS.escape(attr)}=${JSON.stringify(element.getAttribute(attr))}]`;
+        }, element.nodeName);
     }
     getLoggableElement(element) {
         if (!this.isStaticHead) return element;
