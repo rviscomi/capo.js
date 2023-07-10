@@ -2,10 +2,14 @@
 <html>
   <head>
     <title>Capo Options</title>
+    <link rel="stylesheet" href="../styles/open-props.css">
     <link rel="stylesheet" href="options.css">
   </head>
-  <body>
+  <body class="surface-1">
     <form id="options">
+      <header>
+        <h1>Capo options</h1>
+      </header>
       <input id="prefer-static" name="prefer-static" type="checkbox" class="option">
       <label for="prefer-static">
         Prefer to evaluate the static, server-rendered <code>&lt;head></code>
@@ -18,16 +22,15 @@
         (<a href="https://rviscomi.github.io/capo.js/guides/extension/">learn more</a>)
       </label>
 
-      <select id="palette" name="palette" class="option" disabled>
-        <option value="default">Default</option>
-        <option value="pink">Pink</option>
-        <option value="blue">Blue</option>
-      </select>
-      <label for="palette">Color palette <em>(coming soon)</em></label>
+      <select id="palette" name="palette" class="option"></select>
+      <label for="palette">
+        Color palette
+        (<a href="https://rviscomi.github.io/capo.js/guides/extension/">learn more</a>)
+      </label>
 
       <footer>
         <p>Options saved automatically</p>
-        <p><a href="https://github.com/rviscomi/capo.js">rviscomi/capo.js</a></p>
+        <p><a href="https://rviscomi.github.io/capo.js/">rviscomi/capo.js</a></p>
       </footer>
     </form>
     <script src="options.js" type="module"></script>

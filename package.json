@@ -1,0 +1,35 @@
+{
+  "name": "capo",
+  "version": "1.4.0",
+  "description": "Get your head in order",
+  "author": "Rick Viscomi",
+  "license": "Apache-2.0",
+  "directories": {
+    "doc": "docs"
+  },
+  "targets": {
+    "snippet": {
+      "source": "src/snippet/capo.js",
+      "distDir": "snippet",
+      "sourceMap": false,
+      "optimize": false
+    },
+    "crx": {
+      "source": "src/crx/capo.js",
+      "distDir": "crx",
+      "sourceMap": false
+    },
+    "crx-options": {
+      "source": "src/crx/options.js",
+      "distDir": "crx/options",
+      "sourceMap": false
+    }
+  },
+  "scripts": {
+    "watch": "parcel watch",
+    "build": "parcel build"
+  },
+  "devDependencies": {
+    "parcel": "latest"
+  }
+}
