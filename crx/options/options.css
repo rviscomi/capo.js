@@ -5,13 +5,19 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --brand: #66c2a5;
+    --brand-5: #2a6a56;
+    --brand-7: #193f33;
+    --brand-shadow: 0 0 10px var(--brand-5), 0 0 25px var(--brand-7);
   }
   html {
     background: var(--gray-9);
     color: var(--gray-1);
   }
   h1 {
-    text-shadow: 0 0 10px var(--brand);
+    text-shadow: var(--brand-shadow);
+  }
+  a {
+    text-shadow: var(--brand-shadow);
   }
 }
 
@@ -23,15 +29,17 @@
 }
 
 body {
-  padding: 10em;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
   font-size: var(--font-size-2);
 }
 
 #options {
   display: grid;
-  grid-template-columns: 100px 1fr;
   grid-gap: 2em 1em;
-  width: 500px;
   margin: 0 auto;
 }
 
@@ -41,6 +49,7 @@ body {
   justify-self: end;
   min-height: 2em;
   min-width: 2em;
+  text-align: end;
 }
 
 label {
@@ -54,8 +63,10 @@ header {
 }
 
 h1 {
-  font-size: var(--font-size-7);
-  margin: 0;
+  margin: 0 0 1rem;
+  font-size: var(--font-size-8);
+  font-weight: var(--font-weight-8);
+  letter-spacing: var(--font-letterspacing-1);
 }
 
 footer {
