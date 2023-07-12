@@ -52,7 +52,9 @@ export class IO {
   }
 
   stringifyElement(element) {
-    return element.getAttributeNames().reduce((id, attr) => id += `[${attr}=${JSON.stringify(element.getAttribute(attr))}]`, element.nodeName);
+    return element.getAttributeNames().reduce((id, attr) => {
+      return id += `[${CSS.escape(attr)}=${JSON.stringify(element.getAttribute(attr))}]`;
+    }, element.nodeName);
   }
   
   getLoggableElement(element) {
