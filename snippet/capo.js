@@ -63,9 +63,7 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         return this.head;
     }
     stringifyElement(element) {
-        return element.getAttributeNames().reduce((id, attr)=>{
-            return id += `[${CSS.escape(attr)}=${JSON.stringify(element.getAttribute(attr))}]`;
-        }, element.nodeName);
+        return element.getAttributeNames().reduce((id, attr)=>id += `[${attr}=${JSON.stringify(element.getAttribute(attr))}]`, element.nodeName);
     }
     getLoggableElement(element) {
         if (!this.isStaticHead) return element;
@@ -146,7 +144,7 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         if (!this.options.isValidationEnabled()) return;
         warnings.forEach(({ warning: warning, elements: elements = [], element: element })=>{
             elements = elements.map(this.getLoggableElement.bind(this));
-            console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element);
+            console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element || "");
         });
     }
     getColor(weight) {
@@ -432,6 +430,8 @@ function $580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element) {
     if (element.matches("base:is(:nth-of-type(n+2))")) return true;
     // CSP meta tag anywhere.
     if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return true;
+    // Origin trial expired or cross-origin.
+    if ($580f7ed6bc170ae8$var$isInvalidOriginTrial(element)) return true;
     return false;
 }
 function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
@@ -462,6 +462,18 @@ function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
             element: root
         });
     });
+    const originTrials = Array.from(head.querySelectorAll('meta[http-equiv="Origin-Trial" i]'));
+    originTrials.forEach((element)=>{
+        const metadata = $580f7ed6bc170ae8$var$validateOriginTrial(element);
+        if (metadata.warnings.length == 0) return;
+        validationWarnings.push({
+            warning: `Invalid origin trial token: ${metadata.warnings.join(", ")}`,
+            elements: [
+                element
+            ],
+            element: metadata.payload
+        });
+    });
     return validationWarnings;
 }
 function $580f7ed6bc170ae8$export$6c93e2175c028eeb(element) {
@@ -475,6 +487,11 @@ function $580f7ed6bc170ae8$var$validateCSP(element) {
             "meta CSP discouraged. See https://crbug.com/1458493."
         ]
     };
+}
+function $580f7ed6bc170ae8$var$isInvalidOriginTrial(element) {
+    if (!(0, $9c3989fcb9437829$export$38a04d482ec50f88)(element)) return false;
+    const { warnings: warnings } = $580f7ed6bc170ae8$var$validateOriginTrial(element);
+    return warnings.length > 0;
 }
 function $580f7ed6bc170ae8$var$validateOriginTrial(element) {
     const metadata = {

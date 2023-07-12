@@ -41,6 +41,11 @@ export function hasValidationWarning(element) {
     return true;
   }
 
+  // Origin trial expired or cross-origin.
+  if (isInvalidOriginTrial(element)) {
+    return true;
+  }
+
   return false;
 }
 
@@ -89,6 +94,21 @@ export function getValidationWarnings(head) {
     });
   });
 
+  const originTrials = Array.from(head.querySelectorAll('meta[http-equiv="Origin-Trial" i]'));
+  originTrials.forEach(element => {
+    const metadata = validateOriginTrial(element);
+
+    if (metadata.warnings.length == 0) {
+      return;
+    }
+
+    validationWarnings.push({
+      warning: `Invalid origin trial token: ${metadata.warnings.join(', ')}`,
+      elements: [element],
+      element: metadata.payload
+    });
+  });
+
   return validationWarnings;
 }
 
@@ -108,6 +128,15 @@ function validateCSP(element) {
   return {
     warnings: ['meta CSP discouraged. See https://crbug.com/1458493.']
   };
+}
+
+function isInvalidOriginTrial(element) {
+  if (!isOriginTrial(element)) {
+    return false;
+  }
+
+  const {warnings} = validateOriginTrial(element);
+  return warnings.length > 0;
 }
 
 function validateOriginTrial(element) {

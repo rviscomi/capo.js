@@ -159,7 +159,7 @@ export class IO {
   
     warnings.forEach(({warning, elements=[], element}) => {
       elements = elements.map(this.getLoggableElement.bind(this));
-      console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element);
+      console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element || '');
     });
   }
 
