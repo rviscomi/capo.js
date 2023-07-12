@@ -1,0 +1,34 @@
+---
+const { colors } = Astro.props;
+const bgcolors = JSON.parse(colors).map(color => {
+  return `background-color: ${color};`;
+});
+---
+
+<style>
+  div {
+    display: flex;
+    align-content: stretch;
+  }
+
+  span {
+    content: '';
+    width: 100%;
+    height: 30px;
+    box-sizing: border-box;
+  }
+</style>
+
+<div>
+  <span class="capo-color" style={bgcolors[0]}></span>
+  <span class="capo-color" style={bgcolors[1]}></span>
+  <span class="capo-color" style={bgcolors[2]}></span>
+  <span class="capo-color" style={bgcolors[3]}></span>
+  <span class="capo-color" style={bgcolors[4]}></span>
+  <span class="capo-color" style={bgcolors[5]}></span>
+  <span class="capo-color" style={bgcolors[6]}></span>
+  <span class="capo-color" style={bgcolors[7]}></span>
+  <span class="capo-color" style={bgcolors[8]}></span>
+  <span class="capo-color" style={bgcolors[9]}></span>
+  <span class="capo-color" style={bgcolors[10]}></span>
+</div>

@@ -8,7 +8,7 @@ import * as validation from '../lib/validation.js';
 const CAPO_GLOBAL = '__CAPO__';
 
 async function run() {
-  const options = new Options(self[CAPO_GLOBAL]?.options);
+  const options = new Options(self[CAPO_GLOBAL]);
   const io = new IO(document, options);
 
   await io.init();

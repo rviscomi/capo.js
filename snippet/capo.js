@@ -63,7 +63,9 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         return this.head;
     }
     stringifyElement(element) {
-        return element.getAttributeNames().reduce((id, attr)=>id += `[${attr}=${JSON.stringify(element.getAttribute(attr))}]`, element.nodeName);
+        return element.getAttributeNames().reduce((id, attr)=>{
+            return id += `[${CSS.escape(attr)}=${JSON.stringify(element.getAttribute(attr))}]`;
+        }, element.nodeName);
     }
     getLoggableElement(element) {
         if (!this.isStaticHead) return element;
@@ -507,7 +509,7 @@ function $580f7ed6bc170ae8$var$isSameOrigin(a, b) {
 
 const $fd3091053c5dfffc$var$CAPO_GLOBAL = "__CAPO__";
 async function $fd3091053c5dfffc$var$run() {
-    const options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)(self[$fd3091053c5dfffc$var$CAPO_GLOBAL]?.options);
+    const options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)(self[$fd3091053c5dfffc$var$CAPO_GLOBAL]);
     const io = new (0, $d410929ede0a2ee4$export$8f8422ac5947a789)(document, options);
     await io.init();
     $0eec6c831ab0f90a$export$8679af897d1c058e(io, $580f7ed6bc170ae8$exports);
