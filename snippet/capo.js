@@ -27,6 +27,52 @@ function $0eec6c831ab0f90a$export$b65597cffe09aebc(io, validation, rules) {
 }
 
 
+const $eb5be8077a65b10b$var$Hues = {
+    PINK: 320,
+    BLUE: 200
+};
+function $eb5be8077a65b10b$export$921514c0345db5eb(hue) {
+    return [
+        `oklch(5% .1 ${hue})`,
+        `oklch(13% .2 ${hue})`,
+        `oklch(25% .2 ${hue})`,
+        `oklch(35% .25 ${hue})`,
+        `oklch(50% .27 ${hue})`,
+        `oklch(67% .31 ${hue})`,
+        `oklch(72% .25 ${hue})`,
+        `oklch(80% .2 ${hue})`,
+        `oklch(90% .1 ${hue})`,
+        `oklch(99% .05 ${hue})`,
+        "#ccc"
+    ];
+}
+const $eb5be8077a65b10b$export$e6952b12ade67489 = [
+    "#9e0142",
+    "#d53e4f",
+    "#f46d43",
+    "#fdae61",
+    "#fee08b",
+    "#e6f598",
+    "#abdda4",
+    "#66c2a5",
+    "#3288bd",
+    "#5e4fa2",
+    "#cccccc"
+];
+const $eb5be8077a65b10b$export$d68d0fda4a10dbc2 = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.PINK);
+const $eb5be8077a65b10b$export$738c3b9a44c87ecc = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.BLUE);
+const $eb5be8077a65b10b$export$9a82c28ef488e918 = {
+    DEFAULT: $eb5be8077a65b10b$export$e6952b12ade67489,
+    PINK: $eb5be8077a65b10b$export$d68d0fda4a10dbc2,
+    BLUE: $eb5be8077a65b10b$export$738c3b9a44c87ecc
+};
+function $eb5be8077a65b10b$export$18c940335d915715(elementColor) {
+    let invalidColor = "#cccccc";
+    if (elementColor == invalidColor) invalidColor = "red";
+    return `repeating-linear-gradient(45deg, ${elementColor}, ${elementColor} 3px, ${invalidColor} 3px, ${invalidColor} 6px)`;
+}
+
+
 class $d410929ede0a2ee4$export$8f8422ac5947a789 {
     constructor(document1, options){
         this.document = document1;
@@ -146,17 +192,22 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         if (!this.options.isValidationEnabled()) return;
         warnings.forEach(({ warning: warning, elements: elements = [], element: element })=>{
             elements = elements.map(this.getLoggableElement.bind(this));
-            console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element);
+            console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element || "");
         });
     }
     getColor(weight) {
         return this.options.palette[10 - weight];
     }
-    getHeadVisualization(weights) {
-        const visual = weights.map((_)=>"%c ").join("");
-        const styles = weights.map((weight)=>{
+    getHeadVisualization(elements) {
+        let visual = "";
+        const styles = [];
+        elements.forEach(({ weight: weight, isValid: isValid })=>{
+            visual += "%c ";
             const color = this.getColor(weight);
-            return `background-color: ${color}; padding: 5px; margin: 0 -1px;`;
+            let style = `padding: 5px; margin: 0 -1px; `;
+            if (isValid) style += `background-color: ${color};`;
+            else style += `background-image: ${(0, $eb5be8077a65b10b$export$18c940335d915715)(color)}`;
+            styles.push(style);
         });
         return {
             visual: visual,
@@ -173,7 +224,7 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         };
     }
     visualizeHead(groupName, headElement, headWeights) {
-        const headViz = this.getHeadVisualization(headWeights.map(({ weight: weight })=>weight));
+        const headViz = this.getHeadVisualization(headWeights);
         console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %chead%c order\n${headViz.visual}`, "font-family: monospace", "font-family: inherit", ...headViz.styles);
         headWeights.forEach(({ weight: weight, element: element, isValid: isValid, customValidations: customValidations })=>{
             const viz = this.getElementVisualization(weight);
@@ -191,46 +242,6 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
     }
 }
 
-
-const $eb5be8077a65b10b$var$Hues = {
-    PINK: 320,
-    BLUE: 200
-};
-function $eb5be8077a65b10b$export$921514c0345db5eb(hue) {
-    return [
-        `oklch(5% .1 ${hue})`,
-        `oklch(13% .2 ${hue})`,
-        `oklch(25% .2 ${hue})`,
-        `oklch(35% .25 ${hue})`,
-        `oklch(50% .27 ${hue})`,
-        `oklch(67% .31 ${hue})`,
-        `oklch(72% .25 ${hue})`,
-        `oklch(80% .2 ${hue})`,
-        `oklch(90% .1 ${hue})`,
-        `oklch(99% .05 ${hue})`,
-        "#ccc"
-    ];
-}
-const $eb5be8077a65b10b$export$e6952b12ade67489 = [
-    "#9e0142",
-    "#d53e4f",
-    "#f46d43",
-    "#fdae61",
-    "#fee08b",
-    "#e6f598",
-    "#abdda4",
-    "#66c2a5",
-    "#3288bd",
-    "#5e4fa2",
-    "#cccccc"
-];
-const $eb5be8077a65b10b$export$d68d0fda4a10dbc2 = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.PINK);
-const $eb5be8077a65b10b$export$738c3b9a44c87ecc = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.BLUE);
-const $eb5be8077a65b10b$export$9a82c28ef488e918 = {
-    DEFAULT: $eb5be8077a65b10b$export$e6952b12ade67489,
-    PINK: $eb5be8077a65b10b$export$d68d0fda4a10dbc2,
-    BLUE: $eb5be8077a65b10b$export$738c3b9a44c87ecc
-};
 
 
 class $5b739339de321a37$export$c019608e5b5bb4cb {
@@ -429,9 +440,11 @@ function $580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element) {
     // <title> is not the first of its type.
     if (element.matches("title:is(:nth-of-type(n+2))")) return true;
     // <base> is not the first of its type.
-    if (element.matches("base:is(:nth-of-type(n+2))")) return true;
+    if (element.matches("base:has(~ base), base ~ base")) return true;
     // CSP meta tag anywhere.
     if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return true;
+    // Origin trial expired or cross-origin.
+    if ($580f7ed6bc170ae8$var$isInvalidOriginTrial(element)) return true;
     return false;
 }
 function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
@@ -462,6 +475,18 @@ function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
             element: root
         });
     });
+    const originTrials = Array.from(head.querySelectorAll('meta[http-equiv="Origin-Trial" i]'));
+    originTrials.forEach((element)=>{
+        const metadata = $580f7ed6bc170ae8$var$validateOriginTrial(element);
+        if (metadata.warnings.length == 0) return;
+        validationWarnings.push({
+            warning: `Invalid origin trial token: ${metadata.warnings.join(", ")}`,
+            elements: [
+                element
+            ],
+            element: metadata.payload
+        });
+    });
     return validationWarnings;
 }
 function $580f7ed6bc170ae8$export$6c93e2175c028eeb(element) {
@@ -475,6 +500,11 @@ function $580f7ed6bc170ae8$var$validateCSP(element) {
             "meta CSP discouraged. See https://crbug.com/1458493."
         ]
     };
+}
+function $580f7ed6bc170ae8$var$isInvalidOriginTrial(element) {
+    if (!(0, $9c3989fcb9437829$export$38a04d482ec50f88)(element)) return false;
+    const { warnings: warnings } = $580f7ed6bc170ae8$var$validateOriginTrial(element);
+    return warnings.length > 0;
 }
 function $580f7ed6bc170ae8$var$validateOriginTrial(element) {
     const metadata = {

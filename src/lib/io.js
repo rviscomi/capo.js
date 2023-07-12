@@ -1,3 +1,5 @@
+import { getInvalidBackgroundColor } from './colors.js'
+
 export class IO {
 
   constructor(document, options) {
@@ -161,7 +163,7 @@ export class IO {
   
     warnings.forEach(({warning, elements=[], element}) => {
       elements = elements.map(this.getLoggableElement.bind(this));
-      console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element);
+      console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element || '');
     });
   }
 
@@ -169,11 +171,23 @@ export class IO {
     return this.options.palette[10 - weight];
   }
 
-  getHeadVisualization(weights) {
-    const visual = weights.map(_ => '%c ').join('');
-    const styles = weights.map(weight => {
+  getHeadVisualization(elements) {
+    let visual = '';
+    const styles = [];
+
+    elements.forEach(({weight, isValid}) => {
+      visual += '%c ';
+      
       const color = this.getColor(weight);
-      return `background-color: ${color}; padding: 5px; margin: 0 -1px;`
+      let style = `padding: 5px; margin: 0 -1px; `;
+
+      if (isValid) {
+        style += `background-color: ${color};`;
+      } else {
+        style += `background-image: ${getInvalidBackgroundColor(color)}`;
+      }
+
+      styles.push(style);
     });
 
     return {visual, styles};
@@ -188,7 +202,7 @@ export class IO {
   }
 
   visualizeHead(groupName, headElement, headWeights) {
-    const headViz = this.getHeadVisualization(headWeights.map(({weight}) => weight));
+    const headViz = this.getHeadVisualization(headWeights);
 
     console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %chead%c order\n${headViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...headViz.styles);
     

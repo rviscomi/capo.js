@@ -23,6 +23,10 @@ export default defineConfig({
           label: 'Getting started',
           items: [
             { label: 'Quick start', link: '/user/quick-start/' },
+            { label: 'Improve performance', link: '/user/performance/' },
+            { label: 'Interpret results', link: '/user/actionability/' },
+            { label: 'Static vs dynamic assessment', link: '/user/assessment-mode/' },
+            { label: 'Validation', link: '/user/validation/' },
             { label: 'Configuration', link: '/user/config/' },
           ],
         },
