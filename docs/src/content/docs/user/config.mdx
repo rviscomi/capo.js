@@ -22,19 +22,33 @@ By default, capo.js will try to evaluate a page's static `<head>`. This is impor
 
 Static evaluation is also useful if you want to ignore the order of dynamically injected elements. For example, if a third party script appends a `<meta>` element to the `<head>` after the page has already loaded, not only is that outside of your control, but it also doesn't have an adverse affect on the initial loading performance.
 
+:::caution[Reliability warning]
+In some cases, the static `<head>` can't be evaluated. For example, some pages have no explicit `<head>` tags at all. When this happens, capo.js will fall back to dynamic evaluation. This is indicated by a warning in the console:
+
+> _Unable to parse the static (server-rendered) `<head>`. Falling back to document.head_
+
+In a very small number of [cases](https://github.com/rviscomi/capo.js/issues/31), getting the static `<head>` might cause the page to crash without falling back. If this affects you, you can explicitly set the `preferredAssessmentMode` parameter to `"dynamic"` to force capo.js to use dynamic evaluation.
+:::
+
 To use static evaluation, omit the `preferredAssessmentMode` parameter, or explicitly set it to `"static"`.
 
 To use dynamic evaluation, set the `preferredAssessmentMode` parameter to `"dynamic"`.
 
 ### Validation
 
-By default, capo.js will log validation warnings.
+By default, capo.js will log validation warnings, including things like [HTML spec](https://html.spec.whatwg.org/multipage/semantics.html#the-head-element) violations, major performance concerns, or expired origin trial tokens.
+
+![](/public/img/validation-csp.png)
 
 To enable validation, omit the `validation` parameter, or explicitly set it to `true`.
 
 To disable validation, set the `validation` parameter to `false`.
 
-### Color palettes
+### Built-in color palettes
+
+capo.js supports three built-in color palettes: default, pink, and blue.
+
+#### Default
 
 The default color palette is a rainbow:
 
@@ -92,18 +106,23 @@ capo.js also supports the built-in blue theme:
   "#ccc"
 ]' />
 
-Enable the pink theme by setting the `palette` parameter to `"BLUE"`.
+Enable the blue theme by setting the `palette` parameter to `"BLUE"`.
 
 ## Configuring the extension
 
 :::note
-The extension doesn't support custom logging prefixes. Also, only preset color palettes are available.
+The extension doesn't support custom logging prefixes. Also, only [built-in color palettes](#built-in-color-palettes) are available.
 :::
 
 Open the **Options** page to configure the [extension](/capo.js/user/extension/):
 
 1. Right click on the extension icon <img src="/public/img/capo256.png" style="display: inline; width: 20px; vertical-align: text-bottom; margin: 0;"/>
+
+    ![The context menu shown after right clicking the extension icon](/public/img/crx-menu.png)
+
 2. Select **Options**
+
+Select or deselect the options you want to enable or disable.
 
 <picture>
     <source srcset="/img/crx-options-light.png" media="(prefers-color-scheme: dark)"/>
@@ -179,4 +198,6 @@ window.__CAPO__ = {
 }
 ```
 
-![](/public/img/custom-palette.png)
+![The custom color palette in use](/public/img/custom-palette.png)
+
+You can provide colors in any format supported by Chrome, for example: hex, rgb, hsl, oklch, named colors, etc. Formats can also be mixed and matched within the same config.

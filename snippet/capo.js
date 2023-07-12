@@ -207,7 +207,7 @@ function $eb5be8077a65b10b$export$921514c0345db5eb(hue) {
         `oklch(72% .25 ${hue})`,
         `oklch(80% .2 ${hue})`,
         `oklch(90% .1 ${hue})`,
-        `oklch(99% .0.5 ${hue})`,
+        `oklch(99% .05 ${hue})`,
         "#ccc"
     ];
 }
