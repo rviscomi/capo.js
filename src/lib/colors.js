@@ -14,7 +14,7 @@ export function generateSwatches(hue) {
     `oklch(72% .25 ${hue})`,
     `oklch(80% .2 ${hue})`,
     `oklch(90% .1 ${hue})`,
-    `oklch(99% .0.5 ${hue})`,
+    `oklch(99% .05 ${hue})`,
     '#ccc'
   ];
 }
