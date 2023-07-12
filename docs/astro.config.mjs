@@ -20,18 +20,27 @@ export default defineConfig({
           link: '/'
         },
         {
-          label: 'Guides',
+          label: 'Getting started',
           items: [
-            { label: 'Quick start', link: '/guides/quick-start/' },
-            { label: 'Extension', link: '/guides/extension/' },
-            { label: 'Snippet', link: '/guides/snippet/' },
-            { label: 'WebPageTest', link: '/guides/webpagetest/' },
-            { label: 'BigQuery', link: '/guides/bigquery/' },
+            { label: 'Quick start', link: '/user/quick-start/' },
+            { label: 'Configuration', link: '/user/config/' },
           ],
         },
         {
-          label: 'Developer reference',
-          autogenerate: { directory: 'reference' },
+          label: 'User guides',
+          items: [
+            { label: 'Extension', link: '/user/extension/' },
+            { label: 'Snippet', link: '/user/snippet/' },
+            { label: 'WebPageTest', link: '/user/webpagetest/' },
+            { label: 'BigQuery', link: '/user/bigquery/' },
+          ],
+        },
+        {
+          label: 'Developer guides',
+          items: [
+            { label: 'Contributing to Capo', link: '/developer/contributing/' },
+            { label: 'Installing the extension locally', link: '/developer/crx-local/' },
+          ],
         },
       ],
       customCss: [

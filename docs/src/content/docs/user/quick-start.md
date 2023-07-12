@@ -26,7 +26,7 @@ Learn more about [using the extension](/capo.js/guides/extension/) and interpret
 
 The next best way to use `capo.js` is as an executable snippet in your browser.
 
-1. Copy the [`capo.js` snippet](https://raw.githubusercontent.com/rviscomi/capo.js/main/capo.js)
+1. Copy the [`capo.js` snippet](https://raw.githubusercontent.com/rviscomi/capo.js/main/snippet/capo.js)
 2. Save as a new DevTools snippet
     - Open the DevTools Sources panel
     - Create a new snippet
@@ -39,7 +39,7 @@ The next best way to use `capo.js` is as an executable snippet in your browser.
 
 Alternatively, you can save the snippet as a bookmarklet:
 
-1. Copy the [`capo.js` snippet](https://raw.githubusercontent.com/rviscomi/capo.js/main/capo.js)
+1. Copy the [`capo.js` snippet](https://raw.githubusercontent.com/rviscomi/capo.js/main/snippet/capo.js)
 2. Create the bookmarklet using a tool like [this one](https://caiorss.github.io/bookmarklet-maker/)
 3. Execute the bookmarklet on any web page to run `capo.js`
 
