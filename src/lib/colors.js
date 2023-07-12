@@ -41,3 +41,11 @@ export const Palettes = {
   PINK: PINK,
   BLUE: BLUE
 };
+
+export function getInvalidBackgroundColor(elementColor) {
+  let invalidColor = '#cccccc';
+  if (elementColor == invalidColor) {
+    invalidColor = 'red';
+  }
+  return `repeating-linear-gradient(45deg, ${elementColor}, ${elementColor} 3px, ${invalidColor} 3px, ${invalidColor} 6px)`;
+}

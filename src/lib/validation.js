@@ -32,7 +32,7 @@ export function hasValidationWarning(element) {
   }
 
   // <base> is not the first of its type.
-  if (element.matches('base:is(:nth-of-type(n+2))')) {
+  if (element.matches('base:has(~ base), base ~ base')) {
     return true;
   }
   
