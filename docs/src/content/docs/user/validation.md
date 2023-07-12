@@ -9,6 +9,20 @@ The `<head>` element sets up all of the necessary metadata for a page to load pr
 Validation is enabled by default. To disable it, see the [configuration](/capo.js/user/config/#validation) options.
 :::
 
+There are a few ways to see when an element is invalid:
+
+- a warning is logged to the console
+- the element appears striped in the color bar
+- the expanded console entry is annotated with an ❌ icon
+
+![Console logs showing all three ways elements are flagged as invalid.](/capo.js/img/validation-areas.png)
+
+In the example above, you can see all three ways that an element can be flagged as invalid: top-level warning, striped color bar, and warning styles in its expanded entry.
+
+![Invalid element in the extension color bar](/capo.js/img/validation-crx-stripes.png)
+
+The extension's color bar similarly displays a striped pattern when an element is invalid.
+
 ## No disallowed elements
 
 According to the [HTML specification](https://html.spec.whatwg.org/multipage/semantics.html#the-head-element), the only [elements allowed in the `<head>`](https://html.spec.whatwg.org/multipage/dom.html#metadata-content-2) are:
@@ -98,10 +112,10 @@ Embedded third parties may dynamically inject origin trial `<meta>` elements in 
 
 If capo.js detects an invalid origin trial token, it will log a validation warning:
 
-![Validation warnings that "Invalid origin trial token: expired, and invalid origin."](/capo.js/img/validation-origin-trial.png)
+![Validation warnings that "Invalid origin trial token: invalid origin and expired."](/capo.js/img/validation-origin-trial.png)
 
-In the example above, an embedded third party script injected two origin trial `<meta>` elements with invalid tokens, so capo.js warns that there is an "Invalid origin trial token".
+In the example above, two separate embedded third party scripts injected origin trial `<meta>` elements with invalid tokens, so in each case capo.js warns that there is an "Invalid origin trial token". The warning also includes a reference to the `<meta>` element as well as the decoded token metadata.
 
-In the first warning, the token is expired. The token metadata is also included in the warning, so you can see that it expired in November 2022.
+In the first warning, the token contains an invalid origin. The token metadata is missing the `isThirdParty` flag and the `origin` property is set `https://googlesyndication.com:443`, which is presumably the third party that injected the token. However, because the origin of the page is different from the one in the origin trial metadata, and it wasn't registered as a third party token, it's not valid. A similar warning would appear if the origin of the page is `https://www.example.com` but the origin in the metadata is `https://example.com:443` and it's missing the `isSubdomain` flag.
 
-In the second warning, the token contains an invalid origin. The token metadata is missing the `isThirdParty` flag and the `origin` property is set `https://doubleclick.net:443`, which is presumably the third party that injected the token. However, because the origin of the page is different from the one in the origin trial metadata, and is wasn't registered as a third party token, it's not valid. A similar warning would appear if the origin of the page is `https://www.example.com` but the origin in the metadata is `https://example.com:443` and it's missing the `isSubdomain` flag.
+In the second warning, the origin is a valid third party, but the token is expired. In the token metadata, you can see that it expired in November 2022.
