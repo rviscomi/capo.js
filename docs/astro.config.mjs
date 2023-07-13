@@ -26,6 +26,13 @@ export default defineConfig({
             gtag('js', new Date());
           
             gtag('config', 'G-4BD76ZZBR6');`
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image',
+            content: 'https://rviscomi.github.io/capo.js/capo-social.webp'
+          }
         }
       ],
       social: {
