@@ -10,6 +10,24 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'capo.js',
+      head: [
+        {
+          tag: 'script',
+          attrs: {
+            async: true,
+            src: 'https://www.googletagmanager.com/gtag/js?id=G-4BD76ZZBR6'
+          }
+        },
+        {
+          tag: 'script',
+          content: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+          
+            gtag('config', 'G-4BD76ZZBR6');`
+        }
+      ],
       social: {
         github: 'https://github.com/rviscomi/capo.js',
         twitter: 'https://twitter.com/rick_viscomi',
