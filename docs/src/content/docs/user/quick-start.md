@@ -20,7 +20,7 @@ The best way to start using `capo.js` is to install the [Capo extension for Chro
 3. On any page, click the Capo icon (&lt;👤>) in the browser toolbar
     - Open the DevTools Console to see additional logs
 
-Learn more about [using the extension](/capo.js/guides/extension/) and interpreting the results.
+Learn more about [using the extension](/capo.js/user/extension/) and interpreting the results.
 
 ## _Svelto_: Snippet
 
@@ -43,7 +43,7 @@ Alternatively, you can save the snippet as a bookmarklet:
 2. Create the bookmarklet using a tool like [this one](https://caiorss.github.io/bookmarklet-maker/)
 3. Execute the bookmarklet on any web page to run `capo.js`
 
-Learn more about [using the snippet](/capo.js/guides/snippet/).
+Learn more about [using the snippet](/capo.js/user/snippet/).
 
 ## _Rapido_: WebPageTest
 
