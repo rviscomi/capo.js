@@ -6,6 +6,7 @@ description: Learn how to use config options to customize the capo.js behavior
 import { Image } from 'astro:assets';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import CapoPalette from '../../../components/CapoPalette.astro';
+import Capo256 from '../../../assets/capo256.png';
 import CrxOptionsLight from '../../../assets/crx-options-light.png';
 import CrxOptionsDark from '../../../assets/crx-options-dark.png';
 
@@ -119,7 +120,7 @@ The extension doesn't support custom logging prefixes. Also, only [built-in colo
 
 Open the **Options** page to configure the [extension](/capo.js/user/extension/):
 
-1. Right click on the extension icon <img src="../../../assets/capo256.png" style="display: inline; width: 20px; vertical-align: text-bottom; margin: 0;"/>
+1. Right click on the extension icon <img src={Capo256.src} style="display: inline; width: 20px; vertical-align: text-bottom; margin: 0;"/>
 
     ![The context menu shown after right clicking the extension icon](../../../assets/crx-menu.png)
 
