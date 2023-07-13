@@ -4,9 +4,30 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
   site: 'https://rviscomi.github.io',
   base: '/capo.js',
+  experimental: {
+    assets: true
+  },
   integrations: [
     starlight({
       title: 'capo.js',
+      head: [
+        {
+          tag: 'script',
+          attrs: {
+            async: true,
+            src: 'https://www.googletagmanager.com/gtag/js?id=G-4BD76ZZBR6'
+          }
+        },
+        {
+          tag: 'script',
+          content: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+          
+            gtag('config', 'G-4BD76ZZBR6');`
+        }
+      ],
       social: {
         github: 'https://github.com/rviscomi/capo.js',
         twitter: 'https://twitter.com/rick_viscomi',

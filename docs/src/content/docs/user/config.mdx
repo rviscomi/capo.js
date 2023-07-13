@@ -3,8 +3,11 @@ title: Configuring capo.js
 description: Learn how to use config options to customize the capo.js behavior
 ---
 
+import { Image } from 'astro:assets';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import CapoPalette from '../../../components/CapoPalette.astro';
+import CrxOptionsLight from '../../../assets/crx-options-light.png';
+import CrxOptionsDark from '../../../assets/crx-options-dark.png';
 
 You can configure how capo.js behaves in a couple of different ways depending on which tool you're using.
 
@@ -38,7 +41,7 @@ To use dynamic evaluation, set the `preferredAssessmentMode` parameter to `"dyna
 
 By default, capo.js will log validation warnings, including things like [HTML spec](https://html.spec.whatwg.org/multipage/semantics.html#the-head-element) violations, major performance concerns, or expired origin trial tokens.
 
-![Validation example](/capo.js/img/validation-csp.png)
+![Validation example](../../../assets/validation-csp.png)
 
 To enable validation, omit the `validation` parameter, or explicitly set it to `true`.
 
@@ -116,17 +119,17 @@ The extension doesn't support custom logging prefixes. Also, only [built-in colo
 
 Open the **Options** page to configure the [extension](/capo.js/user/extension/):
 
-1. Right click on the extension icon <img src="/capo.js/img/capo256.png" style="display: inline; width: 20px; vertical-align: text-bottom; margin: 0;"/>
+1. Right click on the extension icon <img src="../../../assets/capo256.png" style="display: inline; width: 20px; vertical-align: text-bottom; margin: 0;"/>
 
-    ![The context menu shown after right clicking the extension icon](/capo.js/img/crx-menu.png)
+    ![The context menu shown after right clicking the extension icon](../../../assets/crx-menu.png)
 
 2. Select **Options**
 
 Select or deselect the options you want to enable or disable.
 
 <picture>
-    <source srcset="/capo.js/img/crx-options-light.png" media="(prefers-color-scheme: dark)"/>
-    <img src="/capo.js/img/crx-options-dark.png"/>
+    <source srcset={CrxOptionsLight.src} media="(prefers-color-scheme: dark)"/>
+    <Image src={CrxOptionsDark} alt="Screenshot of the options page of the Capo extension" />
 </picture>
 
 Options are saved automatically after each change.
@@ -198,6 +201,6 @@ window.__CAPO__ = {
 }
 ```
 
-![The custom color palette in use](/capo.js/img/custom-palette.png)
+![The custom color palette in use](../../../assets/custom-palette.png)
 
 You can provide colors in any format supported by Chrome, for example: hex, rgb, hsl, oklch, named colors, etc. Formats can also be mixed and matched within the same config.

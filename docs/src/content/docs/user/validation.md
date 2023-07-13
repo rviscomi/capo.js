@@ -15,11 +15,11 @@ There are a few ways to see when an element is invalid:
 - the element appears striped in the color bar
 - the expanded console entry is annotated with an ❌ icon
 
-![Console logs showing all three ways elements are flagged as invalid.](/capo.js/img/validation-areas.png)
+![Console logs showing all three ways elements are flagged as invalid.](../../../assets/validation-areas.png)
 
 In the example above, you can see all three ways that an element can be flagged as invalid: top-level warning, striped color bar, and warning styles in its expanded entry.
 
-![Invalid element in the extension color bar](/capo.js/img/validation-crx-stripes.png)
+![Invalid element in the extension color bar](../../../assets/validation-crx-stripes.png)
 
 The extension's color bar similarly displays a striped pattern when an element is invalid.
 
@@ -38,7 +38,7 @@ According to the [HTML specification](https://html.spec.whatwg.org/multipage/sem
 
 If capo.js detects any other elements in the `<head>`, it will log a validation warning.
 
-![Validation warning that "IMG elements are not allowed in the head"](/capo.js/img/validation-invalid-element.png)
+![Validation warning that "IMG elements are not allowed in the head"](../../../assets/validation-invalid-element.png)
 
 In the example above, a `<noscript>` element contains an `<img>` child element, so capo.js warns that "IMG elements are not allowed in the `<head>`".
 
@@ -56,7 +56,7 @@ The HTML specification requires that there be [exactly one `<title>` element](ht
 
 If capo.js detects zero or more than one `<title>` element, it will log a validation warning:
 
-![Validation warning that "Expected exactly 1 title element, found 0"](/capo.js/img/validation-title.png)
+![Validation warning that "Expected exactly 1 title element, found 0"](../../../assets/validation-title.png)
 
 In the example above, the `<title>` element is missing, so capo.js warns that "Expected exactly 1 `<title>` element, found 0". 
 
@@ -66,7 +66,7 @@ The HTML specification requires that there be [no more than one `<base>` element
 
 If capo.js detects more than one `<base>` element, it will log a validation warning:
 
-![Validation warning that "Expected no more than one 1 base element, found 0"](/capo.js/img/validation-base.png)
+![Validation warning that "Expected no more than one 1 base element, found 0"](../../../assets/validation-base.png)
 
 In the example above, there is more than one `<base>` element, so capo.js warns that "Expected at most 1 `<base>` element, found 2".
 
@@ -82,7 +82,7 @@ Due to a [bug in Chrome](https://bugs.chromium.org/p/chromium/issues/detail?id=1
 
 If capo.js detects a `<meta>` CSP anywhere in the `<head>`, it will log a validation warning:
 
-![Validation warning that "CSP meta tags disable the preload scanner due to a bug in Chrome. Use the CSP header instead."](/capo.js/img/validation-csp.png)
+![Validation warning that "CSP meta tags disable the preload scanner due to a bug in Chrome. Use the CSP header instead."](../../../assets/validation-csp.png)
 
 In the example above, there is a `<meta>` CSP element, so capo.js warns that "CSP meta tags disable the preload scanner due to a bug in Chrome. Use the CSP header instead."
 
@@ -112,7 +112,7 @@ Embedded third parties may dynamically inject origin trial `<meta>` elements in 
 
 If capo.js detects an invalid origin trial token, it will log a validation warning:
 
-![Validation warnings that "Invalid origin trial token: invalid origin and expired."](/capo.js/img/validation-origin-trial.png)
+![Validation warnings that "Invalid origin trial token: invalid origin and expired."](../../../assets/validation-origin-trial.png)
 
 In the example above, two separate embedded third party scripts injected origin trial `<meta>` elements with invalid tokens, so in each case capo.js warns that there is an "Invalid origin trial token". The warning also includes a reference to the `<meta>` element as well as the decoded token metadata.
 
