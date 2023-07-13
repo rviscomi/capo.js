@@ -4,6 +4,9 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
   site: 'https://rviscomi.github.io',
   base: '/capo.js',
+  experimental: {
+    assets: true
+  },
   integrations: [
     starlight({
       title: 'capo.js',

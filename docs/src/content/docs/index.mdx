@@ -8,7 +8,7 @@ hero:
     file: ../../assets/capo256.png
   actions:
     - text: Read the quick start guide
-      link: /capo.js/guides/quick-start/
+      link: /capo.js/user/quick-start/
       icon: right-arrow
       variant: primary
     - text: Browse the source
@@ -38,23 +38,24 @@ OR:
 2. Run it in a new [DevTools snippet](https://developer.chrome.com/docs/devtools/javascript/snippets/), or use a [bookmarklet](https://caiorss.github.io/bookmarklet-maker/) generator
 3. Explore the console logs
 
-<img width="1552" alt="capo screenshot" src="https://github.com/rviscomi/capo.js/assets/1120896/b29672f9-1f05-4a05-a85e-df27acd153bd"/>
+![Capo running in Chrome](../../assets/capo-chrome.png)
 
 For applications that add lots of dynamic content to the `<head>` on the client, it'd be more accurate to look at the server-rendered `<head>` instead.
 
 ### Chrome extension
 
-![Capo.js Chrome extension](https://github.com/rviscomi/capo.js/assets/1120896/389bcec0-567d-448f-9897-eee5ca373e6b)
 
-WIP see [crx/](crx/)
+![Closeup of the Capo extension running in Chrome](../../assets/capo-extension.png)
+
+WIP see the [extension](/capo.js/user/extension/) guide.
 
 ### WebPageTest
 
-You can use the [`capo` WebPageTest custom metric](webpagetest/) to evaluate only the server-rendered HTML `<head>`. Note that because this approach doesn't output to the console, we lose the visualization.
+You can use the [`capo` WebPageTest custom metric](/capo.js/user/webpagetest/) to evaluate only the server-rendered HTML `<head>`. Note that because this approach doesn't output to the console, we lose the visualization.
 
 ### BigQuery
 
-You can also use the [`httparchive.fn.CAPO`](bigquery/) function on BigQuery to process HTML response bodies in the HTTP Archive dataset. Similar to the WebPageTest approach, the output is very basic.
+You can also use the [`httparchive.fn.CAPO`](/capo.js/user/bigquery/) function on BigQuery to process HTML response bodies in the HTTP Archive dataset. Similar to the WebPageTest approach, the output is very basic.
 
 ### Other
 
@@ -66,7 +67,7 @@ Another idea would be to use something like Cloudflare workers to inject the scr
 
 The script logs two info groups to the console: the actual order of the `<head>`, and the optimal order. In this collapsed view, you can see at a glance whether there are any high impact elements out of order.
 
-Each "weight" has a corresponding color, with red being the highest and blue/grey being the lowest. See [capo.js](https://github.com/rviscomi/capo.js/blob/main/capo.js#L1-L13) for the exact mapping.
+Each "weight" has a corresponding color, with red being the highest and blue/grey being the lowest. See [rules.js](https://github.com/rviscomi/capo.js/blob/main/src/lib/rules.js) for the exact mapping.
 
 Here are a few examples.
 
@@ -101,13 +102,13 @@ Here you can see a drilled-down view of the end of the `<head>` for the NYT site
 
 <CardGrid stagger>
   <Card title="Try it" icon="open-book">
-    Read the [quick start guide](/capo.js/guides/quick-start/).
+    Read the [quick start guide](/capo.js/user/quick-start/).
   </Card>
   <Card title="Get the extension" icon="external">
     Go to [rviscomi.dev/capo-crx](https://rviscomi.dev/capo-crx) to install the extension.
   </Card>
   <Card title="Start contributing" icon="setting">
-    [Contribute](/capo.js/reference/contributing/) to the Capo project.
+    [Contribute](/capo.js/developer/contributing/) to the Capo project.
   </Card>
   <Card title="Submit an issue" icon="error">
     Something not working? [File an issue on GitHub.](https://github.com/rviscomi/capo.js/issues/new)

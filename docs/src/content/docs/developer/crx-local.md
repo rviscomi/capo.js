@@ -17,15 +17,11 @@ Disable the production version of the extension and pin the local version to ens
 
 2. Navigate to `chrome://extensions` and enable **Developer mode**
 
-    <p style="display: flex; justify-content: center;">
-      <img src="/capo.js/img/developer-mode.png" alt="Developer mode enabled" style="height: 52px;">
-    </p>
+    ![Developer mode enabled](../../../assets/developer-mode.png)
 
 3. Select **Load unpacked** and choose the `crx` subdirectory
 
-    <p style="display: flex; justify-content: center;">
-      <img src="/capo.js/img/load-unpacked.png" alt="Select the crx directory to load the unpacked extension">
-    </p>
+    ![Select the crx directory to load the unpacked extension](../../../assets/load-unpacked.png)
 
 If you get the error `Manifest file is missing or unreadable. Could not load manifest.` make sure you're loading the `crx` subdirectory, and not the top-level `capo.js` directory.
 

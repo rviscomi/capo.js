@@ -23,11 +23,11 @@ Here's how to install the snippet to Chrome DevTools:
 1. Copy [capo.js](https://raw.githubusercontent.com/rviscomi/capo.js/main/snippet/capo.js)
 2. [Open DevTools](https://developer.chrome.com/docs/devtools/open/) and navigate to the **Snippets** view of the **Sources** panel
 
-    ![Sources panel of DevTools](/capo.js/img/devtools-sources.png)
+    ![Sources panel of DevTools](../../../assets/devtools-sources.png)
 
 3. Select **＋ New Snippet**, name it `capo.js`, and paste the script
 
-    ![DevTools snippet](/capo.js/img/devtools-snippet.png)
+    ![DevTools snippet](../../../assets/devtools-snippet.png)
 
 To run the snippet:
 
@@ -36,7 +36,7 @@ To run the snippet:
 
 Navigate to the **Console** panel to view the results.
 
-![Console output in DevTools](/capo.js/img/devtools-console.png)
+![Console output in DevTools](../../../assets/devtools-console.png)
 
 ## Bookmarklet installation
 
@@ -45,17 +45,17 @@ Bookmarklets are tiny scripts that you can execute as if you were opening a book
 1. Copy [capo.js](https://raw.githubusercontent.com/rviscomi/capo.js/main/snippet/capo.js)
 2. Use a tool like [this one](https://caiorss.github.io/bookmarklet-maker/) to create the bookmarklet
 
-    ![Configuring the bookmarklet](/capo.js/img/bookmarklet-setup.png)
+    ![Configuring the bookmarklet](../../../assets/bookmarklet-setup.png)
 
 3. Drag the link to your bookmarks bar and click it to execute on any web page
 
-    ![capo.js on the bookmark bar](/capo.js/img/bookmarklet.png)
+    ![capo.js on the bookmark bar](../../../assets/bookmarklet.png)
 
 To run the bookmarklet, just click it like a normal bookmark.
 
 [Open DevTools](https://developer.chrome.com/docs/devtools/open/) and navigate to the **Console** panel to view the results.
 
-![Console output in DevTools](/capo.js/img/devtools-console.png)
+![Console output in DevTools](../../../assets/devtools-console.png)
 
 ## Configuration
 
