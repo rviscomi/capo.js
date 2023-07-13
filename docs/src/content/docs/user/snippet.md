@@ -5,7 +5,7 @@ hero:
   title: Using the <code>capo.js</code> snippet
   actions:
     - text: Get the latest source
-      link: https://raw.githubusercontent.com/rviscomi/capo.js/main/capo.js
+      link: https://raw.githubusercontent.com/rviscomi/capo.js/main/snippet/capo.js
       icon: github
       variant: primary
 ---
@@ -59,4 +59,4 @@ To run the bookmarklet, just click it like a normal bookmark.
 
 ## Configuration
 
-You can customize how capo.js behaves by setting a global config object. See the [Configuration](/capo.js/user/config/) guide for more.
+You can customize how capo.js behaves by setting a global config object. See the [Configuration](/capo.js/user/config/#configuring-the-snippet) guide for more.
