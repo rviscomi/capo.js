@@ -31,7 +31,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             property: 'og:image',
-            content: 'https://rviscomi.github.io/capo.js/capo-social.webp'
+            content: 'https://rviscomi.github.io/capo.js/capo-social-alt.webp'
           }
         }
       ],
