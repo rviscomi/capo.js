@@ -1,0 +1,10 @@
+---
+import { Image } from 'astro:assets';
+import CrxOptionsLight from '../assets/crx-options-light.png';
+import CrxOptionsDark from '../assets/crx-options-dark.png';
+---
+
+<picture>
+  <source srcset={CrxOptionsLight.src} media="(prefers-color-scheme: dark)"/>
+  <Image src={CrxOptionsDark} alt="Screenshot of the options page of the Capo extension" />
+</picture>
