@@ -1,0 +1,68 @@
+---
+title: The rules of capo.js
+description: Learn how capo.js classifies and scores elements.
+tableOfContents:
+  maxHeadingLevel: 4
+---
+
+Elements are categorized into 11 groups. Each group has an associated weight to determine the optimal sort order. Elements within the same group are considered equal weight and displayed in the order they're found in the document.
+
+## 11. Meta elements
+
+### `<meta http-equiv>`
+
+#### Origin trials
+
+See [origin trial validation](/capo.js/user/validation/#no-invalid-origin-trials).
+
+### `<meta charset>`
+
+### `<meta name=viewport>`
+
+### `<base>`
+
+## 10. Title element
+
+### `<title>`
+
+## 9. Preconnect hints
+
+### `<link rel=preconnect>`
+
+## 8. Asynchronous scripts
+
+### `<script async src>`
+
+## 7. Import styles
+
+### `@import`
+
+## 6. Synchronous scripts
+
+### `<script src>`
+
+## 5. Synchronous styles
+
+### `<link rel=stylesheet>`
+
+### `<style>`
+
+## 4. Preload hints
+
+### `<link rel=preload>`
+
+### `<link rel=modulepreload>`
+
+## 3. Deferred scripts
+
+### `<script defer src>`
+
+## 2. Prefetch and prerender hints
+
+### `<link rel=prefetch>`
+
+### `<link rel=dns-prefetch>`
+
+### `<link rel=prerender>`
+
+## 1. Everything else

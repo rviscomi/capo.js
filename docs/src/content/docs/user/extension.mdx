@@ -1,0 +1,37 @@
+---
+title: Using the Capo extension
+description: Learn about the Capo extension for Chrome and how to use it with capo.js
+hero:
+  actions:
+    - text: Install the extension
+      link: https://chrome.google.com/webstore/detail/capo-get-your-%EF%B9%A4%F0%9D%9A%91%F0%9D%9A%8E%F0%9D%9A%8A%F0%9D%9A%8D%EF%B9%A5/ohabpnaccigjhkkebjofhpmebofgpbeb
+      icon: rocket
+      variant: primary
+---
+
+import CapoOptions from '../../../components/CapoOptions.astro';
+import InlineCapoIcon from '../../../components/InlineCapoIcon.astro';
+
+
+![Capo extension](../../../assets/capo-chrome.png)
+
+Capo is a Chrome extension that gives you one-click access to the capo.js script. Clicking the extension icon ( <InlineCapoIcon/> ) will open a color bar visualizing the `<head>` ordering, and log messages to the console, including validation warnings and detailed element info.
+
+## Installation
+
+To install the Capo extension:
+
+1. Navigate to the [Capo extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) in the Chrome Web Store
+2. Click the **Add to Chrome** button
+3. On any page, click the Capo icon ( <InlineCapoIcon/> ) in the browser toolbar
+    - Open the DevTools Console to see additional logs
+
+:::tip
+The extension will auto-update whenever new versions are released.
+:::
+
+## Configuration
+
+<CapoOptions/>
+
+See the [Configuration](/capo.js/user/config/#configuring-the-extension) guide.

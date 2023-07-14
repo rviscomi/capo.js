@@ -1,3 +1,11 @@
+:root {
+  --sl-hue-accent: 70;
+}
+
 h1, h2, h3 {
   text-wrap: balance;
+}
+
+.hero:not(:has(img)) {
+  grid-template-columns: initial;
 }
