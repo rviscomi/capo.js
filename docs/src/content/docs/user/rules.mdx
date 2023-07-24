@@ -5,15 +5,76 @@ tableOfContents:
   maxHeadingLevel: 4
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
 Elements are categorized into 11 groups. Each group has an associated weight to determine the optimal sort order. Elements within the same group are considered equal weight and displayed in the order they're found in the document.
 
-## 11. Meta elements
+## 11. Pragma directives
+
+Pragma directives are the highest weighted elements in capo.js. They tell the browser how to parse or handle the document, so they must be discovered **as early as possible** to avoid race conditions with other content.
 
 ### `<meta http-equiv>`
 
+The `http-equiv` meta tag is used to set directives equivalent to HTTP headers. According to HTTP Archive, the most common `http-equiv` meta tags are:
+
+<Tabs>
+  <TabItem label="Results">
+| Value | Number of pages |
+|-|-|
+| `x-ua-compatible` | 5,849,869 |
+| `content-type` | 4,064,550 |
+| `origin-trial` | 3,741,447 |
+| `etag` | 432,755 |
+| `x-wix-published-version` | 432,595 |
+| `x-wix-application-instance-id` | 432,594 |
+| `x-wix-meta-site-id` | 432,593 |
+| `content-language` | 430,009 |
+| `cache-control` | 351,196 |
+| `expires` | 301,664 |
+  </TabItem>
+  <TabItem label="Query">
+```sql
+WITH meta AS (
+  SELECT
+    page,
+    LOWER(JSON_VALUE(meta, '$.http-equiv')) AS http_equiv
+  FROM
+    `httparchive.all.pages`,
+    UNNEST(JSON_QUERY_ARRAY(custom_metrics, '$.almanac.meta-nodes.nodes')) AS meta
+  WHERE
+    date = '2023-06-01' AND
+    client = 'mobile' AND
+    is_root_page
+)
+
+
+SELECT
+  http_equiv,
+  COUNT(DISTINCT page) AS pages
+FROM
+  meta
+WHERE
+  http_equiv IS NOT NULL
+GROUP BY
+  http_equiv
+ORDER BY
+  pages DESC
+```
+  </TabItem>
+</Tabs>
+
+For example, `X-UA-Compatible` is the most popular `http-equiv` meta tag. It's used to tell Internet Explorer which document mode to use. It's important to discover this tag as early as possible so the browser can switch to the correct rendering scheme. As one would hope, the majority of pages with this tag set it to a value of `IE=edge`, the [highest supported document mode](https://learn.microsoft.com/en-us/openspecs/ie_standards/ms-iedoco/380e2488-f5eb-4457-a07a-0cb1b6e4b4b5) of the browser.
+
+:::caution
+Some pragma directives have no effect on the current document and could be safely discovered later. For example, `x-wix-published-version` is an informational tag used to indicate which version of Wix is being used. It's not used by the browser, so it _could_ be discovered later in the document. However, if you're not sure what an `http-equiv` meta tag does, it's best to serve it as early in the `<head>` as possible.
+:::
+
 #### Origin trials
 
-See [origin trial validation](/capo.js/user/validation/#no-invalid-origin-trials).
+Origin trials are the third most popular type of `http-equiv` meta tag. These tags allow developers to test new web platform features on a per-origin basis.
+
+See [origin trial validation](/capo.js/user/validation/#no-invalid-origin-trials) for more information about how capo.js validates origin trial tokens.
 
 ### `<meta charset>`
 
@@ -21,7 +82,7 @@ See [origin trial validation](/capo.js/user/validation/#no-invalid-origin-trials
 
 ### `<base>`
 
-## 10. Title element
+## 10. Title
 
 ### `<title>`
 

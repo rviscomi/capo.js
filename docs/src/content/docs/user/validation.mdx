@@ -3,6 +3,10 @@ title: Validation
 description: Learn about how capo.js validates the head element
 ---
 
+import { Image } from 'astro:assets';
+import ValidationAreas from '../../../assets/validation-areas.png';
+
+
 The `<head>` element sets up all of the necessary metadata for a page to load properly and performantly. capo.js performs a number of validation checks on the `<head>` to ensure it meets modern best practices.
 
 :::tip
@@ -15,7 +19,7 @@ There are a few ways to see when an element is invalid:
 - the element appears striped in the color bar
 - the expanded console entry is annotated with an ❌ icon
 
-![Console logs showing all three ways elements are flagged as invalid.](../../../assets/validation-areas.png)
+<Image src={ValidationAreas} alt="Console logs showing all three ways elements are flagged as invalid." loading="eager" />
 
 In the example above, you can see all three ways that an element can be flagged as invalid: top-level warning, striped color bar, and warning styles in its expanded entry.
 
