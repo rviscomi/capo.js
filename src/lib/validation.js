@@ -11,6 +11,8 @@ const VALID_HEAD_ELEMENTS = new Set([
   'title'
 ]);
 
+const PRELOAD_SELECTOR = 'link:is([rel="preload" i], [rel="modulepreload" i])';
+
 export function isValidElement(element) {
   return VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase());
 }
@@ -43,6 +45,11 @@ export function hasValidationWarning(element) {
 
   // Origin trial expired or cross-origin.
   if (isInvalidOriginTrial(element)) {
+    return true;
+  }
+
+  // Preload is unnecessary.
+  if (isUnnecessaryPreload(element)) {
     return true;
   }
 
@@ -121,6 +128,10 @@ export function getCustomValidations(element) {
     return validateCSP(element);
   }
 
+  if (isUnnecessaryPreload(element)) {
+    return validateUnnecessaryPreload(element);
+  }
+
   return {};
 }
 
@@ -174,4 +185,50 @@ function decodeOriginTrialToken(token) {
 
 function isSameOrigin(a, b) {
   return new URL(a).origin === new URL(b).origin;
+}
+
+function isUnnecessaryPreload(element) {
+  if (!element.matches(PRELOAD_SELECTOR)) {
+    return false;
+  }
+
+  const href = element.getAttribute('href');
+  if (!href) {
+    return false;
+  }
+
+  const preloadedUrl = absolutifyUrl(href);
+
+  return findElementWithSource(element.parentElement, preloadedUrl) != null;
+}
+
+function findElementWithSource(root, sourceUrl) {
+  const linksAndScripts = Array.from(root.querySelectorAll(`link:not(${PRELOAD_SELECTOR}), script`));
+  
+  return linksAndScripts.find(e => {
+    const src = e.getAttribute('href') || e.getAttribute('src');
+    if (!src) {
+      return false;
+    }
+
+    return sourceUrl == absolutifyUrl(src);
+  });
+}
+
+function absolutifyUrl(href) {
+  return new URL(href, document.baseURI).href;
+}
+
+function validateUnnecessaryPreload(element) {
+  const href = element.getAttribute('href');
+  const preloadedUrl = absolutifyUrl(href);
+  const preloadedElement = findElementWithSource(element.parentElement, preloadedUrl);
+
+  if (!preloadedElement) {
+    throw new Error('Expected an invalid preload, but none found.');
+  }
+
+  return {
+    warnings: [`This preload has little to no effect. ${href} is already discoverable by another ${preloadedElement.tagName} element.`],
+  };
 }
