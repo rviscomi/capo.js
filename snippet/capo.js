@@ -429,6 +429,7 @@ const $580f7ed6bc170ae8$var$VALID_HEAD_ELEMENTS = new Set([
     "template",
     "title"
 ]);
+const $580f7ed6bc170ae8$var$PRELOAD_SELECTOR = 'link:is([rel="preload" i], [rel="modulepreload" i])';
 function $580f7ed6bc170ae8$export$a8257692ac88316c(element) {
     return $580f7ed6bc170ae8$var$VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase());
 }
@@ -445,6 +446,8 @@ function $580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element) {
     if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return true;
     // Origin trial expired or cross-origin.
     if ($580f7ed6bc170ae8$var$isInvalidOriginTrial(element)) return true;
+    // Preload is unnecessary.
+    if ($580f7ed6bc170ae8$var$isUnnecessaryPreload(element)) return true;
     return false;
 }
 function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
@@ -492,6 +495,7 @@ function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
 function $580f7ed6bc170ae8$export$6c93e2175c028eeb(element) {
     if ((0, $9c3989fcb9437829$export$38a04d482ec50f88)(element)) return $580f7ed6bc170ae8$var$validateOriginTrial(element);
     if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return $580f7ed6bc170ae8$var$validateCSP(element);
+    if ($580f7ed6bc170ae8$var$isUnnecessaryPreload(element)) return $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element);
     return {};
 }
 function $580f7ed6bc170ae8$var$validateCSP(element) {
@@ -534,6 +538,35 @@ function $580f7ed6bc170ae8$var$decodeOriginTrialToken(token) {
 }
 function $580f7ed6bc170ae8$var$isSameOrigin(a, b) {
     return new URL(a).origin === new URL(b).origin;
+}
+function $580f7ed6bc170ae8$var$isUnnecessaryPreload(element) {
+    if (!element.matches($580f7ed6bc170ae8$var$PRELOAD_SELECTOR)) return false;
+    const href = element.getAttribute("href");
+    if (!href) return false;
+    const preloadedUrl = $580f7ed6bc170ae8$var$absolutifyUrl(href);
+    return $580f7ed6bc170ae8$var$findElementWithSource(element.parentElement, preloadedUrl) != null;
+}
+function $580f7ed6bc170ae8$var$findElementWithSource(root, sourceUrl) {
+    const linksAndScripts = Array.from(root.querySelectorAll(`link:not(${$580f7ed6bc170ae8$var$PRELOAD_SELECTOR}), script`));
+    return linksAndScripts.find((e)=>{
+        const src = e.getAttribute("href") || e.getAttribute("src");
+        if (!src) return false;
+        return sourceUrl == $580f7ed6bc170ae8$var$absolutifyUrl(src);
+    });
+}
+function $580f7ed6bc170ae8$var$absolutifyUrl(href) {
+    return new URL(href, document.baseURI).href;
+}
+function $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element) {
+    const href = element.getAttribute("href");
+    const preloadedUrl = $580f7ed6bc170ae8$var$absolutifyUrl(href);
+    const preloadedElement = $580f7ed6bc170ae8$var$findElementWithSource(element.parentElement, preloadedUrl);
+    if (!preloadedElement) throw new Error("Expected an invalid preload, but none found.");
+    return {
+        warnings: [
+            `This preload has little to no effect. ${href} is already discoverable by another ${preloadedElement.tagName} element.`
+        ]
+    };
 }
 
 
