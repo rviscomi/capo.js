@@ -17,21 +17,87 @@ Pragma directives are the highest weighted elements in capo.js. They tell the br
 
 ### `<meta http-equiv>`
 
-The `http-equiv` meta tag is used to set directives equivalent to HTTP headers (<a href="https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/">sorta</a>). 
+The `http-equiv` meta tag is used to set directives equivalent to HTTP headers.
 
-#### Origin trials
+Most HTTP headers are [unsupported keywords](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/) for the `http-equiv` attribute, so capo.js only recognizes a few of them:
 
-Origin trials can be one type of `http-equiv` meta tag. These tags allow developers to test new web platform features on a per-origin basis.
+- `default-style`
+- `x-dns-prefetch-control`
+- `accept-ch`
+- `delegate-ch`
+- `content-security-policy`
+- `origin-trial`
+- `content-type`
+
+Some keywords like `refresh` are standardized and widely supported by browsers, but capo.js does not weigh them as highly as other `http-equiv` directives because it's not strictly necessary for them to be placed in the top position.
+
+#### `default-style`
+
+:::caution[Obsoletion warning]
+capo.js discourages using this keyword in favor of modern CSS alternatives. However, in cases where the keyword _must_ be used, capo.js recommends placing it in the top position.
+:::
+
+[`default-style`](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/#default-style) is an obscure-yet-valid keyword that tells the browser which [alternate stylesheet](https://developer.mozilla.org/en-US/docs/Web/CSS/Alternative_style_sheets) to use as the preferred default.
+
+This declaration should come before any stylesheets that may need to be enabled.
+
+#### `x-dns-prefetch-control`
+
+[`x-dns-prefetch-control`](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/#x-dns-prefetch-control) is a non-standard keyword that tells the browser whether to perform DNS prefetching on the page.
+
+Its only legitimate use is to disable prefetching, so when it's present, capo.js recommends placing it in the top position before any DNS lookups occur.
+
+#### `accept-ch`
+
+[`accept-ch`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-CHs) is a non-standard keyword that tells the browser which client hints to send back to the server.
+
+This declaration should be set before any subresource requests are made to the origin, so capo.js recommends placing it in the top position.
+
+#### `delegate-ch`
+
+[`delegate-ch`](https://github.com/WICG/client-hints-infrastructure#delegate-ch) is a non-standard keyword that tells the browser which client hints may be delegated to third party origins.
+
+#### `content-security-policy`
+
+:::caution[Performance warning]
+Due to a known [performance bug](https://bugs.chromium.org/p/chromium/issues/detail?id=1458493), capo.js discourages using this keyword in favor of its HTTP header alternative. However, in cases where the keyword _must_ be used, capo.js recommends placing it in the top position.
+:::
+
+[`content-security-policy`](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/#content-security-policy) is a non-standard keyword that provides the browser with a security policy to use on the page.
+
+To effectively mitigate all possible security risks, this declaration should be set before any resource content, so capo.js recommends placing it in the top position.
+
+#### `origin-trial`
+
+`origin-trial` is a non-standard keyword that allows developers to test new web platform features on a per-origin basis.
 
 See [origin trial validation](/capo.js/user/validation/#no-invalid-origin-trials) for more information about how capo.js validates origin trial tokens.
 
+Because origin trials have the potential to influence how the browser behaves, capo.js recommends placing this declaration in the top position.
+
+#### `content-type`
+
+:::caution[Obsoletion warning]
+capo.js discourages using this keyword in favor of the [`charset`](#meta-charset) meta tag or `Content-Type` HTTP header. However, in cases where the keyword _must_ be used, capo.js recommends placing it in the top position.
+:::
+
+[`content-type`](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/#content-type) is a standard keyword that defines the character encoding for the page.
+
+See [`<meta charset>`](#meta-charset) for more information about why this declaration should be placed in the top position.
+
 ### `<meta charset>`
 
-Every page must declare a character encoding of `UTF-8`, using either the `charset` meta tag or the `Content-Type` HTTP response header. When the meta tag is used, it must be discoverable within the first 1024 bytes of the document. To avoid encoding issues with user-visible content like the `<title>` element, capo.js requires that it be in the foremost group of elements.
+Every page must declare a character encoding of `UTF-8`, using either the `charset` meta tag or the `Content-Type` HTTP response header. When the meta tag is used, it must be discoverable within the first 1024 bytes of the document.
+
+To avoid encoding issues with user-visible content like the `<title>` element, capo.js recommends placing this declaration in top position.
 
 ### `<meta name=viewport>`
 
 ### `<base>`
+
+The `base` element sets the base URL for all relative URLs in the document.
+
+To avoid any broken links for resources loaded early in the document, capo.js recommends placing the `<base>` element in the top position.
 
 ## <InlineCapoWeightBars weight="10" /> 10. Title
 
