@@ -352,8 +352,20 @@ const $9c3989fcb9437829$var$ElementDetectors = {
     DEFER_SCRIPT: $9c3989fcb9437829$var$isDeferScript,
     PREFETCH_PRERENDER: $9c3989fcb9437829$var$isPrefetchPrerender
 };
+const $9c3989fcb9437829$var$META_HTTP_EQUIV_KEYWORDS = [
+    "accept-ch",
+    "content-security-policy",
+    "content-type",
+    "default-style",
+    "delegate-ch",
+    "origin-trial",
+    "x-dns-prefetch-control"
+];
 function $9c3989fcb9437829$var$isMeta(element) {
-    return element.matches("meta:is([charset], [http-equiv], [name=viewport]), base");
+    const httpEquivSelector = $9c3989fcb9437829$var$META_HTTP_EQUIV_KEYWORDS.map((keyword)=>{
+        return `[http-equiv="${keyword}" i]`;
+    }).join(", ");
+    return element.matches(`meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
 }
 function $9c3989fcb9437829$var$isTitle(element) {
     return element.matches("title");

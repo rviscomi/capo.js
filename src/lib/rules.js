@@ -25,9 +25,23 @@ const ElementDetectors = {
   PREFETCH_PRERENDER: isPrefetchPrerender
 }
 
+const META_HTTP_EQUIV_KEYWORDS = [
+  'accept-ch',
+  'content-security-policy',
+  'content-type',
+  'default-style',
+  'delegate-ch',
+  'origin-trial',
+  'x-dns-prefetch-control'
+];
+
 
 function isMeta(element) {
-  return element.matches('meta:is([charset], [http-equiv], [name=viewport]), base');
+  const httpEquivSelector = META_HTTP_EQUIV_KEYWORDS.map(keyword => {
+    return `[http-equiv="${keyword}" i]`;
+  }).join(', ');
+  
+  return element.matches(`meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
 }
 
 function isTitle(element) {
