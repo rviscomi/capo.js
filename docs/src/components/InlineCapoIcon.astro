@@ -1,0 +1,15 @@
+---
+import Capo256 from '../assets/capo256.png';
+
+const { width=20 } = Astro.props;
+---
+
+<style>
+  img {
+    display: inline !important;
+    margin: 0;
+    vertical-align: text-bottom;
+  }
+</style>
+
+<img src={Capo256.src} width={width}/>
