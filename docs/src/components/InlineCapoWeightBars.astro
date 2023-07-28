@@ -1,0 +1,36 @@
+---
+const DEFAULT_PALETTE = [
+  "#9e0142",
+  "#d53e4f",
+  "#f46d43",
+  "#fdae61",
+  "#fee08b",
+  "#e6f598",
+  "#abdda4",
+  "#66c2a5",
+  "#3288bd",
+  "#5e4fa2",
+  "#cccccc"
+];
+
+
+let { weight="1", color } = Astro.props;
+
+weight = Number(weight);
+
+if (!color) {
+  color = DEFAULT_PALETTE[11 - weight];
+}
+
+const style = `color: ${color};`;
+const bars = new Array(weight).fill('█').join('');
+---
+
+<style>
+  span {
+    display: inline !important;
+    white-space: nowrap;
+  }
+</style>
+
+<span style={style}>{bars}</span>
