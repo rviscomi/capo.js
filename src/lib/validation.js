@@ -136,8 +136,19 @@ export function getCustomValidations(element) {
 }
 
 function validateCSP(element) {
+  const warnings = [];
+
+  if (element.matches('meta[http-equiv="Content-Security-Policy-Report-Only" i]')) {
+    //https://w3c.github.io/webappsec-csp/#meta-element
+    warnings.push('CSP Report-Only is forbidden in meta tags');
+  } else if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) {
+    warnings.push('meta CSP discouraged. See https://crbug.com/1458493.');
+
+    // TODO: Validate that CSP doesn't include `report-uri`, `frame-ancestors`, or `sandbox` directives.
+  }
+
   return {
-    warnings: ['meta CSP discouraged. See https://crbug.com/1458493.']
+    warnings
   };
 }
 

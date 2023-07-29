@@ -98,7 +98,7 @@ export function isOriginTrial(element) {
 }
 
 export function isMetaCSP(element) {
-  return element.matches('meta[http-equiv="Content-Security-Policy" i]');
+  return element.matches('meta[http-equiv="Content-Security-Policy" i], meta[http-equiv="Content-Security-Policy-Report-Only" i]');
 }
 
 function getWeight(element) {
