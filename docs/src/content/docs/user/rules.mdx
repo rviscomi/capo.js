@@ -93,6 +93,12 @@ To avoid encoding issues with user-visible content like the `<title>` element, c
 
 ### `<meta name=viewport>`
 
+The viewport meta tag provides the browser with instructions on how to control the page's dimensions and scaling. 
+
+capo.js recommends placing this tag in the top position to establish the viewport size before any render blocking resources are loaded.
+
+A minimal viewport tag would look like:
+
 ### `<base>`
 
 The `base` element sets the base URL for all relative URLs in the document.
@@ -101,7 +107,11 @@ To avoid any broken links for resources loaded early in the document, capo.js re
 
 ## <InlineCapoWeightBars weight="10" /> 10. Title
 
+The `<title>` element controls how the page is displayed in the browser tab, bookmarks, and search results.
+
 ### `<title>`
+
+The `<title>` element's appearance may be affected by metadata like the character encoding, so capo.js recommends putting it immediately after the [pragma directives](#-11-pragma-directives).
 
 ## <InlineCapoWeightBars weight="9" /> 9. Preconnect hints
 
