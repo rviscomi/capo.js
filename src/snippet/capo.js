@@ -1,19 +1,16 @@
+import * as capo from '../main.js';
 import * as logging from './logging.js';
-import { IO } from '../lib/io.js';
-import { Options } from '../lib/options.js';
-import * as rules from '../lib/rules.js';
-import * as validation from '../lib/validation.js';
 
 
 const CAPO_GLOBAL = '__CAPO__';
 
 async function run() {
-  const options = new Options(self[CAPO_GLOBAL]);
-  const io = new IO(document, options);
+  const options = new capo.options.Options(self[CAPO_GLOBAL]);
+  const io = new capo.io.IO(document, options);
 
   await io.init();
-  logging.validateHead(io, validation);
-  logging.logWeights(io, validation, rules);
+  logging.validateHead(io, capo.validation);
+  logging.logWeights(io, capo.validation, capo.rules);
 } 
 
 run();

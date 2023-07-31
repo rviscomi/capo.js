@@ -1,6 +1,6 @@
 import { isMetaCSP, isOriginTrial } from "./rules";
 
-const VALID_HEAD_ELEMENTS = new Set([
+export const VALID_HEAD_ELEMENTS = new Set([
   'base',
   'link',
   'meta',
@@ -11,7 +11,7 @@ const VALID_HEAD_ELEMENTS = new Set([
   'title'
 ]);
 
-const PRELOAD_SELECTOR = 'link:is([rel="preload" i], [rel="modulepreload" i])';
+export const PRELOAD_SELECTOR = 'link:is([rel="preload" i], [rel="modulepreload" i])';
 
 export function isValidElement(element) {
   return VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase());
