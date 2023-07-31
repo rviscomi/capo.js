@@ -2,31 +2,6 @@
 function $parcel$export(e, n, v, s) {
   Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
 }
-function $0eec6c831ab0f90a$export$8679af897d1c058e(io, validation) {
-    const validationWarnings = validation.getValidationWarnings(io.getHead());
-    io.logValidationWarnings(validationWarnings);
-}
-function $0eec6c831ab0f90a$export$b65597cffe09aebc(io, validation, rules) {
-    const headElement = io.getHead();
-    const headWeights = rules.getHeadWeights(headElement).map(({ element: element, weight: weight })=>{
-        return {
-            weight: weight,
-            element: io.getLoggableElement(element),
-            isValid: !validation.hasValidationWarning(element),
-            customValidations: validation.getCustomValidations(element)
-        };
-    });
-    io.visualizeHead("Actual", headElement, headWeights);
-    const sortedWeights = Array.from(headWeights).sort((a, b)=>b.weight - a.weight);
-    const sortedHead = document.createElement("head");
-    sortedWeights.forEach(({ element: element })=>{
-        sortedHead.appendChild(element.cloneNode(true));
-    });
-    io.visualizeHead("Sorted", sortedHead, sortedWeights);
-    return headWeights;
-}
-
-
 const $eb5be8077a65b10b$var$Hues = {
     PINK: 320,
     BLUE: 200
@@ -72,6 +47,10 @@ function $eb5be8077a65b10b$export$18c940335d915715(elementColor) {
     return `repeating-linear-gradient(45deg, ${elementColor}, ${elementColor} 3px, ${invalidColor} 3px, ${invalidColor} 6px)`;
 }
 
+
+var $d410929ede0a2ee4$exports = {};
+
+$parcel$export($d410929ede0a2ee4$exports, "IO", () => $d410929ede0a2ee4$export$8f8422ac5947a789);
 
 class $d410929ede0a2ee4$export$8f8422ac5947a789 {
     constructor(document1, options){
@@ -243,6 +222,9 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
 }
 
 
+var $5b739339de321a37$exports = {};
+
+$parcel$export($5b739339de321a37$exports, "Options", () => $5b739339de321a37$export$c019608e5b5bb4cb);
 
 class $5b739339de321a37$export$c019608e5b5bb4cb {
     constructor({ preferredAssessmentMode: preferredAssessmentMode = $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $eb5be8077a65b10b$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " } = {}){
@@ -324,10 +306,24 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
 
 var $9c3989fcb9437829$exports = {};
 
+$parcel$export($9c3989fcb9437829$exports, "ElementWeights", () => $9c3989fcb9437829$export$881088883fcab450);
+$parcel$export($9c3989fcb9437829$exports, "ElementDetectors", () => $9c3989fcb9437829$export$6ade8bb3620eb74b);
+$parcel$export($9c3989fcb9437829$exports, "isMeta", () => $9c3989fcb9437829$export$daeb0db0c224decd);
+$parcel$export($9c3989fcb9437829$exports, "isTitle", () => $9c3989fcb9437829$export$e55aad21605f020a);
+$parcel$export($9c3989fcb9437829$exports, "isPreconnect", () => $9c3989fcb9437829$export$a3316bd0a640eb8b);
+$parcel$export($9c3989fcb9437829$exports, "isAsyncScript", () => $9c3989fcb9437829$export$20e2051ffd813ee3);
+$parcel$export($9c3989fcb9437829$exports, "isImportStyles", () => $9c3989fcb9437829$export$be443fc6335656f0);
+$parcel$export($9c3989fcb9437829$exports, "isSyncScript", () => $9c3989fcb9437829$export$65983fc0a5543400);
+$parcel$export($9c3989fcb9437829$exports, "isSyncStyles", () => $9c3989fcb9437829$export$9d6cdbffb13bee21);
+$parcel$export($9c3989fcb9437829$exports, "isPreload", () => $9c3989fcb9437829$export$226ad5ba23be83f0);
+$parcel$export($9c3989fcb9437829$exports, "isDeferScript", () => $9c3989fcb9437829$export$3d269f86e8bd1d24);
+$parcel$export($9c3989fcb9437829$exports, "isPrefetchPrerender", () => $9c3989fcb9437829$export$4d2ed086e1fec499);
+$parcel$export($9c3989fcb9437829$exports, "META_HTTP_EQUIV_KEYWORDS", () => $9c3989fcb9437829$export$b7417cf4a2235f73);
 $parcel$export($9c3989fcb9437829$exports, "isOriginTrial", () => $9c3989fcb9437829$export$38a04d482ec50f88);
 $parcel$export($9c3989fcb9437829$exports, "isMetaCSP", () => $9c3989fcb9437829$export$14b1a2f64a600585);
+$parcel$export($9c3989fcb9437829$exports, "getWeight", () => $9c3989fcb9437829$export$de32fe5d64aee40c);
 $parcel$export($9c3989fcb9437829$exports, "getHeadWeights", () => $9c3989fcb9437829$export$5cc4a311ddbe699c);
-const $9c3989fcb9437829$var$ElementWeights = {
+const $9c3989fcb9437829$export$881088883fcab450 = {
     META: 10,
     TITLE: 9,
     PRECONNECT: 8,
@@ -340,19 +336,19 @@ const $9c3989fcb9437829$var$ElementWeights = {
     PREFETCH_PRERENDER: 1,
     OTHER: 0
 };
-const $9c3989fcb9437829$var$ElementDetectors = {
-    META: $9c3989fcb9437829$var$isMeta,
-    TITLE: $9c3989fcb9437829$var$isTitle,
-    PRECONNECT: $9c3989fcb9437829$var$isPreconnect,
-    ASYNC_SCRIPT: $9c3989fcb9437829$var$isAsyncScript,
-    IMPORT_STYLES: $9c3989fcb9437829$var$isImportStyles,
-    SYNC_SCRIPT: $9c3989fcb9437829$var$isSyncScript,
-    SYNC_STYLES: $9c3989fcb9437829$var$isSyncStyles,
-    PRELOAD: $9c3989fcb9437829$var$isPreload,
-    DEFER_SCRIPT: $9c3989fcb9437829$var$isDeferScript,
-    PREFETCH_PRERENDER: $9c3989fcb9437829$var$isPrefetchPrerender
+const $9c3989fcb9437829$export$6ade8bb3620eb74b = {
+    META: $9c3989fcb9437829$export$daeb0db0c224decd,
+    TITLE: $9c3989fcb9437829$export$e55aad21605f020a,
+    PRECONNECT: $9c3989fcb9437829$export$a3316bd0a640eb8b,
+    ASYNC_SCRIPT: $9c3989fcb9437829$export$20e2051ffd813ee3,
+    IMPORT_STYLES: $9c3989fcb9437829$export$be443fc6335656f0,
+    SYNC_SCRIPT: $9c3989fcb9437829$export$65983fc0a5543400,
+    SYNC_STYLES: $9c3989fcb9437829$export$9d6cdbffb13bee21,
+    PRELOAD: $9c3989fcb9437829$export$226ad5ba23be83f0,
+    DEFER_SCRIPT: $9c3989fcb9437829$export$3d269f86e8bd1d24,
+    PREFETCH_PRERENDER: $9c3989fcb9437829$export$4d2ed086e1fec499
 };
-const $9c3989fcb9437829$var$META_HTTP_EQUIV_KEYWORDS = [
+const $9c3989fcb9437829$export$b7417cf4a2235f73 = [
     "accept-ch",
     "content-security-policy",
     "content-type",
@@ -361,22 +357,22 @@ const $9c3989fcb9437829$var$META_HTTP_EQUIV_KEYWORDS = [
     "origin-trial",
     "x-dns-prefetch-control"
 ];
-function $9c3989fcb9437829$var$isMeta(element) {
-    const httpEquivSelector = $9c3989fcb9437829$var$META_HTTP_EQUIV_KEYWORDS.map((keyword)=>{
+function $9c3989fcb9437829$export$daeb0db0c224decd(element) {
+    const httpEquivSelector = $9c3989fcb9437829$export$b7417cf4a2235f73.map((keyword)=>{
         return `[http-equiv="${keyword}" i]`;
     }).join(", ");
     return element.matches(`meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
 }
-function $9c3989fcb9437829$var$isTitle(element) {
+function $9c3989fcb9437829$export$e55aad21605f020a(element) {
     return element.matches("title");
 }
-function $9c3989fcb9437829$var$isPreconnect(element) {
+function $9c3989fcb9437829$export$a3316bd0a640eb8b(element) {
     return element.matches("link[rel=preconnect]");
 }
-function $9c3989fcb9437829$var$isAsyncScript(element) {
+function $9c3989fcb9437829$export$20e2051ffd813ee3(element) {
     return element.matches("script[src][async]");
 }
-function $9c3989fcb9437829$var$isImportStyles(element) {
+function $9c3989fcb9437829$export$be443fc6335656f0(element) {
     const importRe = /@import/;
     if (element.matches("style")) return importRe.test(element.textContent);
     /* TODO: Support external stylesheets.
@@ -386,19 +382,19 @@ function $9c3989fcb9437829$var$isImportStyles(element) {
     return importRe.test(response);
   } */ return false;
 }
-function $9c3989fcb9437829$var$isSyncScript(element) {
+function $9c3989fcb9437829$export$65983fc0a5543400(element) {
     return element.matches("script:not([src][defer],[src][type=module],[src][async],[type*=json])");
 }
-function $9c3989fcb9437829$var$isSyncStyles(element) {
+function $9c3989fcb9437829$export$9d6cdbffb13bee21(element) {
     return element.matches("link[rel=stylesheet],style");
 }
-function $9c3989fcb9437829$var$isPreload(element) {
+function $9c3989fcb9437829$export$226ad5ba23be83f0(element) {
     return element.matches("link:is([rel=preload], [rel=modulepreload])");
 }
-function $9c3989fcb9437829$var$isDeferScript(element) {
+function $9c3989fcb9437829$export$3d269f86e8bd1d24(element) {
     return element.matches("script[src][defer], script:not([src][async])[src][type=module]");
 }
-function $9c3989fcb9437829$var$isPrefetchPrerender(element) {
+function $9c3989fcb9437829$export$4d2ed086e1fec499(element) {
     return element.matches("link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])");
 }
 function $9c3989fcb9437829$export$38a04d482ec50f88(element) {
@@ -407,18 +403,18 @@ function $9c3989fcb9437829$export$38a04d482ec50f88(element) {
 function $9c3989fcb9437829$export$14b1a2f64a600585(element) {
     return element.matches('meta[http-equiv="Content-Security-Policy" i]');
 }
-function $9c3989fcb9437829$var$getWeight(element) {
-    for ([id, detector] of Object.entries($9c3989fcb9437829$var$ElementDetectors)){
-        if (detector(element)) return $9c3989fcb9437829$var$ElementWeights[id];
+function $9c3989fcb9437829$export$de32fe5d64aee40c(element) {
+    for ([id, detector] of Object.entries($9c3989fcb9437829$export$6ade8bb3620eb74b)){
+        if (detector(element)) return $9c3989fcb9437829$export$881088883fcab450[id];
     }
-    return $9c3989fcb9437829$var$ElementWeights.OTHER;
+    return $9c3989fcb9437829$export$881088883fcab450.OTHER;
 }
 function $9c3989fcb9437829$export$5cc4a311ddbe699c(head) {
     const headChildren = Array.from(head.children);
     return headChildren.map((element)=>{
         return {
             element: element,
-            weight: $9c3989fcb9437829$var$getWeight(element)
+            weight: $9c3989fcb9437829$export$de32fe5d64aee40c(element)
         };
     });
 }
@@ -426,12 +422,14 @@ function $9c3989fcb9437829$export$5cc4a311ddbe699c(head) {
 
 var $580f7ed6bc170ae8$exports = {};
 
+$parcel$export($580f7ed6bc170ae8$exports, "VALID_HEAD_ELEMENTS", () => $580f7ed6bc170ae8$export$79e124b7caef7aa9);
+$parcel$export($580f7ed6bc170ae8$exports, "PRELOAD_SELECTOR", () => $580f7ed6bc170ae8$export$5540ac2a18901364);
 $parcel$export($580f7ed6bc170ae8$exports, "isValidElement", () => $580f7ed6bc170ae8$export$a8257692ac88316c);
 $parcel$export($580f7ed6bc170ae8$exports, "hasValidationWarning", () => $580f7ed6bc170ae8$export$eeefd08c3a6f8db7);
 $parcel$export($580f7ed6bc170ae8$exports, "getValidationWarnings", () => $580f7ed6bc170ae8$export$b01ab94d0cd042a0);
 $parcel$export($580f7ed6bc170ae8$exports, "getCustomValidations", () => $580f7ed6bc170ae8$export$6c93e2175c028eeb);
 
-const $580f7ed6bc170ae8$var$VALID_HEAD_ELEMENTS = new Set([
+const $580f7ed6bc170ae8$export$79e124b7caef7aa9 = new Set([
     "base",
     "link",
     "meta",
@@ -441,15 +439,15 @@ const $580f7ed6bc170ae8$var$VALID_HEAD_ELEMENTS = new Set([
     "template",
     "title"
 ]);
-const $580f7ed6bc170ae8$var$PRELOAD_SELECTOR = 'link:is([rel="preload" i], [rel="modulepreload" i])';
+const $580f7ed6bc170ae8$export$5540ac2a18901364 = 'link:is([rel="preload" i], [rel="modulepreload" i])';
 function $580f7ed6bc170ae8$export$a8257692ac88316c(element) {
-    return $580f7ed6bc170ae8$var$VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase());
+    return $580f7ed6bc170ae8$export$79e124b7caef7aa9.has(element.tagName.toLowerCase());
 }
 function $580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element) {
     // Element itself is not valid.
     if (!$580f7ed6bc170ae8$export$a8257692ac88316c(element)) return true;
     // Children are not valid.
-    if (element.matches(`:has(:not(${Array.from($580f7ed6bc170ae8$var$VALID_HEAD_ELEMENTS).join(", ")}))`)) return true;
+    if (element.matches(`:has(:not(${Array.from($580f7ed6bc170ae8$export$79e124b7caef7aa9).join(", ")}))`)) return true;
     // <title> is not the first of its type.
     if (element.matches("title:is(:nth-of-type(n+2))")) return true;
     // <base> is not the first of its type.
@@ -552,14 +550,14 @@ function $580f7ed6bc170ae8$var$isSameOrigin(a, b) {
     return new URL(a).origin === new URL(b).origin;
 }
 function $580f7ed6bc170ae8$var$isUnnecessaryPreload(element) {
-    if (!element.matches($580f7ed6bc170ae8$var$PRELOAD_SELECTOR)) return false;
+    if (!element.matches($580f7ed6bc170ae8$export$5540ac2a18901364)) return false;
     const href = element.getAttribute("href");
     if (!href) return false;
     const preloadedUrl = $580f7ed6bc170ae8$var$absolutifyUrl(href);
     return $580f7ed6bc170ae8$var$findElementWithSource(element.parentElement, preloadedUrl) != null;
 }
 function $580f7ed6bc170ae8$var$findElementWithSource(root, sourceUrl) {
-    const linksAndScripts = Array.from(root.querySelectorAll(`link:not(${$580f7ed6bc170ae8$var$PRELOAD_SELECTOR}), script`));
+    const linksAndScripts = Array.from(root.querySelectorAll(`link:not(${$580f7ed6bc170ae8$export$5540ac2a18901364}), script`));
     return linksAndScripts.find((e)=>{
         const src = e.getAttribute("href") || e.getAttribute("src");
         if (!src) return false;
@@ -582,10 +580,37 @@ function $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element) {
 }
 
 
+
+
+function $0eec6c831ab0f90a$export$8679af897d1c058e(io, validation) {
+    const validationWarnings = validation.getValidationWarnings(io.getHead());
+    io.logValidationWarnings(validationWarnings);
+}
+function $0eec6c831ab0f90a$export$b65597cffe09aebc(io, validation, rules) {
+    const headElement = io.getHead();
+    const headWeights = rules.getHeadWeights(headElement).map(({ element: element, weight: weight })=>{
+        return {
+            weight: weight,
+            element: io.getLoggableElement(element),
+            isValid: !validation.hasValidationWarning(element),
+            customValidations: validation.getCustomValidations(element)
+        };
+    });
+    io.visualizeHead("Actual", headElement, headWeights);
+    const sortedWeights = Array.from(headWeights).sort((a, b)=>b.weight - a.weight);
+    const sortedHead = document.createElement("head");
+    sortedWeights.forEach(({ element: element })=>{
+        sortedHead.appendChild(element.cloneNode(true));
+    });
+    io.visualizeHead("Sorted", sortedHead, sortedWeights);
+    return headWeights;
+}
+
+
 const $fd3091053c5dfffc$var$CAPO_GLOBAL = "__CAPO__";
 async function $fd3091053c5dfffc$var$run() {
-    const options = new (0, $5b739339de321a37$export$c019608e5b5bb4cb)(self[$fd3091053c5dfffc$var$CAPO_GLOBAL]);
-    const io = new (0, $d410929ede0a2ee4$export$8f8422ac5947a789)(document, options);
+    const options = new $5b739339de321a37$exports.Options(self[$fd3091053c5dfffc$var$CAPO_GLOBAL]);
+    const io = new $d410929ede0a2ee4$exports.IO(document, options);
     await io.init();
     $0eec6c831ab0f90a$export$8679af897d1c058e(io, $580f7ed6bc170ae8$exports);
     $0eec6c831ab0f90a$export$b65597cffe09aebc(io, $580f7ed6bc170ae8$exports, $9c3989fcb9437829$exports);

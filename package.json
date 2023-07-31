@@ -1,9 +1,19 @@
 {
-  "name": "capo",
-  "version": "1.4.0",
-  "description": "Get your head in order",
+  "name": "@rviscomi/capo.js",
+  "version": "1.4.6",
+  "description": "Get your ﹤𝚑𝚎𝚊𝚍﹥ in order",
   "author": "Rick Viscomi",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git", 
+    "url": "https://github.com/rviscomi/capo.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rviscomi/capo.js/issues"
+  },
+  "homepage": "https://rviscomi.github.io/capo.js/",
+  "type": "module",
+  "main": "src/main.js",
   "directories": {
     "doc": "docs"
   },

@@ -1,4 +1,4 @@
-const ElementWeights = {
+export const ElementWeights = {
   META: 10,
   TITLE: 9,
   PRECONNECT: 8,
@@ -12,7 +12,7 @@ const ElementWeights = {
   OTHER: 0
 };
 
-const ElementDetectors = {
+export const ElementDetectors = {
   META: isMeta,
   TITLE: isTitle,
   PRECONNECT: isPreconnect,
@@ -25,7 +25,7 @@ const ElementDetectors = {
   PREFETCH_PRERENDER: isPrefetchPrerender
 }
 
-const META_HTTP_EQUIV_KEYWORDS = [
+export const META_HTTP_EQUIV_KEYWORDS = [
   'accept-ch',
   'content-security-policy',
   'content-type',
@@ -36,7 +36,7 @@ const META_HTTP_EQUIV_KEYWORDS = [
 ];
 
 
-function isMeta(element) {
+export function isMeta(element) {
   const httpEquivSelector = META_HTTP_EQUIV_KEYWORDS.map(keyword => {
     return `[http-equiv="${keyword}" i]`;
   }).join(', ');
@@ -44,19 +44,19 @@ function isMeta(element) {
   return element.matches(`meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
 }
 
-function isTitle(element) {
+export function isTitle(element) {
   return element.matches('title');
 }
 
-function isPreconnect(element) {
+export function isPreconnect(element) {
   return element.matches('link[rel=preconnect]');
 }
 
-function isAsyncScript(element) {
+export function isAsyncScript(element) {
   return element.matches('script[src][async]');
 }
 
-function isImportStyles(element) {
+export function isImportStyles(element) {
   const importRe = /@import/;
 
   if (element.matches('style')) {
@@ -73,23 +73,23 @@ function isImportStyles(element) {
   return false;
 }
 
-function isSyncScript(element) {
+export function isSyncScript(element) {
   return element.matches('script:not([src][defer],[src][type=module],[src][async],[type*=json])');
 }
 
-function isSyncStyles(element) {
+export function isSyncStyles(element) {
   return element.matches('link[rel=stylesheet],style');
 }
 
-function isPreload(element) {
+export function isPreload(element) {
   return element.matches('link:is([rel=preload], [rel=modulepreload])');
 }
 
-function isDeferScript(element) {
+export function isDeferScript(element) {
   return element.matches('script[src][defer], script:not([src][async])[src][type=module]');
 }
 
-function isPrefetchPrerender(element) {
+export function isPrefetchPrerender(element) {
   return element.matches('link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])');
 }
 
@@ -101,7 +101,7 @@ export function isMetaCSP(element) {
   return element.matches('meta[http-equiv="Content-Security-Policy" i]');
 }
 
-function getWeight(element) {
+export function getWeight(element) {
   for ([id, detector] of Object.entries(ElementDetectors)) {
     if (detector(element)) {
       return ElementWeights[id];
