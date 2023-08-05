@@ -102,7 +102,7 @@ export function isMetaCSP(element) {
 }
 
 export function getWeight(element) {
-  for ([id, detector] of Object.entries(ElementDetectors)) {
+  for (let [id, detector] of Object.entries(ElementDetectors)) {
     if (detector(element)) {
       return ElementWeights[id];
     }
