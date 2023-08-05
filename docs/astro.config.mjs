@@ -48,6 +48,10 @@ export default defineConfig({
           link: '/'
         },
         {
+          label: 'Demo',
+          link: '/user/demo/'
+        },
+        {
           label: 'Getting started',
           items: [
             { label: 'Quick start', link: '/user/quick-start/' },

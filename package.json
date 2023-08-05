@@ -5,7 +5,7 @@
   "author": "Rick Viscomi",
   "license": "Apache-2.0",
   "repository": {
-    "type": "git", 
+    "type": "git",
     "url": "https://github.com/rviscomi/capo.js.git"
   },
   "bugs": {
@@ -32,6 +32,13 @@
     "crx-options": {
       "source": "src/crx/options.js",
       "distDir": "crx/options",
+      "sourceMap": false
+    },
+    "web": {
+      "source": "src/web/capo.js",
+      "distDir": "docs/src/lib",
+      "outputFormat": "esmodule",
+      "isLibrary": true,
       "sourceMap": false
     }
   },

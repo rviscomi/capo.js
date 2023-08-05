@@ -2,9 +2,10 @@ import { getInvalidBackgroundColor } from './colors.js'
 
 export class IO {
 
-  constructor(document, options) {
+  constructor(document, options, output = window.console) {
     this.document = document;
     this.options = options;
+    this.console = output;
     this.isStaticHead = false;
     this.head = null;
   }
@@ -15,7 +16,7 @@ export class IO {
     }
 
     if (this.options.prefersDynamicAssessment()) {
-      this.head = this.document.head;
+      this.head = this.document.querySelector('head');
       return;
     }
 
@@ -32,12 +33,12 @@ export class IO {
         this.head = this.document.head;
       }
     } catch (e) {
-      console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
+      this.console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
       this.head = this.document.head;
     }
 
     if (!this.isStaticHead) {
-      console.warn(`${this.options.loggingPrefix}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, this.head);
+      this.console.warn(`${this.options.loggingPrefix}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, this.head);
     }
   }
 
@@ -134,7 +135,7 @@ export class IO {
     const args = [viz.visual, viz.style, weight + 1, element];
 
     if (!this.options.isValidationEnabled()) {
-      console[loggingLevel](...args);
+      this.console[loggingLevel](...args);
       return;
     }
 
@@ -153,7 +154,7 @@ export class IO {
       args.push(`❌ invalid element (${element.tagName})`);
     }
 
-    console[loggingLevel](...args);
+    this.console[loggingLevel](...args);
   }
 
   logValidationWarnings(warnings) {
@@ -163,7 +164,7 @@ export class IO {
   
     warnings.forEach(({warning, elements=[], element}) => {
       elements = elements.map(this.getLoggableElement.bind(this));
-      console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element || '');
+      this.console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element || '');
     });
   }
 
@@ -204,16 +205,16 @@ export class IO {
   visualizeHead(groupName, headElement, headWeights) {
     const headViz = this.getHeadVisualization(headWeights);
 
-    console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %chead%c order\n${headViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...headViz.styles);
+    this.console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %chead%c order\n${headViz.visual}`, 'font-family: monospace', 'font-family: inherit',  ...headViz.styles);
     
     headWeights.forEach(({weight, element, isValid, customValidations}) => {
       const viz = this.getElementVisualization(weight);
       this.logElement({viz, weight, element, isValid, customValidations, omitPrefix: true});
     });
     
-    console.log(`${groupName} %chead%c element`, 'font-family: monospace', 'font-family: inherit', headElement);
+    this.console.log(`${groupName} %chead%c element`, 'font-family: monospace', 'font-family: inherit', headElement);
     
-    console.groupEnd();
+    this.console.groupEnd();
   }
 
 }
