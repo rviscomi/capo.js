@@ -48,7 +48,7 @@ export default defineConfig({
           link: '/'
         },
         {
-          label: 'Demo',
+          label: 'Demo 🚀',
           link: '/user/demo/'
         },
         {
