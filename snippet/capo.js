@@ -402,7 +402,7 @@ function $9c3989fcb9437829$export$38a04d482ec50f88(element) {
     return element.matches('meta[http-equiv="origin-trial"i]');
 }
 function $9c3989fcb9437829$export$14b1a2f64a600585(element) {
-    return element.matches('meta[http-equiv="Content-Security-Policy" i]');
+    return element.matches('meta[http-equiv="Content-Security-Policy" i], meta[http-equiv="Content-Security-Policy-Report-Only" i]');
 }
 function $9c3989fcb9437829$export$de32fe5d64aee40c(element) {
     for (let [id, detector] of Object.entries($9c3989fcb9437829$export$6ade8bb3620eb74b)){
@@ -510,10 +510,12 @@ function $580f7ed6bc170ae8$export$6c93e2175c028eeb(element) {
     return {};
 }
 function $580f7ed6bc170ae8$var$validateCSP(element) {
+    const warnings = [];
+    if (element.matches('meta[http-equiv="Content-Security-Policy-Report-Only" i]')) //https://w3c.github.io/webappsec-csp/#meta-element
+    warnings.push("CSP Report-Only is forbidden in meta tags");
+    else if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
     return {
-        warnings: [
-            "meta CSP discouraged. See https://crbug.com/1458493."
-        ]
+        warnings: warnings
     };
 }
 function $580f7ed6bc170ae8$var$isInvalidOriginTrial(element) {
