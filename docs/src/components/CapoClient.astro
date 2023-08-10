@@ -1,0 +1,68 @@
+---
+import { Icon } from '@astrojs/starlight/components';
+---
+
+<script>
+  import { run } from '../lib/capo.js';
+  import { VirtualConsole } from '../lib/VirtualConsole.js';
+
+  document.addEventListener('DOMContentLoaded', init);
+
+  function init() {
+    const input = document.querySelector('#input');
+    const markup = document.querySelector('#markup');
+    const output = document.querySelector('#output');
+
+    const virtualConsole = new VirtualConsole(output);
+
+    input.addEventListener('submit', e => {
+      try {
+        run(markup.value, virtualConsole);
+      } catch (e) {
+        console.error(e);
+      }
+      e.preventDefault();
+    });
+  }
+</script>
+
+<style>
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  textarea {
+    display: block;
+    width: 100%;
+    height: 200px;
+    font-family: monospace !important;
+  }
+
+  button {
+    cursor: pointer;
+    align-self: center;
+    display: inline-block;
+    border: none;
+    border-radius: 999rem;
+    margin: 0 !important;
+    padding: 1rem 1.25rem;
+    background-color: var(--sl-color-text-accent);
+    color: var(--sl-color-black);
+    font-size: var(--sl-text-base);
+  }
+
+  button svg {
+    display: inline !important;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+  }
+</style>
+
+<form id="input">
+  <textarea id="markup" placeholder="Enter HTML">
+    <title>test</title>
+  </textarea>
+  <button>Run <Icon name="rocket" color="inherit" size="1.5rem" /></button>
+</form>

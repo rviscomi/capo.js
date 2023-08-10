@@ -1,13 +1,10 @@
+import * as capo from '../main.js';
 import * as logging from '../snippet/logging.js';
-import { IO } from '../lib/io.js';
-import { Options } from '../lib/options.js';
-import * as rules from '../lib/rules.js';
-import * as validation from '../lib/validation.js';
 
 async function run(io) {
   await io.init();
-  logging.validateHead(io, validation);
-  const headWeights = logging.logWeights(io, validation, rules);
+  logging.validateHead(io, capo.validation);
+  const headWeights = logging.logWeights(io, capo.validation, capo.rules);
 
   return {
     actual: headWeights.map(({element, weight, isValid, customValidations}) => ({
@@ -23,12 +20,12 @@ async function run(io) {
 
 async function initOptions() {
   const {options} = await chrome.storage.sync.get('options');
-  return new Options(options);
+  return new capo.options.Options(options);
 }
 
 async function init() {
   const options = await initOptions();
-  const io = new IO(document, options);
+  const io = new capo.io.IO(document, options);
 
   // This file is executed by the extension in two scenarios:
   //

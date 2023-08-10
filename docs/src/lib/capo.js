@@ -1,12 +1,11 @@
-(() => {
 function $parcel$export(e, n, v, s) {
   Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
 }
-const $eb5be8077a65b10b$var$Hues = {
+const $47602b39438c5a8c$var$Hues = {
     PINK: 320,
     BLUE: 200
 };
-function $eb5be8077a65b10b$export$921514c0345db5eb(hue) {
+function $47602b39438c5a8c$export$921514c0345db5eb(hue) {
     return [
         `oklch(5% .1 ${hue})`,
         `oklch(13% .2 ${hue})`,
@@ -21,7 +20,7 @@ function $eb5be8077a65b10b$export$921514c0345db5eb(hue) {
         "#ccc"
     ];
 }
-const $eb5be8077a65b10b$export$e6952b12ade67489 = [
+const $47602b39438c5a8c$export$e6952b12ade67489 = [
     "#9e0142",
     "#d53e4f",
     "#f46d43",
@@ -34,25 +33,25 @@ const $eb5be8077a65b10b$export$e6952b12ade67489 = [
     "#5e4fa2",
     "#cccccc"
 ];
-const $eb5be8077a65b10b$export$d68d0fda4a10dbc2 = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.PINK);
-const $eb5be8077a65b10b$export$738c3b9a44c87ecc = $eb5be8077a65b10b$export$921514c0345db5eb($eb5be8077a65b10b$var$Hues.BLUE);
-const $eb5be8077a65b10b$export$9a82c28ef488e918 = {
-    DEFAULT: $eb5be8077a65b10b$export$e6952b12ade67489,
-    PINK: $eb5be8077a65b10b$export$d68d0fda4a10dbc2,
-    BLUE: $eb5be8077a65b10b$export$738c3b9a44c87ecc
+const $47602b39438c5a8c$export$d68d0fda4a10dbc2 = $47602b39438c5a8c$export$921514c0345db5eb($47602b39438c5a8c$var$Hues.PINK);
+const $47602b39438c5a8c$export$738c3b9a44c87ecc = $47602b39438c5a8c$export$921514c0345db5eb($47602b39438c5a8c$var$Hues.BLUE);
+const $47602b39438c5a8c$export$9a82c28ef488e918 = {
+    DEFAULT: $47602b39438c5a8c$export$e6952b12ade67489,
+    PINK: $47602b39438c5a8c$export$d68d0fda4a10dbc2,
+    BLUE: $47602b39438c5a8c$export$738c3b9a44c87ecc
 };
-function $eb5be8077a65b10b$export$18c940335d915715(elementColor) {
+function $47602b39438c5a8c$export$18c940335d915715(elementColor) {
     let invalidColor = "#cccccc";
     if (elementColor == invalidColor) invalidColor = "red";
     return `repeating-linear-gradient(45deg, ${elementColor}, ${elementColor} 3px, ${invalidColor} 3px, ${invalidColor} 6px)`;
 }
 
 
-var $d410929ede0a2ee4$exports = {};
+var $33f7359dc421be0c$exports = {};
 
-$parcel$export($d410929ede0a2ee4$exports, "IO", () => $d410929ede0a2ee4$export$8f8422ac5947a789);
+$parcel$export($33f7359dc421be0c$exports, "IO", () => $33f7359dc421be0c$export$8f8422ac5947a789);
 
-class $d410929ede0a2ee4$export$8f8422ac5947a789 {
+class $33f7359dc421be0c$export$8f8422ac5947a789 {
     constructor(document1, options, output = window.console){
         this.document = document1;
         this.options = options;
@@ -186,7 +185,7 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
             const color = this.getColor(weight);
             let style = `padding: 5px; margin: 0 -1px; `;
             if (isValid) style += `background-color: ${color};`;
-            else style += `background-image: ${(0, $eb5be8077a65b10b$export$18c940335d915715)(color)}`;
+            else style += `background-image: ${(0, $47602b39438c5a8c$export$18c940335d915715)(color)}`;
             styles.push(style);
         });
         return {
@@ -223,12 +222,12 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
 }
 
 
-var $5b739339de321a37$exports = {};
+var $5daa40bf356478d7$exports = {};
 
-$parcel$export($5b739339de321a37$exports, "Options", () => $5b739339de321a37$export$c019608e5b5bb4cb);
+$parcel$export($5daa40bf356478d7$exports, "Options", () => $5daa40bf356478d7$export$c019608e5b5bb4cb);
 
-class $5b739339de321a37$export$c019608e5b5bb4cb {
-    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $eb5be8077a65b10b$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " } = {}){
+class $5daa40bf356478d7$export$c019608e5b5bb4cb {
+    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $47602b39438c5a8c$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " } = {}){
         this.setPreferredAssessmentMode(preferredAssessmentMode);
         this.setValidation(validation);
         this.setPalette(palette);
@@ -241,13 +240,13 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
         };
     }
     static get Palettes() {
-        return $eb5be8077a65b10b$export$9a82c28ef488e918;
+        return $47602b39438c5a8c$export$9a82c28ef488e918;
     }
     prefersStaticAssessment() {
-        return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
+        return this.preferredAssessmentMode === $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
     }
     prefersDynamicAssessment() {
-        return this.preferredAssessmentMode === $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
+        return this.preferredAssessmentMode === $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
     }
     isValidationEnabled() {
         return this.validation;
@@ -257,8 +256,8 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
         this.preferredAssessmentMode = preferredAssessmentMode;
     }
     setPreferredAssessmentModeToStatic(prefersStatic) {
-        let mode = $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
-        if (!prefersStatic) mode = $5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
+        let mode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
+        if (!prefersStatic) mode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
         this.setPreferredAssessmentMode(mode);
     }
     setValidation(validation) {
@@ -266,9 +265,9 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
         this.validation = validation;
     }
     setPalette(palette) {
-        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected [${Object.keys($eb5be8077a65b10b$export$9a82c28ef488e918).join("|")}] or an array of colors, got "${palette}".`);
+        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected [${Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).join("|")}] or an array of colors, got "${palette}".`);
         if (typeof palette === "string") {
-            this.palette = $eb5be8077a65b10b$export$9a82c28ef488e918[palette];
+            this.palette = $47602b39438c5a8c$export$9a82c28ef488e918[palette];
             return;
         }
         this.palette = palette;
@@ -278,13 +277,13 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
         this.loggingPrefix = loggingPrefix;
     }
     isValidAssessmentMode(assessmentMode) {
-        return Object.values($5b739339de321a37$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
+        return Object.values($5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
     }
     isValidValidation(validation) {
         return typeof validation === "boolean";
     }
     isValidPalette(palette) {
-        if (typeof palette === "string") return Object.keys($eb5be8077a65b10b$export$9a82c28ef488e918).includes(palette);
+        if (typeof palette === "string") return Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).includes(palette);
         if (!Array.isArray(palette)) return false;
         return palette.length === 11 && palette.every((color)=>typeof color === "string");
     }
@@ -305,26 +304,26 @@ class $5b739339de321a37$export$c019608e5b5bb4cb {
 }
 
 
-var $9c3989fcb9437829$exports = {};
+var $ee7e0c73e51ebfda$exports = {};
 
-$parcel$export($9c3989fcb9437829$exports, "ElementWeights", () => $9c3989fcb9437829$export$881088883fcab450);
-$parcel$export($9c3989fcb9437829$exports, "ElementDetectors", () => $9c3989fcb9437829$export$6ade8bb3620eb74b);
-$parcel$export($9c3989fcb9437829$exports, "isMeta", () => $9c3989fcb9437829$export$daeb0db0c224decd);
-$parcel$export($9c3989fcb9437829$exports, "isTitle", () => $9c3989fcb9437829$export$e55aad21605f020a);
-$parcel$export($9c3989fcb9437829$exports, "isPreconnect", () => $9c3989fcb9437829$export$a3316bd0a640eb8b);
-$parcel$export($9c3989fcb9437829$exports, "isAsyncScript", () => $9c3989fcb9437829$export$20e2051ffd813ee3);
-$parcel$export($9c3989fcb9437829$exports, "isImportStyles", () => $9c3989fcb9437829$export$be443fc6335656f0);
-$parcel$export($9c3989fcb9437829$exports, "isSyncScript", () => $9c3989fcb9437829$export$65983fc0a5543400);
-$parcel$export($9c3989fcb9437829$exports, "isSyncStyles", () => $9c3989fcb9437829$export$9d6cdbffb13bee21);
-$parcel$export($9c3989fcb9437829$exports, "isPreload", () => $9c3989fcb9437829$export$226ad5ba23be83f0);
-$parcel$export($9c3989fcb9437829$exports, "isDeferScript", () => $9c3989fcb9437829$export$3d269f86e8bd1d24);
-$parcel$export($9c3989fcb9437829$exports, "isPrefetchPrerender", () => $9c3989fcb9437829$export$4d2ed086e1fec499);
-$parcel$export($9c3989fcb9437829$exports, "META_HTTP_EQUIV_KEYWORDS", () => $9c3989fcb9437829$export$b7417cf4a2235f73);
-$parcel$export($9c3989fcb9437829$exports, "isOriginTrial", () => $9c3989fcb9437829$export$38a04d482ec50f88);
-$parcel$export($9c3989fcb9437829$exports, "isMetaCSP", () => $9c3989fcb9437829$export$14b1a2f64a600585);
-$parcel$export($9c3989fcb9437829$exports, "getWeight", () => $9c3989fcb9437829$export$de32fe5d64aee40c);
-$parcel$export($9c3989fcb9437829$exports, "getHeadWeights", () => $9c3989fcb9437829$export$5cc4a311ddbe699c);
-const $9c3989fcb9437829$export$881088883fcab450 = {
+$parcel$export($ee7e0c73e51ebfda$exports, "ElementWeights", () => $ee7e0c73e51ebfda$export$881088883fcab450);
+$parcel$export($ee7e0c73e51ebfda$exports, "ElementDetectors", () => $ee7e0c73e51ebfda$export$6ade8bb3620eb74b);
+$parcel$export($ee7e0c73e51ebfda$exports, "isMeta", () => $ee7e0c73e51ebfda$export$daeb0db0c224decd);
+$parcel$export($ee7e0c73e51ebfda$exports, "isTitle", () => $ee7e0c73e51ebfda$export$e55aad21605f020a);
+$parcel$export($ee7e0c73e51ebfda$exports, "isPreconnect", () => $ee7e0c73e51ebfda$export$a3316bd0a640eb8b);
+$parcel$export($ee7e0c73e51ebfda$exports, "isAsyncScript", () => $ee7e0c73e51ebfda$export$20e2051ffd813ee3);
+$parcel$export($ee7e0c73e51ebfda$exports, "isImportStyles", () => $ee7e0c73e51ebfda$export$be443fc6335656f0);
+$parcel$export($ee7e0c73e51ebfda$exports, "isSyncScript", () => $ee7e0c73e51ebfda$export$65983fc0a5543400);
+$parcel$export($ee7e0c73e51ebfda$exports, "isSyncStyles", () => $ee7e0c73e51ebfda$export$9d6cdbffb13bee21);
+$parcel$export($ee7e0c73e51ebfda$exports, "isPreload", () => $ee7e0c73e51ebfda$export$226ad5ba23be83f0);
+$parcel$export($ee7e0c73e51ebfda$exports, "isDeferScript", () => $ee7e0c73e51ebfda$export$3d269f86e8bd1d24);
+$parcel$export($ee7e0c73e51ebfda$exports, "isPrefetchPrerender", () => $ee7e0c73e51ebfda$export$4d2ed086e1fec499);
+$parcel$export($ee7e0c73e51ebfda$exports, "META_HTTP_EQUIV_KEYWORDS", () => $ee7e0c73e51ebfda$export$b7417cf4a2235f73);
+$parcel$export($ee7e0c73e51ebfda$exports, "isOriginTrial", () => $ee7e0c73e51ebfda$export$38a04d482ec50f88);
+$parcel$export($ee7e0c73e51ebfda$exports, "isMetaCSP", () => $ee7e0c73e51ebfda$export$14b1a2f64a600585);
+$parcel$export($ee7e0c73e51ebfda$exports, "getWeight", () => $ee7e0c73e51ebfda$export$de32fe5d64aee40c);
+$parcel$export($ee7e0c73e51ebfda$exports, "getHeadWeights", () => $ee7e0c73e51ebfda$export$5cc4a311ddbe699c);
+const $ee7e0c73e51ebfda$export$881088883fcab450 = {
     META: 10,
     TITLE: 9,
     PRECONNECT: 8,
@@ -337,19 +336,19 @@ const $9c3989fcb9437829$export$881088883fcab450 = {
     PREFETCH_PRERENDER: 1,
     OTHER: 0
 };
-const $9c3989fcb9437829$export$6ade8bb3620eb74b = {
-    META: $9c3989fcb9437829$export$daeb0db0c224decd,
-    TITLE: $9c3989fcb9437829$export$e55aad21605f020a,
-    PRECONNECT: $9c3989fcb9437829$export$a3316bd0a640eb8b,
-    ASYNC_SCRIPT: $9c3989fcb9437829$export$20e2051ffd813ee3,
-    IMPORT_STYLES: $9c3989fcb9437829$export$be443fc6335656f0,
-    SYNC_SCRIPT: $9c3989fcb9437829$export$65983fc0a5543400,
-    SYNC_STYLES: $9c3989fcb9437829$export$9d6cdbffb13bee21,
-    PRELOAD: $9c3989fcb9437829$export$226ad5ba23be83f0,
-    DEFER_SCRIPT: $9c3989fcb9437829$export$3d269f86e8bd1d24,
-    PREFETCH_PRERENDER: $9c3989fcb9437829$export$4d2ed086e1fec499
+const $ee7e0c73e51ebfda$export$6ade8bb3620eb74b = {
+    META: $ee7e0c73e51ebfda$export$daeb0db0c224decd,
+    TITLE: $ee7e0c73e51ebfda$export$e55aad21605f020a,
+    PRECONNECT: $ee7e0c73e51ebfda$export$a3316bd0a640eb8b,
+    ASYNC_SCRIPT: $ee7e0c73e51ebfda$export$20e2051ffd813ee3,
+    IMPORT_STYLES: $ee7e0c73e51ebfda$export$be443fc6335656f0,
+    SYNC_SCRIPT: $ee7e0c73e51ebfda$export$65983fc0a5543400,
+    SYNC_STYLES: $ee7e0c73e51ebfda$export$9d6cdbffb13bee21,
+    PRELOAD: $ee7e0c73e51ebfda$export$226ad5ba23be83f0,
+    DEFER_SCRIPT: $ee7e0c73e51ebfda$export$3d269f86e8bd1d24,
+    PREFETCH_PRERENDER: $ee7e0c73e51ebfda$export$4d2ed086e1fec499
 };
-const $9c3989fcb9437829$export$b7417cf4a2235f73 = [
+const $ee7e0c73e51ebfda$export$b7417cf4a2235f73 = [
     "accept-ch",
     "content-security-policy",
     "content-type",
@@ -358,22 +357,22 @@ const $9c3989fcb9437829$export$b7417cf4a2235f73 = [
     "origin-trial",
     "x-dns-prefetch-control"
 ];
-function $9c3989fcb9437829$export$daeb0db0c224decd(element) {
-    const httpEquivSelector = $9c3989fcb9437829$export$b7417cf4a2235f73.map((keyword)=>{
+function $ee7e0c73e51ebfda$export$daeb0db0c224decd(element) {
+    const httpEquivSelector = $ee7e0c73e51ebfda$export$b7417cf4a2235f73.map((keyword)=>{
         return `[http-equiv="${keyword}" i]`;
     }).join(", ");
     return element.matches(`meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
 }
-function $9c3989fcb9437829$export$e55aad21605f020a(element) {
+function $ee7e0c73e51ebfda$export$e55aad21605f020a(element) {
     return element.matches("title");
 }
-function $9c3989fcb9437829$export$a3316bd0a640eb8b(element) {
+function $ee7e0c73e51ebfda$export$a3316bd0a640eb8b(element) {
     return element.matches("link[rel=preconnect]");
 }
-function $9c3989fcb9437829$export$20e2051ffd813ee3(element) {
+function $ee7e0c73e51ebfda$export$20e2051ffd813ee3(element) {
     return element.matches("script[src][async]");
 }
-function $9c3989fcb9437829$export$be443fc6335656f0(element) {
+function $ee7e0c73e51ebfda$export$be443fc6335656f0(element) {
     const importRe = /@import/;
     if (element.matches("style")) return importRe.test(element.textContent);
     /* TODO: Support external stylesheets.
@@ -383,54 +382,54 @@ function $9c3989fcb9437829$export$be443fc6335656f0(element) {
     return importRe.test(response);
   } */ return false;
 }
-function $9c3989fcb9437829$export$65983fc0a5543400(element) {
+function $ee7e0c73e51ebfda$export$65983fc0a5543400(element) {
     return element.matches("script:not([src][defer],[src][type=module],[src][async],[type*=json])");
 }
-function $9c3989fcb9437829$export$9d6cdbffb13bee21(element) {
+function $ee7e0c73e51ebfda$export$9d6cdbffb13bee21(element) {
     return element.matches("link[rel=stylesheet],style");
 }
-function $9c3989fcb9437829$export$226ad5ba23be83f0(element) {
+function $ee7e0c73e51ebfda$export$226ad5ba23be83f0(element) {
     return element.matches("link:is([rel=preload], [rel=modulepreload])");
 }
-function $9c3989fcb9437829$export$3d269f86e8bd1d24(element) {
+function $ee7e0c73e51ebfda$export$3d269f86e8bd1d24(element) {
     return element.matches("script[src][defer], script:not([src][async])[src][type=module]");
 }
-function $9c3989fcb9437829$export$4d2ed086e1fec499(element) {
+function $ee7e0c73e51ebfda$export$4d2ed086e1fec499(element) {
     return element.matches("link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])");
 }
-function $9c3989fcb9437829$export$38a04d482ec50f88(element) {
+function $ee7e0c73e51ebfda$export$38a04d482ec50f88(element) {
     return element.matches('meta[http-equiv="origin-trial"i]');
 }
-function $9c3989fcb9437829$export$14b1a2f64a600585(element) {
+function $ee7e0c73e51ebfda$export$14b1a2f64a600585(element) {
     return element.matches('meta[http-equiv="Content-Security-Policy" i], meta[http-equiv="Content-Security-Policy-Report-Only" i]');
 }
-function $9c3989fcb9437829$export$de32fe5d64aee40c(element) {
-    for (let [id, detector] of Object.entries($9c3989fcb9437829$export$6ade8bb3620eb74b)){
-        if (detector(element)) return $9c3989fcb9437829$export$881088883fcab450[id];
+function $ee7e0c73e51ebfda$export$de32fe5d64aee40c(element) {
+    for (let [id, detector] of Object.entries($ee7e0c73e51ebfda$export$6ade8bb3620eb74b)){
+        if (detector(element)) return $ee7e0c73e51ebfda$export$881088883fcab450[id];
     }
-    return $9c3989fcb9437829$export$881088883fcab450.OTHER;
+    return $ee7e0c73e51ebfda$export$881088883fcab450.OTHER;
 }
-function $9c3989fcb9437829$export$5cc4a311ddbe699c(head) {
+function $ee7e0c73e51ebfda$export$5cc4a311ddbe699c(head) {
     const headChildren = Array.from(head.children);
     return headChildren.map((element)=>{
         return {
             element: element,
-            weight: $9c3989fcb9437829$export$de32fe5d64aee40c(element)
+            weight: $ee7e0c73e51ebfda$export$de32fe5d64aee40c(element)
         };
     });
 }
 
 
-var $580f7ed6bc170ae8$exports = {};
+var $c322f9a5057eaf5c$exports = {};
 
-$parcel$export($580f7ed6bc170ae8$exports, "VALID_HEAD_ELEMENTS", () => $580f7ed6bc170ae8$export$79e124b7caef7aa9);
-$parcel$export($580f7ed6bc170ae8$exports, "PRELOAD_SELECTOR", () => $580f7ed6bc170ae8$export$5540ac2a18901364);
-$parcel$export($580f7ed6bc170ae8$exports, "isValidElement", () => $580f7ed6bc170ae8$export$a8257692ac88316c);
-$parcel$export($580f7ed6bc170ae8$exports, "hasValidationWarning", () => $580f7ed6bc170ae8$export$eeefd08c3a6f8db7);
-$parcel$export($580f7ed6bc170ae8$exports, "getValidationWarnings", () => $580f7ed6bc170ae8$export$b01ab94d0cd042a0);
-$parcel$export($580f7ed6bc170ae8$exports, "getCustomValidations", () => $580f7ed6bc170ae8$export$6c93e2175c028eeb);
+$parcel$export($c322f9a5057eaf5c$exports, "VALID_HEAD_ELEMENTS", () => $c322f9a5057eaf5c$export$79e124b7caef7aa9);
+$parcel$export($c322f9a5057eaf5c$exports, "PRELOAD_SELECTOR", () => $c322f9a5057eaf5c$export$5540ac2a18901364);
+$parcel$export($c322f9a5057eaf5c$exports, "isValidElement", () => $c322f9a5057eaf5c$export$a8257692ac88316c);
+$parcel$export($c322f9a5057eaf5c$exports, "hasValidationWarning", () => $c322f9a5057eaf5c$export$eeefd08c3a6f8db7);
+$parcel$export($c322f9a5057eaf5c$exports, "getValidationWarnings", () => $c322f9a5057eaf5c$export$b01ab94d0cd042a0);
+$parcel$export($c322f9a5057eaf5c$exports, "getCustomValidations", () => $c322f9a5057eaf5c$export$6c93e2175c028eeb);
 
-const $580f7ed6bc170ae8$export$79e124b7caef7aa9 = new Set([
+const $c322f9a5057eaf5c$export$79e124b7caef7aa9 = new Set([
     "base",
     "link",
     "meta",
@@ -440,28 +439,28 @@ const $580f7ed6bc170ae8$export$79e124b7caef7aa9 = new Set([
     "template",
     "title"
 ]);
-const $580f7ed6bc170ae8$export$5540ac2a18901364 = 'link:is([rel="preload" i], [rel="modulepreload" i])';
-function $580f7ed6bc170ae8$export$a8257692ac88316c(element) {
-    return $580f7ed6bc170ae8$export$79e124b7caef7aa9.has(element.tagName.toLowerCase());
+const $c322f9a5057eaf5c$export$5540ac2a18901364 = 'link:is([rel="preload" i], [rel="modulepreload" i])';
+function $c322f9a5057eaf5c$export$a8257692ac88316c(element) {
+    return $c322f9a5057eaf5c$export$79e124b7caef7aa9.has(element.tagName.toLowerCase());
 }
-function $580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element) {
+function $c322f9a5057eaf5c$export$eeefd08c3a6f8db7(element) {
     // Element itself is not valid.
-    if (!$580f7ed6bc170ae8$export$a8257692ac88316c(element)) return true;
+    if (!$c322f9a5057eaf5c$export$a8257692ac88316c(element)) return true;
     // Children are not valid.
-    if (element.matches(`:has(:not(${Array.from($580f7ed6bc170ae8$export$79e124b7caef7aa9).join(", ")}))`)) return true;
+    if (element.matches(`:has(:not(${Array.from($c322f9a5057eaf5c$export$79e124b7caef7aa9).join(", ")}))`)) return true;
     // <title> is not the first of its type.
     if (element.matches("title:is(:nth-of-type(n+2))")) return true;
     // <base> is not the first of its type.
     if (element.matches("base:has(~ base), base ~ base")) return true;
     // CSP meta tag anywhere.
-    if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return true;
+    if ((0, $ee7e0c73e51ebfda$export$14b1a2f64a600585)(element)) return true;
     // Origin trial expired or cross-origin.
-    if ($580f7ed6bc170ae8$var$isInvalidOriginTrial(element)) return true;
+    if ($c322f9a5057eaf5c$var$isInvalidOriginTrial(element)) return true;
     // Preload is unnecessary.
-    if ($580f7ed6bc170ae8$var$isUnnecessaryPreload(element)) return true;
+    if ($c322f9a5057eaf5c$var$isUnnecessaryPreload(element)) return true;
     return false;
 }
-function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
+function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head) {
     const validationWarnings = [];
     const titleElements = Array.from(head.querySelectorAll("title"));
     const titleElementCount = titleElements.length;
@@ -481,7 +480,7 @@ function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
         element: metaCSP
     });
     head.querySelectorAll("*").forEach((element)=>{
-        if ($580f7ed6bc170ae8$export$a8257692ac88316c(element)) return;
+        if ($c322f9a5057eaf5c$export$a8257692ac88316c(element)) return;
         let root = element;
         while(root.parentElement != head)root = root.parentElement;
         validationWarnings.push({
@@ -491,7 +490,7 @@ function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
     });
     const originTrials = Array.from(head.querySelectorAll('meta[http-equiv="Origin-Trial" i]'));
     originTrials.forEach((element)=>{
-        const metadata = $580f7ed6bc170ae8$var$validateOriginTrial(element);
+        const metadata = $c322f9a5057eaf5c$var$validateOriginTrial(element);
         if (metadata.warnings.length == 0) return;
         validationWarnings.push({
             warning: `Invalid origin trial token: ${metadata.warnings.join(", ")}`,
@@ -503,13 +502,13 @@ function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
     });
     return validationWarnings;
 }
-function $580f7ed6bc170ae8$export$6c93e2175c028eeb(element) {
-    if ((0, $9c3989fcb9437829$export$38a04d482ec50f88)(element)) return $580f7ed6bc170ae8$var$validateOriginTrial(element);
-    if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return $580f7ed6bc170ae8$var$validateCSP(element);
-    if ($580f7ed6bc170ae8$var$isUnnecessaryPreload(element)) return $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element);
+function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element) {
+    if ((0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element)) return $c322f9a5057eaf5c$var$validateOriginTrial(element);
+    if ((0, $ee7e0c73e51ebfda$export$14b1a2f64a600585)(element)) return $c322f9a5057eaf5c$var$validateCSP(element);
+    if ($c322f9a5057eaf5c$var$isUnnecessaryPreload(element)) return $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element);
     return {};
 }
-function $580f7ed6bc170ae8$var$validateCSP(element) {
+function $c322f9a5057eaf5c$var$validateCSP(element) {
     const warnings = [];
     if (element.matches('meta[http-equiv="Content-Security-Policy-Report-Only" i]')) //https://w3c.github.io/webappsec-csp/#meta-element
     warnings.push("CSP Report-Only is forbidden in meta tags");
@@ -518,28 +517,28 @@ function $580f7ed6bc170ae8$var$validateCSP(element) {
         warnings: warnings
     };
 }
-function $580f7ed6bc170ae8$var$isInvalidOriginTrial(element) {
-    if (!(0, $9c3989fcb9437829$export$38a04d482ec50f88)(element)) return false;
-    const { warnings: warnings } = $580f7ed6bc170ae8$var$validateOriginTrial(element);
+function $c322f9a5057eaf5c$var$isInvalidOriginTrial(element) {
+    if (!(0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element)) return false;
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateOriginTrial(element);
     return warnings.length > 0;
 }
-function $580f7ed6bc170ae8$var$validateOriginTrial(element) {
+function $c322f9a5057eaf5c$var$validateOriginTrial(element) {
     const metadata = {
         payload: null,
         warnings: []
     };
     const token = element.getAttribute("content");
     try {
-        metadata.payload = $580f7ed6bc170ae8$var$decodeOriginTrialToken(token);
+        metadata.payload = $c322f9a5057eaf5c$var$decodeOriginTrialToken(token);
         if (metadata.payload.expiry < new Date()) metadata.warnings.push("expired");
-        if (!metadata.payload.isThirdParty && !$580f7ed6bc170ae8$var$isSameOrigin(metadata.payload.origin, document.location.href)) metadata.warnings.push("invalid origin");
+        if (!metadata.payload.isThirdParty && !$c322f9a5057eaf5c$var$isSameOrigin(metadata.payload.origin, document.location.href)) metadata.warnings.push("invalid origin");
     } catch  {
         metadata.warnings.push("invalid token");
     }
     return metadata;
 }
 // Adapted from https://glitch.com/~ot-decode.
-function $580f7ed6bc170ae8$var$decodeOriginTrialToken(token) {
+function $c322f9a5057eaf5c$var$decodeOriginTrialToken(token) {
     const buffer = new Uint8Array([
         ...atob(token)
     ].map((a)=>a.charCodeAt(0)));
@@ -549,31 +548,31 @@ function $580f7ed6bc170ae8$var$decodeOriginTrialToken(token) {
     payload.expiry = new Date(payload.expiry * 1000);
     return payload;
 }
-function $580f7ed6bc170ae8$var$isSameOrigin(a, b) {
+function $c322f9a5057eaf5c$var$isSameOrigin(a, b) {
     return new URL(a).origin === new URL(b).origin;
 }
-function $580f7ed6bc170ae8$var$isUnnecessaryPreload(element) {
-    if (!element.matches($580f7ed6bc170ae8$export$5540ac2a18901364)) return false;
+function $c322f9a5057eaf5c$var$isUnnecessaryPreload(element) {
+    if (!element.matches($c322f9a5057eaf5c$export$5540ac2a18901364)) return false;
     const href = element.getAttribute("href");
     if (!href) return false;
-    const preloadedUrl = $580f7ed6bc170ae8$var$absolutifyUrl(href);
-    return $580f7ed6bc170ae8$var$findElementWithSource(element.parentElement, preloadedUrl) != null;
+    const preloadedUrl = $c322f9a5057eaf5c$var$absolutifyUrl(href);
+    return $c322f9a5057eaf5c$var$findElementWithSource(element.parentElement, preloadedUrl) != null;
 }
-function $580f7ed6bc170ae8$var$findElementWithSource(root, sourceUrl) {
-    const linksAndScripts = Array.from(root.querySelectorAll(`link:not(${$580f7ed6bc170ae8$export$5540ac2a18901364}), script`));
+function $c322f9a5057eaf5c$var$findElementWithSource(root, sourceUrl) {
+    const linksAndScripts = Array.from(root.querySelectorAll(`link:not(${$c322f9a5057eaf5c$export$5540ac2a18901364}), script`));
     return linksAndScripts.find((e)=>{
         const src = e.getAttribute("href") || e.getAttribute("src");
         if (!src) return false;
-        return sourceUrl == $580f7ed6bc170ae8$var$absolutifyUrl(src);
+        return sourceUrl == $c322f9a5057eaf5c$var$absolutifyUrl(src);
     });
 }
-function $580f7ed6bc170ae8$var$absolutifyUrl(href) {
+function $c322f9a5057eaf5c$var$absolutifyUrl(href) {
     return new URL(href, document.baseURI).href;
 }
-function $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element) {
+function $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element) {
     const href = element.getAttribute("href");
-    const preloadedUrl = $580f7ed6bc170ae8$var$absolutifyUrl(href);
-    const preloadedElement = $580f7ed6bc170ae8$var$findElementWithSource(element.parentElement, preloadedUrl);
+    const preloadedUrl = $c322f9a5057eaf5c$var$absolutifyUrl(href);
+    const preloadedElement = $c322f9a5057eaf5c$var$findElementWithSource(element.parentElement, preloadedUrl);
     if (!preloadedElement) throw new Error("Expected an invalid preload, but none found.");
     return {
         warnings: [
@@ -585,11 +584,11 @@ function $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element) {
 
 
 
-function $0eec6c831ab0f90a$export$8679af897d1c058e(io, validation) {
+function $b9ac488c89f25519$export$8679af897d1c058e(io, validation) {
     const validationWarnings = validation.getValidationWarnings(io.getHead());
     io.logValidationWarnings(validationWarnings);
 }
-function $0eec6c831ab0f90a$export$b65597cffe09aebc(io, validation, rules) {
+function $b9ac488c89f25519$export$b65597cffe09aebc(io, validation, rules) {
     const headElement = io.getHead();
     const headWeights = rules.getHeadWeights(headElement).map(({ element: element, weight: weight })=>{
         return {
@@ -610,14 +609,19 @@ function $0eec6c831ab0f90a$export$b65597cffe09aebc(io, validation, rules) {
 }
 
 
-const $fd3091053c5dfffc$var$CAPO_GLOBAL = "__CAPO__";
-async function $fd3091053c5dfffc$var$run() {
-    const options = new $5b739339de321a37$exports.Options(self[$fd3091053c5dfffc$var$CAPO_GLOBAL]);
-    const io = new $d410929ede0a2ee4$exports.IO(document, options);
-    await io.init();
-    $0eec6c831ab0f90a$export$8679af897d1c058e(io, $580f7ed6bc170ae8$exports);
-    $0eec6c831ab0f90a$export$b65597cffe09aebc(io, $580f7ed6bc170ae8$exports, $9c3989fcb9437829$exports);
+const $3536df9ffc9a62b8$var$FORCED_OPTIONS = {
+    preferredAssessmentMode: $5daa40bf356478d7$exports.Options.AssessmentMode.DYNAMIC
+};
+function $3536df9ffc9a62b8$export$889ea624f2cb2c57(input, output, userOptions = {}) {
+    userOptions = Object.assign(userOptions, $3536df9ffc9a62b8$var$FORCED_OPTIONS);
+    const staticDoc = document.implementation.createHTMLDocument("New Document");
+    staticDoc.documentElement.innerHTML = input;
+    const options = new $5daa40bf356478d7$exports.Options(userOptions);
+    const io = new $33f7359dc421be0c$exports.IO(staticDoc.documentElement, options, output);
+    io.init();
+    $b9ac488c89f25519$export$8679af897d1c058e(io, $c322f9a5057eaf5c$exports);
+    $b9ac488c89f25519$export$b65597cffe09aebc(io, $c322f9a5057eaf5c$exports, $ee7e0c73e51ebfda$exports);
 }
-$fd3091053c5dfffc$var$run();
 
-})();
+
+export {$3536df9ffc9a62b8$export$889ea624f2cb2c57 as run};
