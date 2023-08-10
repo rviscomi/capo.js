@@ -33,7 +33,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     });
   }
 
-  function initUrl() {
+  async function initUrl() {
     const thisUrl = new URL(location.href);
     const urlParam = thisUrl.searchParams.get('url');
     if (!urlParam) {
@@ -41,7 +41,11 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     }
     url.value = urlParam;
     document.querySelector('a[role=tab]:not([aria-selected])').click();
-    handleSubmit();
+    try {
+      await handleSubmit();
+    } catch (e) {
+      console.error('Capo error', e);
+    }
   }
 
   function setUrl(urlParam) {
@@ -63,7 +67,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     const selectedTab = document.querySelector('a[role=tab][aria-selected=true]').innerText;
 
     if (selectedTab === 'URL') {
-      if (!url.value) {
+      if (!url.value || !url.validity.valid) {
         throw new Error(`Invalid URL "${url.value}"`);
       }
       if (url.value != url.getAttribute('placeholder')) {
@@ -126,6 +130,10 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     width: 100%;
   }
 
+  input:invalid {
+    border-color: #9e0142;
+  }
+
   #output .warn {
     background-color: rgba(255, 159, 67, 0.1);
     color: orange;
@@ -157,7 +165,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   }
 </style>
 
-<p>To see capo.js in action, enter some HTML in the form field below and click the "Run" button.</p>
+<p>To see capo.js in action, enter HTML or a URL in the form field below and click <strong>Run</strong>.</p>
 
 <p><strong id="reminder">Results are logged to the DevTools console.</strong></p>
 
