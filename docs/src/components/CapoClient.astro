@@ -23,11 +23,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     virtualConsole = new VirtualConsole(output);
 
     input.addEventListener('submit', e => {
-      try {
-        handleSubmit();
-      } catch (e) {
-        console.error('Capo error', e);
-      }
+      handleSubmit();
       e.preventDefault();
       return false;
     });
@@ -89,6 +85,11 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     const proxy = new URL('https://capo.rviscomi.workers.dev/');
     proxy.searchParams.set('url', url);
     const response = await fetch(proxy);
+    if (response.status == 502) {
+      throw new Error(`502 Gateway Error. The URL ${url} cannot be fetched. (Possibly too many redirects)`);
+    } else if (!response.ok) {
+      throw new Error('Unknown error fetching the URL. Please file an issue: https://github.com/rviscomi/capo.js/issues/');
+    }
     return await response.text();
   }
 </script>
