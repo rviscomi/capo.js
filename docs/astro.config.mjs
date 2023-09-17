@@ -77,6 +77,7 @@ export default defineConfig({
           items: [
             { label: 'Contributing to Capo', link: '/developer/contributing/' },
             { label: 'Installing the extension locally', link: '/developer/crx-local/' },
+            { label: 'Using capo.js from npm', link: '/developer/npm/' },
           ],
         },
       ],

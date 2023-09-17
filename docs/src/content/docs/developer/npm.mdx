@@ -1,0 +1,80 @@
+---
+title: Using capo.js from npm
+description: Installation and usage instructions for using capo.js from npm
+---
+
+Integrate capo.js into your project by installing it from [npm](https://www.npmjs.com/package/@rviscomi/capo.js).
+
+## Installation and usage
+
+```sh
+npm install @rviscomi/capo.js
+```
+
+To use capo.js in your project, import it:
+
+```js
+import * as capo from '@rviscomi/capo.js';
+```
+
+## Examples
+
+### Custom validation
+
+## Libraries
+
+### `colors`
+
+The `colors` library is used for accessing and generating the color pallettes that capo.js uses to render the visualization.
+
+#### Properties
+
+##### `DEFAULT`
+
+The default capo.js color pallette:
+
+```js
+[
+  '#9e0142',
+  '#d53e4f',
+  '#f46d43',
+  '#fdae61',
+  '#fee08b',
+  '#e6f598',
+  '#abdda4',
+  '#66c2a5',
+  '#3288bd',
+  '#5e4fa2',
+  '#cccccc'
+]
+```
+
+##### `PINK`
+
+##### `BLUE`
+
+#### Functions
+
+##### `generateSwatches`
+
+Given a parameter `hue`, (e.g. 320 for pink and 200 for blue), generate an array of 11 colors that range from dark to light, followed by grey (`#ccc`).
+
+```js
+const pinkPallette = capo.colors.generateSwatches(320);
+```
+
+##### `getInvalidBackgroundColor`
+
+Given a parameter `elementColor`, generate the CSS style for a `repeating-linear-gradient` that alternates between `elementColor` and `#ccc`.
+
+```js
+const invalidBackgroundColor = capo.colors.getInvalidBackgroundColor('#9e0142');
+```
+
+### `io`
+
+### `options`
+
+### `rules`
+
+### `validation`
