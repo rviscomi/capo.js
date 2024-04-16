@@ -48,7 +48,6 @@ async function init() {
     await chrome.storage.local.remove("click");
   } else {
     const data = await run(io);
-    console.log("Setting data to storage", { data });
     await chrome.storage.local.set({
       data: data,
     });
