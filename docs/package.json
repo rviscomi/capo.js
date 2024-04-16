@@ -1,7 +1,6 @@
 {
   "name": "capo",
   "type": "module",
-  "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -10,8 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.5.0",
-    "astro": "^2.8.1",
-    "sharp": "^0.32.2"
+    "@astrojs/starlight": "^0.21.5",
+    "astro": "^4.6.2",
+    "sharp": "^0.32.6"
   }
 }

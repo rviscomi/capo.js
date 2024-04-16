@@ -14,16 +14,19 @@ const DEFAULT_PALETTE = [
 ];
 
 
-let { weight="1", color } = Astro.props;
+let { weight="1", color, length } = Astro.props;
 
 weight = Number(weight);
 
 if (!color) {
   color = DEFAULT_PALETTE[11 - weight];
 }
+if (!length) {
+  length = weight;
+}
 
 const style = `color: ${color};`;
-const bars = new Array(weight).fill('█').join('');
+const bars = new Array(length).fill('█').join('');
 ---
 
 <style>
