@@ -67,7 +67,7 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         }
         try {
             let html = await this.getStaticHTML();
-            html = html.replace(/(\<\/?)(head)/ig, "$1static-head");
+            html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
             const staticDoc = this.document.implementation.createHTMLDocument("New Document");
             staticDoc.documentElement.innerHTML = html;
             this.head = staticDoc.querySelector("static-head");
@@ -155,7 +155,11 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
             return;
         }
         const { payload: payload, warnings: warnings } = customValidations;
-        if (payload) args.push(payload);
+        if (payload) {
+            if (typeof payload.expiry == "string") // Deserialize origin trial expiration dates.
+            payload.expiry = new Date(payload.expiry);
+            args.push(payload);
+        }
         if (warnings?.length) {
             // Element-specific warnings.
             loggingLevel = "warn";
