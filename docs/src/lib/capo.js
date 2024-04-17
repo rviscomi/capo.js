@@ -540,10 +540,15 @@ function $c322f9a5057eaf5c$var$validateOriginTrial(element) {
     const token = element.getAttribute("content");
     try {
         metadata.payload = $c322f9a5057eaf5c$var$decodeOriginTrialToken(token);
-        if (metadata.payload.expiry < new Date()) metadata.warnings.push("expired");
-        if (!metadata.payload.isThirdParty && !$c322f9a5057eaf5c$var$isSameOrigin(metadata.payload.origin, document.location.href)) metadata.warnings.push("invalid origin");
     } catch  {
         metadata.warnings.push("invalid token");
+        return metadata;
+    }
+    if (metadata.payload.expiry < new Date()) metadata.warnings.push("expired");
+    if (!$c322f9a5057eaf5c$var$isSameOrigin(metadata.payload.origin, document.location.href)) {
+        const subdomain = $c322f9a5057eaf5c$var$isSubdomain(metadata.payload.origin, document.location.href);
+        if (subdomain && !metadata.payload.isSubdomain) metadata.warnings.push("invalid subdomain");
+        else if (!subdomain && !metadata.payload.isThirdParty) metadata.warnings.push("invalid origin");
     }
     return metadata;
 }
@@ -560,6 +565,13 @@ function $c322f9a5057eaf5c$var$decodeOriginTrialToken(token) {
 }
 function $c322f9a5057eaf5c$var$isSameOrigin(a, b) {
     return new URL(a).origin === new URL(b).origin;
+}
+// Whether b is a subdomain of a
+function $c322f9a5057eaf5c$var$isSubdomain(a, b) {
+    // www.example.com ends with .example.com
+    a = new URL(a);
+    b = new URL(b);
+    return b.host.endsWith(`.${a.host}`);
 }
 function $c322f9a5057eaf5c$var$isUnnecessaryPreload(element) {
     if (!element.matches($c322f9a5057eaf5c$export$5540ac2a18901364)) return false;
