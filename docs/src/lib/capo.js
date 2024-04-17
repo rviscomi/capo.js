@@ -122,8 +122,14 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         const attributes = selector.match(/\[([A-Za-z-]+)="([^"]+)"\]/g) || [];
         // Set the attributes on the new element
         attributes.forEach((attribute)=>{
-            const [key, value] = attribute.replace("[", "").replace("]", "").split("=");
-            element.setAttribute(key, value.slice(1, -1));
+            // Trim square brackets
+            attribute = attribute.slice(1, -1);
+            const delimeterPosition = attribute.indexOf("=");
+            // Everything before the =
+            const key = attribute.slice(0, delimeterPosition);
+            // Everything after the =, with quotes trimmed
+            const value = attribute.slice(delimeterPosition + 1).slice(1, -1);
+            element.setAttribute(key, value);
         });
         return element;
     }
