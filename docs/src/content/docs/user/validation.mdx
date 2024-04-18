@@ -3,9 +3,8 @@ title: Validation
 description: Learn about how capo.js validates the head element
 ---
 
-import { Image } from 'astro:assets';
-import ValidationAreas from '../../../assets/validation-areas.png';
-
+import { Image } from "astro:assets";
+import ValidationAreas from "../../../assets/validation-areas.png";
 
 The `<head>` element sets up all of the necessary metadata for a page to load properly and performantly. capo.js performs a number of validation checks on the `<head>` to ensure it meets modern best practices.
 
@@ -19,7 +18,11 @@ There are a few ways to see when an element is invalid:
 - the element appears striped in the color bar
 - the expanded console entry is annotated with an ❌ icon
 
-<Image src={ValidationAreas} alt="Console logs showing all three ways elements are flagged as invalid." loading="eager" />
+<Image
+  src={ValidationAreas}
+  alt="Console logs showing all three ways elements are flagged as invalid."
+  loading="eager"
+/>
 
 In the example above, you can see all three ways that an element can be flagged as invalid: top-level warning, striped color bar, and warning styles in its expanded entry.
 
@@ -62,7 +65,7 @@ If capo.js detects zero or more than one `<title>` element, it will log a valida
 
 ![Validation warning that "Expected exactly 1 title element, found 0"](../../../assets/validation-title.png)
 
-In the example above, the `<title>` element is missing, so capo.js warns that "Expected exactly 1 `<title>` element, found 0". 
+In the example above, the `<title>` element is missing, so capo.js warns that "Expected exactly 1 `<title>` element, found 0".
 
 ## No more than one `<base>` element
 
@@ -76,7 +79,7 @@ In the example above, there is more than one `<base>` element, so capo.js warns 
 
 ## No `<meta>` CSP
 
-According to the [W3C specification](https://w3c.github.io/webappsec-csp/#policy-delivery), a Content Security Policy (CSP) can be set as either an HTTP header or a `<meta http-equiv>` tag. 
+According to the [W3C specification](https://w3c.github.io/webappsec-csp/#policy-delivery), a Content Security Policy (CSP) can be set as either an HTTP header or a `<meta http-equiv>` tag.
 
 Despite `<meta>` CSP declarations being technically valid, per the spec, browsers handle them differently. In particular, Chrome will disable the [preload scanner](https://web.dev/preload-scanner/) if it discovers a CSP declared after a `<script>` element. The preload scanner can improve performance by 20%, so this behavior has major implications on the user experience.
 
@@ -123,3 +126,22 @@ In the example above, two separate embedded third party scripts injected origin 
 In the first warning, the token contains an invalid origin. The token metadata is missing the `isThirdParty` flag and the `origin` property is set `https://googlesyndication.com:443`, which is presumably the third party that injected the token. However, because the origin of the page is different from the one in the origin trial metadata, and it wasn't registered as a third party token, it's not valid. A similar warning would appear if the origin of the page is `https://www.example.com` but the origin in the metadata is `https://example.com:443` and it's missing the `isSubdomain` flag.
 
 In the second warning, the origin is a valid third party, but the token is expired. In the token metadata, you can see that it expired in November 2022.
+
+## No invalid `<meta http-equiv>` elements
+
+There are a handful of standardized pragma directives that can be used with the `http-equiv` attribute to change browser behavior. There are even some non-standard directives that browsers still choose support, the most notable being [`origin-trial`](#no-invalid-origin-trials). And there are actually a couple of standardized directives that are non-conforming, meaning that their use is totally discouraged, specifically: `content-language` and `set-cookie`.
+
+:::caution
+Contrary to popular belief, `http-equiv` meta tags _are not_ equivalent to HTTP headers. Learn more about why [you probably don't need `http-equiv` meta tags](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/).
+:::
+
+Even when using a standardized, supported, and conforming `http-equiv` directive, its `content` attribute value may still be invalid. For example, the `content-type` directive _must_ declare a character encoding of UTF-8. There are some additional restrictions on this directive, specifically the requirements that it be discovered within the first 1024 bytes and it doesn't coincide with the `<meta charset>` element.
+
+Many of these cases are harmless no-ops, but capo.js will validate them and provide a helpful warning message with relevant metadata to help you understand whether it's safe to remove it or if anything needs to be changed for it to work properly.
+
+There are some cases where it's not so harmless:
+
+- `set-cookie` doesn't set any cookies, which could lead to broken behavior.
+- `content-type` character encoding can be declared too late, which may lead to performance issues.
+- `description` and similar metadata may have been mistakenly assigned to the `http-equiv` meta attribute instead of the intended `name` attribute, which could disrupt the page's SEO.
+- `refresh` can reload or redirect the page and is known to cause [accessibility issues](https://www.w3.org/TR/WCAG10-HTML-TECHS/#meta-element).
