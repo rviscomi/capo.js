@@ -169,11 +169,11 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         if (warnings?.length) {
             // Element-specific warnings.
             loggingLevel = "warn";
-            warnings.forEach((warning)=>args.push(`❌ ${warning}`));
+            args.push("\n" + warnings.map((warning)=>`  ❌ ${warning}`).join("\n"));
         } else if (!isValid && (this.options.prefersDynamicAssessment() || this.isStaticHead)) {
             // General warnings.
             loggingLevel = "warn";
-            args.push(`❌ invalid element (${element.tagName})`);
+            args.push(`\n  ❌ invalid element (${element.tagName})`);
         }
         this.console[loggingLevel](...args);
     }
@@ -433,6 +433,8 @@ function $ee7e0c73e51ebfda$export$5cc4a311ddbe699c(head) {
 var $c322f9a5057eaf5c$exports = {};
 
 $parcel$export($c322f9a5057eaf5c$exports, "VALID_HEAD_ELEMENTS", () => $c322f9a5057eaf5c$export$79e124b7caef7aa9);
+$parcel$export($c322f9a5057eaf5c$exports, "CONTENT_TYPE_SELECTOR", () => $c322f9a5057eaf5c$export$2f975f13375faaa1);
+$parcel$export($c322f9a5057eaf5c$exports, "HTTP_EQUIV_SELECTOR", () => $c322f9a5057eaf5c$export$9739336dee0b3205);
 $parcel$export($c322f9a5057eaf5c$exports, "PRELOAD_SELECTOR", () => $c322f9a5057eaf5c$export$5540ac2a18901364);
 $parcel$export($c322f9a5057eaf5c$exports, "isValidElement", () => $c322f9a5057eaf5c$export$a8257692ac88316c);
 $parcel$export($c322f9a5057eaf5c$exports, "hasValidationWarning", () => $c322f9a5057eaf5c$export$eeefd08c3a6f8db7);
@@ -449,6 +451,8 @@ const $c322f9a5057eaf5c$export$79e124b7caef7aa9 = new Set([
     "template",
     "title"
 ]);
+const $c322f9a5057eaf5c$export$2f975f13375faaa1 = 'meta[http-equiv="content-type" i], meta[charset]';
+const $c322f9a5057eaf5c$export$9739336dee0b3205 = "meta[http-equiv]";
 const $c322f9a5057eaf5c$export$5540ac2a18901364 = 'link:is([rel="preload" i], [rel="modulepreload" i])';
 function $c322f9a5057eaf5c$export$a8257692ac88316c(element) {
     return $c322f9a5057eaf5c$export$79e124b7caef7aa9.has(element.tagName.toLowerCase());
@@ -464,7 +468,13 @@ function $c322f9a5057eaf5c$export$eeefd08c3a6f8db7(element) {
     if (element.matches("base:has(~ base), base ~ base")) return true;
     // CSP meta tag anywhere.
     if ((0, $ee7e0c73e51ebfda$export$14b1a2f64a600585)(element)) return true;
-    // Origin trial expired or cross-origin.
+    // Invalid http-equiv.
+    if ($c322f9a5057eaf5c$var$isInvalidHttpEquiv(element)) return true;
+    // Invalid default-style.
+    if ($c322f9a5057eaf5c$var$isInvalidDefaultStyle(element)) return true;
+    // Invalid character encoding.
+    if ($c322f9a5057eaf5c$var$isInvalidContentType(element)) return true;
+    // Origin trial expired, or invalid origin.
     if ($c322f9a5057eaf5c$var$isInvalidOriginTrial(element)) return true;
     // Preload is unnecessary.
     if ($c322f9a5057eaf5c$var$isUnnecessaryPreload(element)) return true;
@@ -515,6 +525,9 @@ function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head) {
 function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element) {
     if ((0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element)) return $c322f9a5057eaf5c$var$validateOriginTrial(element);
     if ((0, $ee7e0c73e51ebfda$export$14b1a2f64a600585)(element)) return $c322f9a5057eaf5c$var$validateCSP(element);
+    if ($c322f9a5057eaf5c$var$isDefaultStyle(element)) return $c322f9a5057eaf5c$var$validateDefaultStyle(element);
+    if ($c322f9a5057eaf5c$var$isContentType(element)) return $c322f9a5057eaf5c$var$validateContentType(element);
+    if ($c322f9a5057eaf5c$var$isHttpEquiv(element)) return $c322f9a5057eaf5c$var$validateHttpEquiv(element);
     if ($c322f9a5057eaf5c$var$isUnnecessaryPreload(element)) return $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element);
     return {};
 }
@@ -547,8 +560,11 @@ function $c322f9a5057eaf5c$var$validateOriginTrial(element) {
     if (metadata.payload.expiry < new Date()) metadata.warnings.push("expired");
     if (!$c322f9a5057eaf5c$var$isSameOrigin(metadata.payload.origin, document.location.href)) {
         const subdomain = $c322f9a5057eaf5c$var$isSubdomain(metadata.payload.origin, document.location.href);
+        // Cross-origin OTs are only valid if:
+        //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
+        //   2. The isThirdParty config is set
         if (subdomain && !metadata.payload.isSubdomain) metadata.warnings.push("invalid subdomain");
-        else if (!subdomain && !metadata.payload.isThirdParty) metadata.warnings.push("invalid origin");
+        else if (!metadata.payload.isThirdParty) metadata.warnings.push("invalid origin");
     }
     return metadata;
 }
@@ -558,8 +574,8 @@ function $c322f9a5057eaf5c$var$decodeOriginTrialToken(token) {
         ...atob(token)
     ].map((a)=>a.charCodeAt(0)));
     const view = new DataView(buffer.buffer);
-    const length = view.getUint32(65, false);
-    const payload = JSON.parse(new TextDecoder().decode(buffer.slice(69, 69 + length)));
+    const length1 = view.getUint32(65, false);
+    const payload = JSON.parse(new TextDecoder().decode(buffer.slice(69, 69 + length1)));
     payload.expiry = new Date(payload.expiry * 1000);
     return payload;
 }
@@ -572,6 +588,30 @@ function $c322f9a5057eaf5c$var$isSubdomain(a, b) {
     a = new URL(a);
     b = new URL(b);
     return b.host.endsWith(`.${a.host}`);
+}
+function $c322f9a5057eaf5c$var$isDefaultStyle(element) {
+    return element.matches('meta[http-equiv="default-style" i]');
+}
+function $c322f9a5057eaf5c$var$isContentType(element) {
+    return element.matches($c322f9a5057eaf5c$export$2f975f13375faaa1);
+}
+function $c322f9a5057eaf5c$var$isInvalidDefaultStyle(element) {
+    if (!$c322f9a5057eaf5c$var$isDefaultStyle(element)) return false;
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateDefaultStyle(element);
+    return warnings.length > 0;
+}
+function $c322f9a5057eaf5c$var$isInvalidContentType(element) {
+    if (!$c322f9a5057eaf5c$var$isContentType(element)) return false;
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateContentType(element);
+    return warnings.length > 0;
+}
+function $c322f9a5057eaf5c$var$isHttpEquiv(element) {
+    return element.matches($c322f9a5057eaf5c$export$9739336dee0b3205);
+}
+function $c322f9a5057eaf5c$var$isInvalidHttpEquiv(element) {
+    if (!$c322f9a5057eaf5c$var$isHttpEquiv(element)) return false;
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateHttpEquiv(element);
+    return warnings.length > 0;
 }
 function $c322f9a5057eaf5c$var$isUnnecessaryPreload(element) {
     if (!element.matches($c322f9a5057eaf5c$export$5540ac2a18901364)) return false;
@@ -590,6 +630,140 @@ function $c322f9a5057eaf5c$var$findElementWithSource(root, sourceUrl) {
 }
 function $c322f9a5057eaf5c$var$absolutifyUrl(href) {
     return new URL(href, document.baseURI).href;
+}
+function $c322f9a5057eaf5c$var$validateDefaultStyle(element) {
+    const warnings = [];
+    let payload = null;
+    // Check if the value points to an alternate stylesheet with that title
+    const title = element.getAttribute("content");
+    const stylesheet = element.parentElement.querySelector(`link[rel~="alternate" i][rel~="stylesheet" i][title="${title}"]`);
+    if (!title) warnings.push("This has no effect. The content attribute must be set to a valid stylesheet title.");
+    else if (!stylesheet) {
+        payload = {
+            alternateStylesheets: Array.from(element.parentElement.querySelectorAll('link[rel~="alternate" i][rel~="stylesheet" i]'))
+        };
+        warnings.push(`This has no effect. No alternate stylesheet found having title="${title}".`);
+    }
+    return {
+        warnings: warnings,
+        payload: payload
+    };
+}
+function $c322f9a5057eaf5c$var$validateContentType(element) {
+    const warnings = [];
+    let payload = null;
+    // https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration
+    // Check if there exists both meta[http-equiv] and meta[chartset] variations
+    if (element.matches(':is(meta[charset] ~ meta[http-equiv="content-type" i])') || element.matches(":has(~ meta[charset])")) {
+        const encodingDeclaration = element.parentElement.querySelector("meta[charset]");
+        payload = payload ?? {};
+        payload.encodingDeclaration = encodingDeclaration;
+        warnings.push(`There can only be one meta-based character encoding declaration per document. Found \`${encodingDeclaration.outerHTML}\`.`);
+    }
+    // Check if it exists in the first 1024 bytes
+    const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML);
+    if (charPos > 1024) {
+        payload = payload ?? {};
+        payload.characterPosition = charPos;
+        warnings.push(`The element containing the character encoding declaration must be serialized completely within the first 1024 bytes of the document. Found at byte ${charPos}.`);
+    }
+    // Check that the character encoding is UTF-8
+    let charset = null;
+    if (element.matches("meta[charset]")) charset = element.getAttribute("charset");
+    else {
+        const charsetPattern = /text\/html;\s*charset=(.*)/i;
+        charset = element.getAttribute("content")?.match(charsetPattern)?.[1];
+    }
+    if (charset.toLowerCase() != "utf-8") {
+        payload = payload ?? {};
+        payload.charset = charset;
+        warnings.push(`Documents are required to use UTF-8 encoding. Found "${charset}".`);
+    }
+    if (warnings.length) // Append the spec source to the last warning
+    warnings[length - 1] = warnings.at(-1) + "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
+    return {
+        warnings: warnings,
+        payload: payload
+    };
+}
+function $c322f9a5057eaf5c$var$validateHttpEquiv(element) {
+    const warnings = [];
+    const type = element.getAttribute("http-equiv").toLowerCase();
+    const content = element.getAttribute("content").toLowerCase();
+    switch(type){
+        case "content-security-policy":
+        case "content-security-policy-report-only":
+        case "origin-trial":
+        case "content-type":
+        case "default-style":
+            break;
+        case "refresh":
+            if (content.includes("url=")) warnings.push("Meta redirects are discouraged. Use HTTP 3XX responses instead.");
+            break;
+        case "x-dns-prefetch-control":
+            if (content == "on") warnings.push(`DNS prefetching is enabled by default. Setting it to "${content}" has no effect.`);
+            else if (content != "off") warnings.push(`This is non-standard. Did you mean content="off"? Found "${content}".`);
+            break;
+        case "cache-control":
+        case "etag":
+        case "pragma":
+        case "expires":
+        case "last-modified":
+            warnings.push("This doesn't do anything. Use HTTP headers for any cache directives.");
+            break;
+        case "x-ua-compatible":
+        case "content-style-type":
+        case "content-script-type":
+        case "imagetoolbar":
+        case "cleartype":
+        case "page-enter":
+        case "page-exit":
+        case "site-enter":
+        case "site-exit":
+        case "msthemecompatible":
+        case "x-frame-options":
+        case "window-target":
+            warnings.push("This doesn't do anything. It was an Internet Explorer feature and is now deprecated.");
+            break;
+        case "content-language":
+        case "language":
+            warnings.push("This is non-conforming. Use the html[lang] attribute instead.");
+            break;
+        case "set-cookie":
+            warnings.push("This is non-conforming. Use the Set-Cookie header instead.");
+            break;
+        case "application-name":
+        case "author":
+        case "description":
+        case "generator":
+        case "keywords":
+        case "referrer":
+        case "theme-color":
+        case "color-scheme":
+        case "viewport":
+        case "creator":
+        case "googlebot":
+        case "publisher":
+        case "robots":
+            warnings.push(`This doesn't do anything. Did you mean \`meta[name=${type}]\`?`);
+            break;
+        case "encoding":
+            warnings.push("This doesn't do anything. Did you mean `meta[charset]`?");
+            break;
+        case "title":
+            warnings.push("This doesn't do anything. Did you mean to use the `title` tag instead?");
+            break;
+        case "accept-ch":
+        case "delegate-ch":
+            warnings.push("This is non-standard and may not work across browsers. Use HTTP headers instead.");
+            break;
+        default:
+            warnings.push("This is non-standard and may not work across browsers. http-equiv is not an alternative to HTTP headers.");
+            break;
+    }
+    return {
+        warnings: warnings
+    };
 }
 function $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element) {
     const href = element.getAttribute("href");

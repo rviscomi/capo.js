@@ -11,8 +11,11 @@ export const VALID_HEAD_ELEMENTS = new Set([
   "title",
 ]);
 
-export const PRELOAD_SELECTOR =
-  'link:is([rel="preload" i], [rel="modulepreload" i])';
+export const CONTENT_TYPE_SELECTOR = 'meta[http-equiv="content-type" i], meta[charset]';
+
+export const HTTP_EQUIV_SELECTOR = "meta[http-equiv]";
+
+export const PRELOAD_SELECTOR = 'link:is([rel="preload" i], [rel="modulepreload" i])';
 
 export function isValidElement(element) {
   return VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase());
@@ -25,9 +28,7 @@ export function hasValidationWarning(element) {
   }
 
   // Children are not valid.
-  if (
-    element.matches(`:has(:not(${Array.from(VALID_HEAD_ELEMENTS).join(", ")}))`)
-  ) {
+  if (element.matches(`:has(:not(${Array.from(VALID_HEAD_ELEMENTS).join(", ")}))`)) {
     return true;
   }
 
@@ -46,7 +47,22 @@ export function hasValidationWarning(element) {
     return true;
   }
 
-  // Origin trial expired or cross-origin.
+  // Invalid http-equiv.
+  if (isInvalidHttpEquiv(element)) {
+    return true;
+  }
+
+  // Invalid default-style.
+  if (isInvalidDefaultStyle(element)) {
+    return true;
+  }
+
+  // Invalid character encoding.
+  if (isInvalidContentType(element)) {
+    return true;
+  }
+
+  // Origin trial expired, or invalid origin.
   if (isInvalidOriginTrial(element)) {
     return true;
   }
@@ -80,9 +96,7 @@ export function getValidationWarnings(head) {
     });
   }
 
-  const metaCSP = head.querySelector(
-    'meta[http-equiv="Content-Security-Policy" i]'
-  );
+  const metaCSP = head.querySelector('meta[http-equiv="Content-Security-Policy" i]');
   if (metaCSP) {
     validationWarnings.push({
       warning:
@@ -107,9 +121,7 @@ export function getValidationWarnings(head) {
     });
   });
 
-  const originTrials = Array.from(
-    head.querySelectorAll('meta[http-equiv="Origin-Trial" i]')
-  );
+  const originTrials = Array.from(head.querySelectorAll('meta[http-equiv="Origin-Trial" i]'));
   originTrials.forEach((element) => {
     const metadata = validateOriginTrial(element);
 
@@ -136,6 +148,18 @@ export function getCustomValidations(element) {
     return validateCSP(element);
   }
 
+  if (isDefaultStyle(element)) {
+    return validateDefaultStyle(element);
+  }
+
+  if (isContentType(element)) {
+    return validateContentType(element);
+  }
+
+  if (isHttpEquiv(element)) {
+    return validateHttpEquiv(element);
+  }
+
   if (isUnnecessaryPreload(element)) {
     return validateUnnecessaryPreload(element);
   }
@@ -146,9 +170,7 @@ export function getCustomValidations(element) {
 function validateCSP(element) {
   const warnings = [];
 
-  if (
-    element.matches('meta[http-equiv="Content-Security-Policy-Report-Only" i]')
-  ) {
+  if (element.matches('meta[http-equiv="Content-Security-Policy-Report-Only" i]')) {
     //https://w3c.github.io/webappsec-csp/#meta-element
     warnings.push("CSP Report-Only is forbidden in meta tags");
   } else if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) {
@@ -189,10 +211,7 @@ function validateOriginTrial(element) {
     metadata.warnings.push("expired");
   }
   if (!isSameOrigin(metadata.payload.origin, document.location.href)) {
-    const subdomain = isSubdomain(
-      metadata.payload.origin,
-      document.location.href
-    );
+    const subdomain = isSubdomain(metadata.payload.origin, document.location.href);
     // Cross-origin OTs are only valid if:
     //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
     //   2. The isThirdParty config is set
@@ -211,9 +230,7 @@ function decodeOriginTrialToken(token) {
   const buffer = new Uint8Array([...atob(token)].map((a) => a.charCodeAt(0)));
   const view = new DataView(buffer.buffer);
   const length = view.getUint32(65, false);
-  const payload = JSON.parse(
-    new TextDecoder().decode(buffer.slice(69, 69 + length))
-  );
+  const payload = JSON.parse(new TextDecoder().decode(buffer.slice(69, 69 + length)));
   payload.expiry = new Date(payload.expiry * 1000);
   return payload;
 }
@@ -228,6 +245,45 @@ function isSubdomain(a, b) {
   a = new URL(a);
   b = new URL(b);
   return b.host.endsWith(`.${a.host}`);
+}
+
+function isDefaultStyle(element) {
+  return element.matches('meta[http-equiv="default-style" i]');
+}
+
+function isContentType(element) {
+  return element.matches(CONTENT_TYPE_SELECTOR);
+}
+
+function isInvalidDefaultStyle(element) {
+  if (!isDefaultStyle(element)) {
+    return false;
+  }
+
+  const { warnings } = validateDefaultStyle(element);
+  return warnings.length > 0;
+}
+
+function isInvalidContentType(element) {
+  if (!isContentType(element)) {
+    return false;
+  }
+
+  const { warnings } = validateContentType(element);
+  return warnings.length > 0;
+}
+
+function isHttpEquiv(element) {
+  return element.matches(HTTP_EQUIV_SELECTOR);
+}
+
+function isInvalidHttpEquiv(element) {
+  if (!isHttpEquiv(element)) {
+    return false;
+  }
+
+  const { warnings } = validateHttpEquiv(element);
+  return warnings.length > 0;
 }
 
 function isUnnecessaryPreload(element) {
@@ -246,9 +302,7 @@ function isUnnecessaryPreload(element) {
 }
 
 function findElementWithSource(root, sourceUrl) {
-  const linksAndScripts = Array.from(
-    root.querySelectorAll(`link:not(${PRELOAD_SELECTOR}), script`)
-  );
+  const linksAndScripts = Array.from(root.querySelectorAll(`link:not(${PRELOAD_SELECTOR}), script`));
 
   return linksAndScripts.find((e) => {
     const src = e.getAttribute("href") || e.getAttribute("src");
@@ -264,13 +318,187 @@ function absolutifyUrl(href) {
   return new URL(href, document.baseURI).href;
 }
 
+function validateDefaultStyle(element) {
+  const warnings = [];
+  let payload = null;
+
+  // Check if the value points to an alternate stylesheet with that title
+  const title = element.getAttribute("content");
+  const stylesheet = element.parentElement.querySelector(
+    `link[rel~="alternate" i][rel~="stylesheet" i][title="${title}"]`
+  );
+
+  if (!title) {
+    warnings.push("This has no effect. The content attribute must be set to a valid stylesheet title.");
+  } else if (!stylesheet) {
+    payload = {
+      alternateStylesheets: Array.from(
+        element.parentElement.querySelectorAll('link[rel~="alternate" i][rel~="stylesheet" i]')
+      ),
+    };
+    warnings.push(`This has no effect. No alternate stylesheet found having title="${title}".`);
+  }
+
+  return { warnings, payload };
+}
+
+function validateContentType(element) {
+  const warnings = [];
+  let payload = null;
+  // https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration
+  // Check if there exists both meta[http-equiv] and meta[chartset] variations
+  if (
+    element.matches(':is(meta[charset] ~ meta[http-equiv="content-type" i])') ||
+    element.matches(":has(~ meta[charset])")
+  ) {
+    const encodingDeclaration = element.parentElement.querySelector("meta[charset]");
+    payload = payload ?? {};
+    payload.encodingDeclaration = encodingDeclaration;
+    warnings.push(
+      `There can only be one meta-based character encoding declaration per document. Found \`${encodingDeclaration.outerHTML}\`.`
+    );
+  }
+
+  // Check if it exists in the first 1024 bytes
+  const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML);
+  if (charPos > 1024) {
+    payload = payload ?? {};
+    payload.characterPosition = charPos;
+    warnings.push(
+      `The element containing the character encoding declaration must be serialized completely within the first 1024 bytes of the document. Found at byte ${charPos}.`
+    );
+  }
+
+  // Check that the character encoding is UTF-8
+  let charset = null;
+  if (element.matches("meta[charset]")) {
+    charset = element.getAttribute("charset");
+  } else {
+    const charsetPattern = /text\/html;\s*charset=(.*)/i;
+    charset = element.getAttribute("content")?.match(charsetPattern)?.[1];
+  }
+
+  if (charset.toLowerCase() != "utf-8") {
+    payload = payload ?? {};
+    payload.charset = charset;
+    warnings.push(`Documents are required to use UTF-8 encoding. Found "${charset}".`);
+  }
+
+  if (warnings.length) {
+    // Append the spec source to the last warning
+    warnings[length - 1] =
+      warnings.at(-1) +
+      "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
+  }
+
+  return { warnings, payload };
+}
+
+function validateHttpEquiv(element) {
+  const warnings = [];
+  const type = element.getAttribute("http-equiv").toLowerCase();
+  const content = element.getAttribute("content").toLowerCase();
+
+  switch (type) {
+    case "content-security-policy":
+    case "content-security-policy-report-only":
+    case "origin-trial":
+    case "content-type":
+    case "default-style":
+      // Legitimate use case and/or more specific validation already exists
+      break;
+
+    case "refresh":
+      if (content.includes("url=")) {
+        warnings.push("Meta redirects are discouraged. Use HTTP 3XX responses instead.");
+      }
+      break;
+
+    case "x-dns-prefetch-control":
+      if (content == "on") {
+        warnings.push(`DNS prefetching is enabled by default. Setting it to "${content}" has no effect.`);
+      } else if (content != "off") {
+        warnings.push(`This is non-standard. Did you mean content="off"? Found "${content}".`);
+      }
+      break;
+
+    case "cache-control":
+    case "etag":
+    case "pragma":
+    case "expires":
+    case "last-modified":
+      warnings.push("This doesn't do anything. Use HTTP headers for any cache directives.");
+      break;
+
+    case "x-ua-compatible":
+    case "content-style-type":
+    case "content-script-type":
+    case "imagetoolbar":
+    case "cleartype":
+    case "page-enter":
+    case "page-exit":
+    case "site-enter":
+    case "site-exit":
+    case "msthemecompatible":
+    case "x-frame-options":
+    case "window-target":
+      warnings.push("This doesn't do anything. It was an Internet Explorer feature and is now deprecated.");
+      break;
+
+    case "content-language":
+    case "language":
+      warnings.push("This is non-conforming. Use the html[lang] attribute instead.");
+      break;
+
+    case "set-cookie":
+      warnings.push("This is non-conforming. Use the Set-Cookie header instead.");
+      break;
+
+    case "application-name":
+    case "author":
+    case "description":
+    case "generator":
+    case "keywords":
+    case "referrer":
+    case "theme-color":
+    case "color-scheme":
+    case "viewport":
+    case "creator":
+    case "googlebot":
+    case "publisher":
+    case "robots":
+      warnings.push(`This doesn't do anything. Did you mean \`meta[name=${type}]\`?`);
+      break;
+
+    case "encoding":
+      warnings.push("This doesn't do anything. Did you mean `meta[charset]`?");
+      break;
+
+    case "title":
+      warnings.push("This doesn't do anything. Did you mean to use the `title` tag instead?");
+      break;
+
+    case "accept-ch":
+    case "delegate-ch":
+      warnings.push("This is non-standard and may not work across browsers. Use HTTP headers instead.");
+      break;
+
+    default:
+      warnings.push(
+        "This is non-standard and may not work across browsers. http-equiv is not an alternative to HTTP headers."
+      );
+      break;
+  }
+
+  return {
+    warnings,
+  };
+}
+
 function validateUnnecessaryPreload(element) {
   const href = element.getAttribute("href");
   const preloadedUrl = absolutifyUrl(href);
-  const preloadedElement = findElementWithSource(
-    element.parentElement,
-    preloadedUrl
-  );
+  const preloadedElement = findElementWithSource(element.parentElement, preloadedUrl);
 
   if (!preloadedElement) {
     throw new Error("Expected an invalid preload, but none found.");
