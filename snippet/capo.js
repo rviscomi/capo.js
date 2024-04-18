@@ -170,11 +170,11 @@ class $d410929ede0a2ee4$export$8f8422ac5947a789 {
         if (warnings?.length) {
             // Element-specific warnings.
             loggingLevel = "warn";
-            warnings.forEach((warning)=>args.push(`❌ ${warning}`));
+            args.push("\n" + warnings.map((warning)=>`  ❌ ${warning}`).join("\n"));
         } else if (!isValid && (this.options.prefersDynamicAssessment() || this.isStaticHead)) {
             // General warnings.
             loggingLevel = "warn";
-            args.push(`❌ invalid element (${element.tagName})`);
+            args.push(`\n  ❌ invalid element (${element.tagName})`);
         }
         this.console[loggingLevel](...args);
     }
@@ -434,6 +434,8 @@ function $9c3989fcb9437829$export$5cc4a311ddbe699c(head) {
 var $580f7ed6bc170ae8$exports = {};
 
 $parcel$export($580f7ed6bc170ae8$exports, "VALID_HEAD_ELEMENTS", () => $580f7ed6bc170ae8$export$79e124b7caef7aa9);
+$parcel$export($580f7ed6bc170ae8$exports, "CONTENT_TYPE_SELECTOR", () => $580f7ed6bc170ae8$export$2f975f13375faaa1);
+$parcel$export($580f7ed6bc170ae8$exports, "HTTP_EQUIV_SELECTOR", () => $580f7ed6bc170ae8$export$9739336dee0b3205);
 $parcel$export($580f7ed6bc170ae8$exports, "PRELOAD_SELECTOR", () => $580f7ed6bc170ae8$export$5540ac2a18901364);
 $parcel$export($580f7ed6bc170ae8$exports, "isValidElement", () => $580f7ed6bc170ae8$export$a8257692ac88316c);
 $parcel$export($580f7ed6bc170ae8$exports, "hasValidationWarning", () => $580f7ed6bc170ae8$export$eeefd08c3a6f8db7);
@@ -450,6 +452,8 @@ const $580f7ed6bc170ae8$export$79e124b7caef7aa9 = new Set([
     "template",
     "title"
 ]);
+const $580f7ed6bc170ae8$export$2f975f13375faaa1 = 'meta[http-equiv="content-type" i], meta[charset]';
+const $580f7ed6bc170ae8$export$9739336dee0b3205 = "meta[http-equiv]";
 const $580f7ed6bc170ae8$export$5540ac2a18901364 = 'link:is([rel="preload" i], [rel="modulepreload" i])';
 function $580f7ed6bc170ae8$export$a8257692ac88316c(element) {
     return $580f7ed6bc170ae8$export$79e124b7caef7aa9.has(element.tagName.toLowerCase());
@@ -465,7 +469,13 @@ function $580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element) {
     if (element.matches("base:has(~ base), base ~ base")) return true;
     // CSP meta tag anywhere.
     if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return true;
-    // Origin trial expired or cross-origin.
+    // Invalid http-equiv.
+    if ($580f7ed6bc170ae8$var$isInvalidHttpEquiv(element)) return true;
+    // Invalid default-style.
+    if ($580f7ed6bc170ae8$var$isInvalidDefaultStyle(element)) return true;
+    // Invalid character encoding.
+    if ($580f7ed6bc170ae8$var$isInvalidContentType(element)) return true;
+    // Origin trial expired, or invalid origin.
     if ($580f7ed6bc170ae8$var$isInvalidOriginTrial(element)) return true;
     // Preload is unnecessary.
     if ($580f7ed6bc170ae8$var$isUnnecessaryPreload(element)) return true;
@@ -516,6 +526,9 @@ function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
 function $580f7ed6bc170ae8$export$6c93e2175c028eeb(element) {
     if ((0, $9c3989fcb9437829$export$38a04d482ec50f88)(element)) return $580f7ed6bc170ae8$var$validateOriginTrial(element);
     if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return $580f7ed6bc170ae8$var$validateCSP(element);
+    if ($580f7ed6bc170ae8$var$isDefaultStyle(element)) return $580f7ed6bc170ae8$var$validateDefaultStyle(element);
+    if ($580f7ed6bc170ae8$var$isContentType(element)) return $580f7ed6bc170ae8$var$validateContentType(element);
+    if ($580f7ed6bc170ae8$var$isHttpEquiv(element)) return $580f7ed6bc170ae8$var$validateHttpEquiv(element);
     if ($580f7ed6bc170ae8$var$isUnnecessaryPreload(element)) return $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element);
     return {};
 }
@@ -548,8 +561,15 @@ function $580f7ed6bc170ae8$var$validateOriginTrial(element) {
     if (metadata.payload.expiry < new Date()) metadata.warnings.push("expired");
     if (!$580f7ed6bc170ae8$var$isSameOrigin(metadata.payload.origin, document.location.href)) {
         const subdomain = $580f7ed6bc170ae8$var$isSubdomain(metadata.payload.origin, document.location.href);
+        console.log({
+            subdomain: subdomain,
+            payload: metadata.payload
+        });
+        // Cross-origin OTs are only valid if:
+        //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
+        //   2. The isThirdParty config is set
         if (subdomain && !metadata.payload.isSubdomain) metadata.warnings.push("invalid subdomain");
-        else if (!subdomain && !metadata.payload.isThirdParty) metadata.warnings.push("invalid origin");
+        else if (!subdomain && !metadata.payload.isThirdParty) metadata.warnings.push("invalid third-party origin");
     }
     return metadata;
 }
@@ -559,8 +579,8 @@ function $580f7ed6bc170ae8$var$decodeOriginTrialToken(token) {
         ...atob(token)
     ].map((a)=>a.charCodeAt(0)));
     const view = new DataView(buffer.buffer);
-    const length = view.getUint32(65, false);
-    const payload = JSON.parse(new TextDecoder().decode(buffer.slice(69, 69 + length)));
+    const length1 = view.getUint32(65, false);
+    const payload = JSON.parse(new TextDecoder().decode(buffer.slice(69, 69 + length1)));
     payload.expiry = new Date(payload.expiry * 1000);
     return payload;
 }
@@ -573,6 +593,30 @@ function $580f7ed6bc170ae8$var$isSubdomain(a, b) {
     a = new URL(a);
     b = new URL(b);
     return b.host.endsWith(`.${a.host}`);
+}
+function $580f7ed6bc170ae8$var$isDefaultStyle(element) {
+    return element.matches('meta[http-equiv="default-style" i]');
+}
+function $580f7ed6bc170ae8$var$isContentType(element) {
+    return element.matches($580f7ed6bc170ae8$export$2f975f13375faaa1);
+}
+function $580f7ed6bc170ae8$var$isInvalidDefaultStyle(element) {
+    if (!$580f7ed6bc170ae8$var$isDefaultStyle(element)) return false;
+    const { warnings: warnings } = $580f7ed6bc170ae8$var$validateDefaultStyle(element);
+    return warnings.length > 0;
+}
+function $580f7ed6bc170ae8$var$isInvalidContentType(element) {
+    if (!$580f7ed6bc170ae8$var$isContentType(element)) return false;
+    const { warnings: warnings } = $580f7ed6bc170ae8$var$validateContentType(element);
+    return warnings.length > 0;
+}
+function $580f7ed6bc170ae8$var$isHttpEquiv(element) {
+    return element.matches($580f7ed6bc170ae8$export$9739336dee0b3205);
+}
+function $580f7ed6bc170ae8$var$isInvalidHttpEquiv(element) {
+    if (!$580f7ed6bc170ae8$var$isHttpEquiv(element)) return false;
+    const { warnings: warnings } = $580f7ed6bc170ae8$var$validateHttpEquiv(element);
+    return warnings.length > 0;
 }
 function $580f7ed6bc170ae8$var$isUnnecessaryPreload(element) {
     if (!element.matches($580f7ed6bc170ae8$export$5540ac2a18901364)) return false;
@@ -591,6 +635,145 @@ function $580f7ed6bc170ae8$var$findElementWithSource(root, sourceUrl) {
 }
 function $580f7ed6bc170ae8$var$absolutifyUrl(href) {
     return new URL(href, document.baseURI).href;
+}
+function $580f7ed6bc170ae8$var$validateDefaultStyle(element) {
+    const warnings = [];
+    let payload = null;
+    // Check if the value points to an alternate stylesheet with that title
+    const title = element.getAttribute("content");
+    const stylesheet = element.parentElement.querySelector(`link[rel~="alternate" i][rel~="stylesheet" i][title="${title}"]`);
+    if (!title) warnings.push("This has no effect. The content attribute must be set to a valid stylesheet title.");
+    else if (!stylesheet) {
+        payload = {
+            alternateStylesheets: Array.from(element.parentElement.querySelectorAll('link[rel~="alternate" i][rel~="stylesheet" i]'))
+        };
+        warnings.push(`This has no effect. No alternate stylesheet found having title="${title}".`);
+    }
+    warnings.push("Even when used correctly, the default-style method of setting a preferred stylesheet results in a flash of unstyled content. Use modern CSS features like @media rules instead.");
+    return {
+        warnings: warnings,
+        payload: payload
+    };
+}
+function $580f7ed6bc170ae8$var$validateContentType(element) {
+    const warnings = [];
+    let payload = null;
+    // https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration
+    // Check if there exists both meta[http-equiv] and meta[chartset] variations
+    if (element.matches(':is(meta[charset] ~ meta[http-equiv="content-type" i])') || element.matches(":has(~ meta[charset])")) {
+        const encodingDeclaration = element.parentElement.querySelector("meta[charset]");
+        payload = payload ?? {};
+        payload.encodingDeclaration = encodingDeclaration;
+        warnings.push(`There can only be one meta-based character encoding declaration per document. Already found \`${encodingDeclaration.outerHTML}\`.`);
+    }
+    // Check if it compeltely exists in the first 1024 bytes
+    const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML) + element.outerHTML.length;
+    if (charPos > 1024) {
+        payload = payload ?? {};
+        payload.characterPosition = charPos;
+        warnings.push(`The element containing the character encoding declaration must be serialized completely within the first 1024 bytes of the document. Found at byte ${charPos}.`);
+    }
+    // Check that the character encoding is UTF-8
+    let charset = null;
+    if (element.matches("meta[charset]")) charset = element.getAttribute("charset");
+    else {
+        const charsetPattern = /text\/html;\s*charset=(.*)/i;
+        charset = element.getAttribute("content")?.match(charsetPattern)?.[1];
+    }
+    if (charset.toLowerCase() != "utf-8") {
+        payload = payload ?? {};
+        payload.charset = charset;
+        warnings.push(`Documents are required to use UTF-8 encoding. Found "${charset}".`);
+    }
+    if (warnings.length) // Append the spec source to the last warning
+    warnings[length - 1] = warnings.at(-1) + "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
+    return {
+        warnings: warnings,
+        payload: payload
+    };
+}
+function $580f7ed6bc170ae8$var$validateHttpEquiv(element) {
+    const warnings = [];
+    const type = element.getAttribute("http-equiv").toLowerCase();
+    const content = element.getAttribute("content").toLowerCase();
+    switch(type){
+        case "content-security-policy":
+        case "content-security-policy-report-only":
+        case "origin-trial":
+        case "content-type":
+        case "default-style":
+            break;
+        case "refresh":
+            if (content.includes("url=")) warnings.push("Meta auto-redirects are discouraged. Use HTTP 3XX responses instead.");
+            else warnings.push("Meta auto-refreshes are discouraged unless users have the ability to disable it.");
+            break;
+        case "x-dns-prefetch-control":
+            if (content == "on") warnings.push(`DNS prefetching is enabled by default. Setting it to "${content}" has no effect.`);
+            else if (content != "off") warnings.push(`This is a non-standard way of disabling DNS prefetching, which is a performance optimization. Found content="${content}". Use content="off" if you have a legitimate security concern, otherwise remove it.`);
+            else warnings.push("This is non-standard, however most browsers support disabling speculative DNS prefetching. It should still be noted that DNS prefetching is a generally accepted performance optimization and you should only disable it if you have specific security concerns.");
+            break;
+        case "cache-control":
+        case "etag":
+        case "pragma":
+        case "expires":
+        case "last-modified":
+            warnings.push("This doesn't do anything. Use HTTP headers for any cache directives.");
+            break;
+        case "x-frame-options":
+            warnings.push("This doesn't do anything. Use the CSP HTTP header with the frame-ancestors directive instead.");
+            break;
+        case "x-ua-compatible":
+        case "content-style-type":
+        case "content-script-type":
+        case "imagetoolbar":
+        case "cleartype":
+        case "page-enter":
+        case "page-exit":
+        case "site-enter":
+        case "site-exit":
+        case "msthemecompatible":
+        case "window-target":
+            warnings.push("This doesn't do anything. It was an Internet Explorer feature and is now deprecated.");
+            break;
+        case "content-language":
+        case "language":
+            warnings.push("This is non-conforming. Use the html[lang] attribute instead.");
+            break;
+        case "set-cookie":
+            warnings.push("This is non-conforming. Use the Set-Cookie HTTP header instead.");
+            break;
+        case "application-name":
+        case "author":
+        case "description":
+        case "generator":
+        case "keywords":
+        case "referrer":
+        case "theme-color":
+        case "color-scheme":
+        case "viewport":
+        case "creator":
+        case "googlebot":
+        case "publisher":
+        case "robots":
+            warnings.push(`This doesn't do anything. Did you mean \`meta[name=${type}]\`?`);
+            break;
+        case "encoding":
+            warnings.push("This doesn't do anything. Did you mean `meta[charset]`?");
+            break;
+        case "title":
+            warnings.push("This doesn't do anything. Did you mean to use the `title` tag instead?");
+            break;
+        case "accept-ch":
+        case "delegate-ch":
+            warnings.push("This is non-standard and may not work across browsers. Use HTTP headers instead.");
+            break;
+        default:
+            warnings.push("This is non-standard and may not work across browsers. http-equiv is not an alternative to HTTP headers.");
+            break;
+    }
+    return {
+        warnings: warnings
+    };
 }
 function $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element) {
     const href = element.getAttribute("href");

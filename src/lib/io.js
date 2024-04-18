@@ -22,8 +22,7 @@ export class IO {
     try {
       let html = await this.getStaticHTML();
       html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
-      const staticDoc =
-        this.document.implementation.createHTMLDocument("New Document");
+      const staticDoc = this.document.implementation.createHTMLDocument("New Document");
       staticDoc.documentElement.innerHTML = html;
       this.head = staticDoc.querySelector("static-head");
 
@@ -33,10 +32,7 @@ export class IO {
         this.head = this.document.head;
       }
     } catch (e) {
-      this.console.error(
-        `${this.options.loggingPrefix}An exception occurred while getting the static <head>:`,
-        e
-      );
+      this.console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
       this.head = this.document.head;
     }
 
@@ -60,9 +56,7 @@ export class IO {
 
   stringifyElement(element) {
     return element.getAttributeNames().reduce((id, attr) => {
-      return (id += `[${CSS.escape(attr)}=${JSON.stringify(
-        element.getAttribute(attr)
-      )}]`);
+      return (id += `[${CSS.escape(attr)}=${JSON.stringify(element.getAttribute(attr))}]`);
     }, element.nodeName);
   }
 
@@ -72,9 +66,7 @@ export class IO {
     }
 
     const selector = this.stringifyElement(element);
-    const candidates = Array.from(
-      this.document.head.querySelectorAll(selector)
-    );
+    const candidates = Array.from(this.document.head.querySelectorAll(selector));
     if (candidates.length == 0) {
       return element;
     }
@@ -129,13 +121,7 @@ export class IO {
     return element;
   }
 
-  logElementFromSelector({
-    weight,
-    selector,
-    innerHTML,
-    isValid,
-    customValidations = {},
-  }) {
+  logElementFromSelector({ weight, selector, innerHTML, isValid, customValidations = {} }) {
     weight = +weight;
     const viz = this.getElementVisualization(weight);
     let element = this.createElementFromSelector(selector);
@@ -145,14 +131,7 @@ export class IO {
     this.logElement({ viz, weight, element, isValid, customValidations });
   }
 
-  logElement({
-    viz,
-    weight,
-    element,
-    isValid,
-    customValidations,
-    omitPrefix = false,
-  }) {
+  logElement({ viz, weight, element, isValid, customValidations, omitPrefix = false }) {
     if (!omitPrefix) {
       viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
     }
@@ -177,14 +156,11 @@ export class IO {
     if (warnings?.length) {
       // Element-specific warnings.
       loggingLevel = "warn";
-      warnings.forEach((warning) => args.push(`❌ ${warning}`));
-    } else if (
-      !isValid &&
-      (this.options.prefersDynamicAssessment() || this.isStaticHead)
-    ) {
+      args.push("\n" + warnings.map((warning) => `  ❌ ${warning}`).join("\n"));
+    } else if (!isValid && (this.options.prefersDynamicAssessment() || this.isStaticHead)) {
       // General warnings.
       loggingLevel = "warn";
-      args.push(`❌ invalid element (${element.tagName})`);
+      args.push(`\n  ❌ invalid element (${element.tagName})`);
     }
 
     this.console[loggingLevel](...args);
@@ -197,11 +173,7 @@ export class IO {
 
     warnings.forEach(({ warning, elements = [], element }) => {
       elements = elements.map(this.getLoggableElement.bind(this));
-      this.console.warn(
-        `${this.options.loggingPrefix}${warning}`,
-        ...elements,
-        element || ""
-      );
+      this.console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element || "");
     });
   }
 
@@ -261,12 +233,7 @@ export class IO {
       });
     });
 
-    this.console.log(
-      `${groupName} %chead%c element`,
-      "font-family: monospace",
-      "font-family: inherit",
-      headElement
-    );
+    this.console.log(`${groupName} %chead%c element`, "font-family: monospace", "font-family: inherit", headElement);
 
     this.console.groupEnd();
   }
