@@ -77,7 +77,26 @@ If capo.js detects more than one `<base>` element, it will log a validation warn
 
 In the example above, there is more than one `<base>` element, so capo.js warns that "Expected at most 1 `<base>` element, found 2".
 
-## No `<meta>` CSP
+## No invalid `<meta http-equiv>` elements
+
+There are a handful of standardized pragma directives that can be used with the `http-equiv` attribute to change browser behavior. There are even some non-standard directives that browsers still choose support, the most notable being [`origin-trial`](#no-invalid-origin-trials). And there are actually a couple of standardized directives that are non-conforming, meaning that their use is totally discouraged, specifically: `content-language` and `set-cookie`.
+
+:::caution
+Contrary to popular belief, `http-equiv` meta tags _are not_ equivalent to HTTP headers. Learn more about why [you probably don't need `http-equiv` meta tags](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/).
+:::
+
+Even when using a standardized, supported, and conforming `http-equiv` directive, its `content` attribute value may still be invalid. For example, the `content-type` directive _must_ declare a character encoding of UTF-8. There are some additional restrictions on this directive, specifically the requirements that it be discovered within the first 1024 bytes and it doesn't coincide with the `<meta charset>` element.
+
+Many of these cases are harmless no-ops, but capo.js will validate them and provide a helpful warning message with relevant metadata to help you understand whether it's safe to remove it or if anything needs to be changed for it to work properly.
+
+There are some cases where it's not so harmless:
+
+- `set-cookie` doesn't set any cookies, which could lead to broken behavior.
+- `content-type` character encoding can be declared too late, which may lead to performance issues.
+- `description` and similar metadata may have been mistakenly assigned to the `http-equiv` meta attribute instead of the intended `name` attribute, which could disrupt the page's SEO.
+- `refresh` can reload or redirect the page and is known to cause [accessibility issues](https://www.w3.org/TR/WCAG10-HTML-TECHS/#meta-element).
+
+### No `<meta>` CSP
 
 According to the [W3C specification](https://w3c.github.io/webappsec-csp/#policy-delivery), a Content Security Policy (CSP) can be set as either an HTTP header or a `<meta http-equiv>` tag.
 
@@ -95,7 +114,7 @@ In the example above, there is a `<meta>` CSP element, so capo.js warns that "CS
 
 This validation warning is an example of capo.js being more opinionated than simply following the specification. The warning includes a recommendation to use the CSP header instead, which avoids the preload scanner issue all together. Also note that the `Content-Security-Policy-Report-Only` directive is only valid as an HTTP header and not as a `<meta http-equiv>` element.
 
-## No invalid origin trials
+### No invalid origin trials
 
 Sites can register for [origin trials](https://developer.chrome.com/en/docs/web-platform/origin-trials/) to enable individual experimental web platform features. To enable them on a given site, a token must be included as either an `Origin-Trial` HTTP header or `<meta http-equiv>` element.
 
@@ -127,21 +146,22 @@ In the first warning, the token contains an invalid origin. The token metadata i
 
 In the second warning, the origin is a valid third party, but the token is expired. In the token metadata, you can see that it expired in November 2022.
 
-## No invalid `<meta http-equiv>` elements
+### No invalid `default-style` directives
 
-There are a handful of standardized pragma directives that can be used with the `http-equiv` attribute to change browser behavior. There are even some non-standard directives that browsers still choose support, the most notable being [`origin-trial`](#no-invalid-origin-trials). And there are actually a couple of standardized directives that are non-conforming, meaning that their use is totally discouraged, specifically: `content-language` and `set-cookie`.
+The `default-style` directive indicates which [alternative stylesheet](https://developer.mozilla.org/en-US/docs/Web/CSS/Alternative_style_sheets) should be enabled. While it's completely standard and supported across browsers, [adoption is extremely low](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/#http-equiv-adoption) at only about 1k websites. Of those, about [31%](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/#default-style) are used incorrectly.
 
-:::caution
-Contrary to popular belief, `http-equiv` meta tags _are not_ equivalent to HTTP headers. Learn more about why [you probably don't need `http-equiv` meta tags](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/).
-:::
+To be used correctly, the `content` attribute of the directive must be equal to the `title` value of an alternative stylesheet. capo.js will warn when the title cannot be found and the directive has no effect.
 
-Even when using a standardized, supported, and conforming `http-equiv` directive, its `content` attribute value may still be invalid. For example, the `content-type` directive _must_ declare a character encoding of UTF-8. There are some additional restrictions on this directive, specifically the requirements that it be discovered within the first 1024 bytes and it doesn't coincide with the `<meta charset>` element.
+In addition to flagging incorrect usage, capo.js will also discourage using this directive entirely. Setting a preferred stylesheet results in a flash of unstyled content, which could be avoided by using default stylesheets with `@media` rules instead.
 
-Many of these cases are harmless no-ops, but capo.js will validate them and provide a helpful warning message with relevant metadata to help you understand whether it's safe to remove it or if anything needs to be changed for it to work properly.
+### No invalid character encoding
 
-There are some cases where it's not so harmless:
+The `content-type` directive is an alias for the `charset` meta tag, which declares the document's content encoding. The [HTML spec](https://html.spec.whatwg.org/multipage/semantics.html#attr-meta-http-equiv-content-type) places strict requirements on how and where this declaration can occur:
 
-- `set-cookie` doesn't set any cookies, which could lead to broken behavior.
-- `content-type` character encoding can be declared too late, which may lead to performance issues.
-- `description` and similar metadata may have been mistakenly assigned to the `http-equiv` meta attribute instead of the intended `name` attribute, which could disrupt the page's SEO.
-- `refresh` can reload or redirect the page and is known to cause [accessibility issues](https://www.w3.org/TR/WCAG10-HTML-TECHS/#meta-element).
+- The document cannot have both a `content-type` directive and a `charset` meta tag
+- If one does exist, the character encoding declaration must be found within the firsts 1024 bytes of the document
+- If one does exist, the character encoding must be set to UTF-8
+
+It's valid for a document not to have either `content-type` nor `charset` meta tags, as long as the `Content-Type` HTTP header is set, also to UTF-8. capo.js does not presently validate HTTP headers, only the contents of the document `<head>`.
+
+capo.js will validate that all three of the requirements above are met, and log a warning if not. If there are redundant character encoding declarations, capo.js will warn on the `content-type` element, giving preference to the `charset` meta tag. If the declaration occurs too late, capo.js will include the byte index for reference. And if the encoding is not set to UTF-8, capo.js will log the actual encoding used.

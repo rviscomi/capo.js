@@ -645,6 +645,7 @@ function $580f7ed6bc170ae8$var$validateDefaultStyle(element) {
         };
         warnings.push(`This has no effect. No alternate stylesheet found having title="${title}".`);
     }
+    warnings.push("Even when used correctly, the default-style method of setting a preferred stylesheet results in a flash of unstyled content. Use modern CSS features like @media rules instead.");
     return {
         warnings: warnings,
         payload: payload
