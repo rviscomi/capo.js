@@ -179,3 +179,11 @@ capo.js issues a warning whenever a meta `refresh` directive is found. If it con
 The [`x-dns-prefetch-control`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control) HTTP header and meta directive are non-standard, but widely supported. By default, most browsers will speculatively resolve the DNS records for URLs needed by the page, which is a generally accepted performance optimization.
 
 In Chrome, any value other than `on` will disable the default DNS prefetching behavior. capo.js will always warn when this directive is found, and the message will be unique to the usage. In cases when DNS prefetching is explicitly enabled, capo.js clarifies that this has no effect as it's already the default behavior. In cases where it's set to `off`, capo.js emphasizes the performance benefits of DNS prefetching and clarifies that it should only be disabled when there are legitimate security concerns. For all other values besides `on` and `off`, capo.js warns about using non-standard values and reiterates the performance and security considerations.
+
+## No invalid viewport directives
+
+The `viewport` meta tag is typically used to control the layout of the page on mobile devices. There are a small number of supported viewport directives, and capo.js will validate them to ensure they are used correctly.
+
+capo.js will log a warning if any unsupported directives are used, or if any of the supported directives are used incorrectly. For example, the `initial-scale` directive must be a positive number between 0.1 and 10 and capo.js will warn if it is not.
+
+Some directives have accessibility implications. For example, the `user-scalable` directive can be set to `no` to prevent users from zooming in on the page. This can be a problem for users with low vision who rely on zooming to read text. capo.js will log a warning if the `user-scalable` directive is set to `no`, or its alias `0`.
