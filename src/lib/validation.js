@@ -359,12 +359,12 @@ function validateContentType(element) {
     payload = payload ?? {};
     payload.encodingDeclaration = encodingDeclaration;
     warnings.push(
-      `There can only be one meta-based character encoding declaration per document. Found \`${encodingDeclaration.outerHTML}\`.`
+      `There can only be one meta-based character encoding declaration per document. Already found \`${encodingDeclaration.outerHTML}\`.`
     );
   }
 
-  // Check if it exists in the first 1024 bytes
-  const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML);
+  // Check if it compeltely exists in the first 1024 bytes
+  const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML) + element.outerHTML.length;
   if (charPos > 1024) {
     payload = payload ?? {};
     payload.characterPosition = charPos;
