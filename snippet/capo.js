@@ -561,11 +561,15 @@ function $580f7ed6bc170ae8$var$validateOriginTrial(element) {
     if (metadata.payload.expiry < new Date()) metadata.warnings.push("expired");
     if (!$580f7ed6bc170ae8$var$isSameOrigin(metadata.payload.origin, document.location.href)) {
         const subdomain = $580f7ed6bc170ae8$var$isSubdomain(metadata.payload.origin, document.location.href);
+        console.log({
+            subdomain: subdomain,
+            payload: metadata.payload
+        });
         // Cross-origin OTs are only valid if:
         //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
         //   2. The isThirdParty config is set
         if (subdomain && !metadata.payload.isSubdomain) metadata.warnings.push("invalid subdomain");
-        else if (!metadata.payload.isThirdParty) metadata.warnings.push("invalid origin");
+        else if (!subdomain && !metadata.payload.isThirdParty) metadata.warnings.push("invalid third-party origin");
     }
     return metadata;
 }
@@ -660,10 +664,10 @@ function $580f7ed6bc170ae8$var$validateContentType(element) {
         const encodingDeclaration = element.parentElement.querySelector("meta[charset]");
         payload = payload ?? {};
         payload.encodingDeclaration = encodingDeclaration;
-        warnings.push(`There can only be one meta-based character encoding declaration per document. Found \`${encodingDeclaration.outerHTML}\`.`);
+        warnings.push(`There can only be one meta-based character encoding declaration per document. Already found \`${encodingDeclaration.outerHTML}\`.`);
     }
-    // Check if it exists in the first 1024 bytes
-    const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML);
+    // Check if it compeltely exists in the first 1024 bytes
+    const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML) + element.outerHTML.length;
     if (charPos > 1024) {
         payload = payload ?? {};
         payload.characterPosition = charPos;
@@ -700,11 +704,13 @@ function $580f7ed6bc170ae8$var$validateHttpEquiv(element) {
         case "default-style":
             break;
         case "refresh":
-            if (content.includes("url=")) warnings.push("Meta redirects are discouraged. Use HTTP 3XX responses instead.");
+            if (content.includes("url=")) warnings.push("Meta auto-redirects are discouraged. Use HTTP 3XX responses instead.");
+            else warnings.push("Meta auto-refreshes are discouraged unless users have the ability to disable it.");
             break;
         case "x-dns-prefetch-control":
             if (content == "on") warnings.push(`DNS prefetching is enabled by default. Setting it to "${content}" has no effect.`);
-            else if (content != "off") warnings.push(`This is non-standard. Did you mean content="off"? Found "${content}".`);
+            else if (content != "off") warnings.push(`This is a non-standard way of disabling DNS prefetching, which is a performance optimization. Found content="${content}". Use content="off" if you have a legitimate security concern, otherwise remove it.`);
+            else warnings.push("This is non-standard, however most browsers support disabling speculative DNS prefetching. It should still be noted that DNS prefetching is a generally accepted performance optimization and you should only disable it if you have specific security concerns.");
             break;
         case "cache-control":
         case "etag":
@@ -712,6 +718,9 @@ function $580f7ed6bc170ae8$var$validateHttpEquiv(element) {
         case "expires":
         case "last-modified":
             warnings.push("This doesn't do anything. Use HTTP headers for any cache directives.");
+            break;
+        case "x-frame-options":
+            warnings.push("This doesn't do anything. Use the CSP HTTP header with the frame-ancestors directive instead.");
             break;
         case "x-ua-compatible":
         case "content-style-type":
@@ -723,7 +732,6 @@ function $580f7ed6bc170ae8$var$validateHttpEquiv(element) {
         case "site-enter":
         case "site-exit":
         case "msthemecompatible":
-        case "x-frame-options":
         case "window-target":
             warnings.push("This doesn't do anything. It was an Internet Explorer feature and is now deprecated.");
             break;
@@ -732,7 +740,7 @@ function $580f7ed6bc170ae8$var$validateHttpEquiv(element) {
             warnings.push("This is non-conforming. Use the html[lang] attribute instead.");
             break;
         case "set-cookie":
-            warnings.push("This is non-conforming. Use the Set-Cookie header instead.");
+            warnings.push("This is non-conforming. Use the Set-Cookie HTTP header instead.");
             break;
         case "application-name":
         case "author":

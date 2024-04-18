@@ -212,13 +212,14 @@ function validateOriginTrial(element) {
   }
   if (!isSameOrigin(metadata.payload.origin, document.location.href)) {
     const subdomain = isSubdomain(metadata.payload.origin, document.location.href);
+    console.log({ subdomain, payload: metadata.payload });
     // Cross-origin OTs are only valid if:
     //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
     //   2. The isThirdParty config is set
     if (subdomain && !metadata.payload.isSubdomain) {
       metadata.warnings.push("invalid subdomain");
-    } else if (!metadata.payload.isThirdParty) {
-      metadata.warnings.push("invalid origin");
+    } else if (!subdomain && !metadata.payload.isThirdParty) {
+      metadata.warnings.push("invalid third-party origin");
     }
   }
 
