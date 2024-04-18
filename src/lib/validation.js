@@ -414,7 +414,9 @@ function validateHttpEquiv(element) {
 
     case "refresh":
       if (content.includes("url=")) {
-        warnings.push("Meta redirects are discouraged. Use HTTP 3XX responses instead.");
+        warnings.push("Meta auto-redirects are discouraged. Use HTTP 3XX responses instead.");
+      } else {
+        warnings.push("Meta auto-refreshes are discouraged unless users have the ability to disable it.");
       }
       break;
 
@@ -422,7 +424,13 @@ function validateHttpEquiv(element) {
       if (content == "on") {
         warnings.push(`DNS prefetching is enabled by default. Setting it to "${content}" has no effect.`);
       } else if (content != "off") {
-        warnings.push(`This is non-standard. Did you mean content="off"? Found "${content}".`);
+        warnings.push(
+          `This is a non-standard way of disabling DNS prefetching, which is a performance optimization. Found content="${content}". Use content="off" if you have a legitimate security concern, otherwise remove it.`
+        );
+      } else {
+        warnings.push(
+          "This is non-standard, however most browsers support disabling speculative DNS prefetching. It should still be noted that DNS prefetching is a generally accepted performance optimization and you should only disable it if you have specific security concerns."
+        );
       }
       break;
 
@@ -432,6 +440,10 @@ function validateHttpEquiv(element) {
     case "expires":
     case "last-modified":
       warnings.push("This doesn't do anything. Use HTTP headers for any cache directives.");
+      break;
+
+    case "x-frame-options":
+      warnings.push("This doesn't do anything. Use the CSP HTTP header with the frame-ancestors directive instead.");
       break;
 
     case "x-ua-compatible":
@@ -444,7 +456,6 @@ function validateHttpEquiv(element) {
     case "site-enter":
     case "site-exit":
     case "msthemecompatible":
-    case "x-frame-options":
     case "window-target":
       warnings.push("This doesn't do anything. It was an Internet Explorer feature and is now deprecated.");
       break;
@@ -455,7 +466,7 @@ function validateHttpEquiv(element) {
       break;
 
     case "set-cookie":
-      warnings.push("This is non-conforming. Use the Set-Cookie header instead.");
+      warnings.push("This is non-conforming. Use the Set-Cookie HTTP header instead.");
       break;
 
     case "application-name":

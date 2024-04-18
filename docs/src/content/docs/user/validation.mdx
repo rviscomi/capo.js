@@ -165,3 +165,15 @@ The `content-type` directive is an alias for the `charset` meta tag, which decla
 It's valid for a document not to have either `content-type` nor `charset` meta tags, as long as the `Content-Type` HTTP header is set, also to UTF-8. capo.js does not presently validate HTTP headers, only the contents of the document `<head>`.
 
 capo.js will validate that all three of the requirements above are met, and log a warning if not. If there are redundant character encoding declarations, capo.js will warn on the `content-type` element, giving preference to the `charset` meta tag. If the declaration occurs too late, capo.js will include the byte index for reference. And if the encoding is not set to UTF-8, capo.js will log the actual encoding used.
+
+### No meta refresh
+
+The `refresh` directive can force the page to reload or redirect after a specified amount of time. This is considered an [accessibility issue](https://www.w3.org/TR/WCAG10-CORE-TECHS/#auto-page-refresh) by the WCAG. It can be disorienting to users for the page to suddenly reload or redirect, and there are more semantic ways to indicate that a page's contents have moved.
+
+capo.js issues a warning whenever a meta `refresh` directive is found. If it contains a redirect, capo.js encourages using HTTP 3xx redirects instead. Otherwise, it encourages including a mechanism for users to disable the auto-reloading behavior, if one is not already provided by browsers.
+
+### Don't disable DNS prefetching
+
+The [`x-dns-prefetch-control`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control) HTTP header and meta directive are non-standard, but widely supported. By default, most browsers will speculatively resolve the DNS records for URLs needed by the page, which is a generally accepted performance optimization.
+
+In Chrome, any value other than `on` will disable the default DNS prefetching behavior. capo.js will always warn when this directive is found, and the message will be unique to the usage. In cases when DNS prefetching is explicitly enabled, capo.js clarifies that this has no effect as it's already the default behavior. In cases where it's set to `off`, capo.js emphasizes the performance benefits of DNS prefetching and clarifies that it should only be disabled when there are legitimate security concerns. For all other values besides `on` and `off`, capo.js warns about using non-standard values and reiterates the performance and security considerations.
