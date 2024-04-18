@@ -91,9 +91,11 @@ Many of these cases are harmless no-ops, but capo.js will validate them and prov
 
 There are some cases where it's not so harmless:
 
-- `set-cookie` doesn't set any cookies, which could lead to broken behavior.
+- `set-cookie` doesn't actually set any cookies, which could lead to broken behavior.
 - `content-type` character encoding can be declared too late, which may lead to performance issues.
-- `description` and similar metadata may have been mistakenly assigned to the `http-equiv` meta attribute instead of the intended `name` attribute, which could disrupt the page's SEO.
+- `content-security-policy` [breaks](https://issues.chromium.org/issues/40273969) Chrome's preload scanner, which may lead to performance issues.
+- `content-security-policy` directives like `frame-ancestors` and `sandbox` are not supported in meta tags and may have been set mistakenly, breaking assumptions about the page's security.
+- `description` and similar metadata may have been mistakenly assigned to the `http-equiv` meta attribute instead of the intended `name` attribute, which could break assumptions about the page's SEO.
 - `refresh` can reload or redirect the page and is known to cause [accessibility issues](https://www.w3.org/TR/WCAG10-HTML-TECHS/#meta-element).
 
 ### No `<meta>` CSP
