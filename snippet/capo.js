@@ -471,6 +471,8 @@ function $580f7ed6bc170ae8$export$eeefd08c3a6f8db7(element) {
     if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return true;
     // Invalid http-equiv.
     if ($580f7ed6bc170ae8$var$isInvalidHttpEquiv(element)) return true;
+    // Invalid meta viewport.
+    if ($580f7ed6bc170ae8$var$isInvalidMetaViewport(element)) return true;
     // Invalid default-style.
     if ($580f7ed6bc170ae8$var$isInvalidDefaultStyle(element)) return true;
     // Invalid character encoding.
@@ -488,6 +490,10 @@ function $580f7ed6bc170ae8$export$b01ab94d0cd042a0(head) {
     if (titleElementCount != 1) validationWarnings.push({
         warning: `Expected exactly 1 <title> element, found ${titleElementCount}`,
         elements: titleElements
+    });
+    const metaViewport = head.querySelectorAll('meta[name="viewport" i]');
+    if (metaViewport.length != 1) validationWarnings.push({
+        warning: `Expected exactly 1 <meta name=viewport> element, found ${metaViewport.length}`
     });
     const baseElements = Array.from(head.querySelectorAll("base"));
     const baseElementCount = baseElements.length;
@@ -527,6 +533,7 @@ function $580f7ed6bc170ae8$export$6c93e2175c028eeb(element) {
     if ((0, $9c3989fcb9437829$export$38a04d482ec50f88)(element)) return $580f7ed6bc170ae8$var$validateOriginTrial(element);
     if ((0, $9c3989fcb9437829$export$14b1a2f64a600585)(element)) return $580f7ed6bc170ae8$var$validateCSP(element);
     if ($580f7ed6bc170ae8$var$isDefaultStyle(element)) return $580f7ed6bc170ae8$var$validateDefaultStyle(element);
+    if ($580f7ed6bc170ae8$var$isMetaViewport(element)) return $580f7ed6bc170ae8$var$validateMetaViewport(element);
     if ($580f7ed6bc170ae8$var$isContentType(element)) return $580f7ed6bc170ae8$var$validateContentType(element);
     if ($580f7ed6bc170ae8$var$isHttpEquiv(element)) return $580f7ed6bc170ae8$var$validateHttpEquiv(element);
     if ($580f7ed6bc170ae8$var$isUnnecessaryPreload(element)) return $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element);
@@ -561,10 +568,6 @@ function $580f7ed6bc170ae8$var$validateOriginTrial(element) {
     if (metadata.payload.expiry < new Date()) metadata.warnings.push("expired");
     if (!$580f7ed6bc170ae8$var$isSameOrigin(metadata.payload.origin, document.location.href)) {
         const subdomain = $580f7ed6bc170ae8$var$isSubdomain(metadata.payload.origin, document.location.href);
-        console.log({
-            subdomain: subdomain,
-            payload: metadata.payload
-        });
         // Cross-origin OTs are only valid if:
         //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
         //   2. The isThirdParty config is set
@@ -579,8 +582,8 @@ function $580f7ed6bc170ae8$var$decodeOriginTrialToken(token) {
         ...atob(token)
     ].map((a)=>a.charCodeAt(0)));
     const view = new DataView(buffer.buffer);
-    const length1 = view.getUint32(65, false);
-    const payload = JSON.parse(new TextDecoder().decode(buffer.slice(69, 69 + length1)));
+    const length = view.getUint32(65, false);
+    const payload = JSON.parse(new TextDecoder().decode(buffer.slice(69, 69 + length)));
     payload.expiry = new Date(payload.expiry * 1000);
     return payload;
 }
@@ -600,6 +603,12 @@ function $580f7ed6bc170ae8$var$isDefaultStyle(element) {
 function $580f7ed6bc170ae8$var$isContentType(element) {
     return element.matches($580f7ed6bc170ae8$export$2f975f13375faaa1);
 }
+function $580f7ed6bc170ae8$var$isHttpEquiv(element) {
+    return element.matches($580f7ed6bc170ae8$export$9739336dee0b3205);
+}
+function $580f7ed6bc170ae8$var$isMetaViewport(element) {
+    return element.matches('meta[name="viewport" i]');
+}
 function $580f7ed6bc170ae8$var$isInvalidDefaultStyle(element) {
     if (!$580f7ed6bc170ae8$var$isDefaultStyle(element)) return false;
     const { warnings: warnings } = $580f7ed6bc170ae8$var$validateDefaultStyle(element);
@@ -610,12 +619,14 @@ function $580f7ed6bc170ae8$var$isInvalidContentType(element) {
     const { warnings: warnings } = $580f7ed6bc170ae8$var$validateContentType(element);
     return warnings.length > 0;
 }
-function $580f7ed6bc170ae8$var$isHttpEquiv(element) {
-    return element.matches($580f7ed6bc170ae8$export$9739336dee0b3205);
-}
 function $580f7ed6bc170ae8$var$isInvalidHttpEquiv(element) {
     if (!$580f7ed6bc170ae8$var$isHttpEquiv(element)) return false;
     const { warnings: warnings } = $580f7ed6bc170ae8$var$validateHttpEquiv(element);
+    return warnings.length > 0;
+}
+function $580f7ed6bc170ae8$var$isInvalidMetaViewport(element) {
+    if (!$580f7ed6bc170ae8$var$isMetaViewport(element)) return false;
+    const { warnings: warnings } = $580f7ed6bc170ae8$var$validateMetaViewport(element);
     return warnings.length > 0;
 }
 function $580f7ed6bc170ae8$var$isUnnecessaryPreload(element) {
@@ -678,15 +689,15 @@ function $580f7ed6bc170ae8$var$validateContentType(element) {
     if (element.matches("meta[charset]")) charset = element.getAttribute("charset");
     else {
         const charsetPattern = /text\/html;\s*charset=(.*)/i;
-        charset = element.getAttribute("content")?.match(charsetPattern)?.[1];
+        charset = element.getAttribute("content")?.match(charsetPattern)?.[1]?.trim();
     }
-    if (charset.toLowerCase() != "utf-8") {
+    if (charset?.toLowerCase() != "utf-8") {
         payload = payload ?? {};
         payload.charset = charset;
         warnings.push(`Documents are required to use UTF-8 encoding. Found "${charset}".`);
     }
     if (warnings.length) // Append the spec source to the last warning
-    warnings[length - 1] = warnings.at(-1) + "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
+    warnings[warnings.length - 1] += "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
     return {
         warnings: warnings,
         payload: payload
@@ -695,7 +706,7 @@ function $580f7ed6bc170ae8$var$validateContentType(element) {
 function $580f7ed6bc170ae8$var$validateHttpEquiv(element) {
     const warnings = [];
     const type = element.getAttribute("http-equiv").toLowerCase();
-    const content = element.getAttribute("content").toLowerCase();
+    const content = element.getAttribute("content")?.toLowerCase();
     switch(type){
         case "content-security-policy":
         case "content-security-policy-report-only":
@@ -704,6 +715,10 @@ function $580f7ed6bc170ae8$var$validateHttpEquiv(element) {
         case "default-style":
             break;
         case "refresh":
+            if (!content) {
+                warnings.push("This doesn't do anything. The content attribute must be set. However, using refresh is discouraged.");
+                break;
+            }
             if (content.includes("url=")) warnings.push("Meta auto-redirects are discouraged. Use HTTP 3XX responses instead.");
             else warnings.push("Meta auto-refreshes are discouraged unless users have the ability to disable it.");
             break;
@@ -773,6 +788,101 @@ function $580f7ed6bc170ae8$var$validateHttpEquiv(element) {
     }
     return {
         warnings: warnings
+    };
+}
+function $580f7ed6bc170ae8$var$validateMetaViewport(element) {
+    const warnings = [];
+    let payload = null;
+    // Redundant meta viewport validation.
+    if (element.matches('meta[name="viewport" i] ~ meta[name="viewport" i]')) {
+        const firstMetaViewport = element.parentElement.querySelector('meta[name="viewport" i]');
+        payload = {
+            firstMetaViewport: firstMetaViewport
+        };
+        warnings.push("Another meta viewport element has already been declared. Having multiple viewport settings can lead to unexpected behavior.");
+        return {
+            warnings: warnings,
+            payload: payload
+        };
+    }
+    // Additional validation performed only on the first meta viewport.
+    const content = element.getAttribute("content")?.toLowerCase();
+    if (!content) {
+        warnings.push("Invalid viewport. The content attribute must be set.");
+        return {
+            warnings: warnings,
+            payload: payload
+        };
+    }
+    const directives = Object.fromEntries(content.split(",").map((directive)=>{
+        const [key, value] = directive.split("=");
+        return [
+            key?.trim(),
+            value?.trim()
+        ];
+    }));
+    if ("width" in directives) {
+        const width = directives["width"];
+        if (Number(width) < 1 || Number(width) > 10000) warnings.push(`Invalid width "${width}". Numeric values must be between 1 and 10000.`);
+        else if (width != "device-width") warnings.push(`Invalid width "${width}".`);
+    }
+    if ("height" in directives) {
+        const height = directives["height"];
+        if (Number(height) < 1 || Number(height) > 10000) warnings.push(`Invalid height "${height}". Numeric values must be between 1 and 10000.`);
+        else if (height != "device-height") warnings.push(`Invalid height "${height}".`);
+    }
+    if ("initial-scale" in directives) {
+        const initialScale = Number(directives["initial-scale"]);
+        if (isNaN(initialScale)) warnings.push(`Invalid initial zoom level "${directives["initial-scale"]}". Values must be numeric.`);
+        if (initialScale < 0.1 || initialScale > 10) warnings.push(`Invalid initial zoom level "${initialScale}". Values must be between 0.1 and 10.`);
+    }
+    if ("minimum-scale" in directives) {
+        const minimumScale = Number(directives["minimum-scale"]);
+        if (isNaN(minimumScale)) warnings.push(`Invalid minimum zoom level "${directives["minimum-scale"]}". Values must be numeric.`);
+        if (minimumScale < 0.1 || minimumScale > 10) warnings.push(`Invalid minimum zoom level "${minimumScale}". Values must be between 0.1 and 10.`);
+    }
+    if ("maximum-scale" in directives) {
+        const maxScale = Number(directives["maximum-scale"]);
+        if (isNaN(maxScale)) warnings.push(`Invalid maximum zoom level "${directives["maximum-scale"]}". Values must be numeric.`);
+        if (maxScale < 0.1 || maxScale > 10) warnings.push(`Invalid maximum zoom level "${maxScale}". Values must be between 0.1 and 10.`);
+        if (maxScale < 2) warnings.push(`Disabling zoom levels under 2x can cause accessibility issues. Found "${maxScale}".`);
+    }
+    if ("user-scalable" in directives) {
+        const userScalable = directives["user-scalable"];
+        if (userScalable == "no" || userScalable == "0") warnings.push(`Disabling zooming can cause accessibility issues to users with visual impairments. Found "${userScalable}".`);
+        if (![
+            "0",
+            "1",
+            "yes",
+            "no"
+        ].includes(userScalable)) warnings.push(`Unsupported value "${userScalable}" found.`);
+    }
+    if ("interactive-widget" in directives) {
+        const interactiveWidget = directives["interactive-widget"];
+        const validValues = [
+            "resizes-visual",
+            "resizes-content",
+            "overlays-content"
+        ];
+        if (!validValues.includes(interactiveWidget)) warnings.push(`Unsupported value "${interactiveWidget}" found.`);
+    }
+    const validDirectives = new Set([
+        "width",
+        "height",
+        "initial-scale",
+        "minimum-scale",
+        "maximum-scale",
+        "user-scalable",
+        "interactive-widget"
+    ]);
+    Object.keys(directives).filter((directive)=>{
+        return !validDirectives.has(directive);
+    }).forEach((directive)=>{
+        warnings.push(`Invalid viewport directive "${directive}".`);
+    });
+    return {
+        warnings: warnings,
+        payload: payload
     };
 }
 function $580f7ed6bc170ae8$var$validateUnnecessaryPreload(element) {
