@@ -408,10 +408,10 @@ function validateContentType(element) {
     charset = element.getAttribute("charset");
   } else {
     const charsetPattern = /text\/html;\s*charset=(.*)/i;
-    charset = element.getAttribute("content")?.match(charsetPattern)?.[1];
+    charset = element.getAttribute("content")?.match(charsetPattern)?.[1]?.trim();
   }
 
-  if (charset.toLowerCase() != "utf-8") {
+  if (charset?.toLowerCase() != "utf-8") {
     payload = payload ?? {};
     payload.charset = charset;
     warnings.push(`Documents are required to use UTF-8 encoding. Found "${charset}".`);
@@ -419,8 +419,7 @@ function validateContentType(element) {
 
   if (warnings.length) {
     // Append the spec source to the last warning
-    warnings[length - 1] =
-      warnings.at(-1) +
+    warnings[warnings.length - 1] +=
       "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
   }
 
@@ -430,7 +429,7 @@ function validateContentType(element) {
 function validateHttpEquiv(element) {
   const warnings = [];
   const type = element.getAttribute("http-equiv").toLowerCase();
-  const content = element.getAttribute("content").toLowerCase();
+  const content = element.getAttribute("content")?.toLowerCase();
 
   switch (type) {
     case "content-security-policy":
@@ -442,6 +441,12 @@ function validateHttpEquiv(element) {
       break;
 
     case "refresh":
+      if (!content) {
+        warnings.push(
+          "This doesn't do anything. The content attribute must be set. However, using refresh is discouraged."
+        );
+        break;
+      }
       if (content.includes("url=")) {
         warnings.push("Meta auto-redirects are discouraged. Use HTTP 3XX responses instead.");
       } else {
@@ -554,11 +559,16 @@ function validateMetaViewport(element) {
   }
 
   // Additional validation performed only on the first meta viewport.
-  const content = element.getAttribute("content").toLowerCase();
+  const content = element.getAttribute("content")?.toLowerCase();
+  if (!content) {
+    warnings.push("Invalid viewport. The content attribute must be set.");
+    return { warnings, payload };
+  }
+
   const directives = Object.fromEntries(
     content.split(",").map((directive) => {
       const [key, value] = directive.split("=");
-      return [key.trim(), value.trim()];
+      return [key?.trim(), value?.trim()];
     })
   );
 

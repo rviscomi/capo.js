@@ -581,8 +581,8 @@ function $c322f9a5057eaf5c$var$decodeOriginTrialToken(token) {
         ...atob(token)
     ].map((a)=>a.charCodeAt(0)));
     const view = new DataView(buffer.buffer);
-    const length1 = view.getUint32(65, false);
-    const payload = JSON.parse(new TextDecoder().decode(buffer.slice(69, 69 + length1)));
+    const length = view.getUint32(65, false);
+    const payload = JSON.parse(new TextDecoder().decode(buffer.slice(69, 69 + length)));
     payload.expiry = new Date(payload.expiry * 1000);
     return payload;
 }
@@ -688,15 +688,15 @@ function $c322f9a5057eaf5c$var$validateContentType(element) {
     if (element.matches("meta[charset]")) charset = element.getAttribute("charset");
     else {
         const charsetPattern = /text\/html;\s*charset=(.*)/i;
-        charset = element.getAttribute("content")?.match(charsetPattern)?.[1];
+        charset = element.getAttribute("content")?.match(charsetPattern)?.[1]?.trim();
     }
-    if (charset.toLowerCase() != "utf-8") {
+    if (charset?.toLowerCase() != "utf-8") {
         payload = payload ?? {};
         payload.charset = charset;
         warnings.push(`Documents are required to use UTF-8 encoding. Found "${charset}".`);
     }
     if (warnings.length) // Append the spec source to the last warning
-    warnings[length - 1] = warnings.at(-1) + "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
+    warnings[warnings.length - 1] += "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
     return {
         warnings: warnings,
         payload: payload
@@ -705,7 +705,7 @@ function $c322f9a5057eaf5c$var$validateContentType(element) {
 function $c322f9a5057eaf5c$var$validateHttpEquiv(element) {
     const warnings = [];
     const type = element.getAttribute("http-equiv").toLowerCase();
-    const content = element.getAttribute("content").toLowerCase();
+    const content = element.getAttribute("content")?.toLowerCase();
     switch(type){
         case "content-security-policy":
         case "content-security-policy-report-only":
@@ -714,6 +714,10 @@ function $c322f9a5057eaf5c$var$validateHttpEquiv(element) {
         case "default-style":
             break;
         case "refresh":
+            if (!content) {
+                warnings.push("This doesn't do anything. The content attribute must be set. However, using refresh is discouraged.");
+                break;
+            }
             if (content.includes("url=")) warnings.push("Meta auto-redirects are discouraged. Use HTTP 3XX responses instead.");
             else warnings.push("Meta auto-refreshes are discouraged unless users have the ability to disable it.");
             break;
@@ -801,12 +805,19 @@ function $c322f9a5057eaf5c$var$validateMetaViewport(element) {
         };
     }
     // Additional validation performed only on the first meta viewport.
-    const content = element.getAttribute("content").toLowerCase();
+    const content = element.getAttribute("content")?.toLowerCase();
+    if (!content) {
+        warnings.push("Invalid viewport. The content attribute must be set.");
+        return {
+            warnings: warnings,
+            payload: payload
+        };
+    }
     const directives = Object.fromEntries(content.split(",").map((directive)=>{
         const [key, value] = directive.split("=");
         return [
-            key.trim(),
-            value.trim()
+            key?.trim(),
+            value?.trim()
         ];
     }));
     if ("width" in directives) {
