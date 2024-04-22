@@ -547,7 +547,6 @@ function $c322f9a5057eaf5c$var$validateCSP(element) {
         return warnings;
     }
     if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
-    // TODO: Validate that CSP doesn't include `report-uri`, `frame-ancestors`, or `sandbox` directives.
     const content = element.getAttribute("content");
     if (!content) {
         warnings.push("Invalid CSP. The content attribute must be set.");
