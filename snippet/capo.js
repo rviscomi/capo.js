@@ -541,11 +541,36 @@ function $580f7ed6bc170ae8$export$6c93e2175c028eeb(element) {
 }
 function $580f7ed6bc170ae8$var$validateCSP(element) {
     const warnings = [];
-    if (element.matches('meta[http-equiv="Content-Security-Policy-Report-Only" i]')) //https://w3c.github.io/webappsec-csp/#meta-element
-    warnings.push("CSP Report-Only is forbidden in meta tags");
-    else if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
+    let payload = null;
+    if (element.matches('meta[http-equiv="Content-Security-Policy-Report-Only" i]')) {
+        //https://w3c.github.io/webappsec-csp/#meta-element
+        warnings.push("CSP Report-Only is forbidden in meta tags");
+        return warnings;
+    }
+    if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
+    const content = element.getAttribute("content");
+    if (!content) {
+        warnings.push("Invalid CSP. The content attribute must be set.");
+        return {
+            warnings: warnings,
+            payload: payload
+        };
+    }
+    const directives = Object.fromEntries(content.split(/\s*;\s*/).map((directive)=>{
+        const [key, ...value] = directive.split(" ");
+        return [
+            key,
+            value.join(" ")
+        ];
+    }));
+    payload = payload ?? {};
+    payload.directives = directives;
+    if ("report-uri" in directives) warnings.push("The report-uri directive is not supported. Use the Content-Security-Policy-Report-Only HTTP header instead.");
+    if ("frame-ancestors" in directives) warnings.push("The frame-ancestors directive is not supported. Use the Content-Security-Policy HTTP header instead.");
+    if ("sandbox" in directives) warnings.push("The sandbox directive is not supported. Use the Content-Security-Policy HTTP header instead.");
     return {
-        warnings: warnings
+        warnings: warnings,
+        payload: payload
     };
 }
 function $580f7ed6bc170ae8$var$isInvalidOriginTrial(element) {

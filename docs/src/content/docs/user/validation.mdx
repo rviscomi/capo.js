@@ -116,6 +116,14 @@ In the example above, there is a `<meta>` CSP element, so capo.js warns that "CS
 
 This validation warning is an example of capo.js being more opinionated than simply following the specification. The warning includes a recommendation to use the CSP header instead, which avoids the preload scanner issue all together. Also note that the `Content-Security-Policy-Report-Only` directive is only valid as an HTTP header and not as a `<meta http-equiv>` element.
 
+Additionally, some CSP directives are not allowed in the `<meta>` declaration:
+
+- `frame-ancestors`
+- `sandbox`
+- `report-uri`
+
+If capo.js detects any of these directives in a `<meta>` CSP element, it will log a validation warning.
+
 ### No invalid origin trials
 
 Sites can register for [origin trials](https://developer.chrome.com/en/docs/web-platform/origin-trials/) to enable individual experimental web platform features. To enable them on a given site, a token must be included as either an `Origin-Trial` HTTP header or `<meta http-equiv>` element.
