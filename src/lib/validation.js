@@ -677,7 +677,7 @@ function validateMetaViewport(element) {
 
   if ("shrink-to-fit" in directives) {
     warnings.push(
-      "The shrink-to-fit directive has been obsolete since iOS 9.2. See https://www.scottohara.me/blog/2018/12/11/shrink-to-fit.html"
+      "The shrink-to-fit directive has been obsolete since iOS 9.2.\n  See https://www.scottohara.me/blog/2018/12/11/shrink-to-fit.html"
     );
   }
 
