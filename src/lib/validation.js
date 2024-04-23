@@ -675,6 +675,12 @@ function validateMetaViewport(element) {
     }
   }
 
+  if ("shrink-to-fit" in directives) {
+    warnings.push(
+      "The shrink-to-fit directive has been obsolete since iOS 9.2.\n  See https://www.scottohara.me/blog/2018/12/11/shrink-to-fit.html"
+    );
+  }
+
   const validDirectives = new Set([
     "width",
     "height",
@@ -686,7 +692,8 @@ function validateMetaViewport(element) {
   ]);
   Object.keys(directives)
     .filter((directive) => {
-      return !validDirectives.has(directive);
+      // shrink-to-fit is not valid, but we have a separate warning for it.
+      return !validDirectives.has(directive) && directive != "shrink-to-fit";
     })
     .forEach((directive) => {
       warnings.push(`Invalid viewport directive "${directive}".`);
