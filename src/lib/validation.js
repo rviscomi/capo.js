@@ -689,6 +689,7 @@ function validateMetaViewport(element) {
     "maximum-scale",
     "user-scalable",
     "interactive-widget",
+    'viewport-fit',
   ]);
   Object.keys(directives)
     .filter((directive) => {
