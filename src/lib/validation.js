@@ -675,6 +675,14 @@ function validateMetaViewport(element) {
     }
   }
 
+  if ("viewport-fit" in directives) {
+    const viewportFit = directives["viewport-fit"];
+    const validValues = ["auto", "contain", "cover"];
+    if (!validValues.includes(viewportFit)) {
+      warnings.push(`Unsupported value "${viewportFit}" found.`);
+    }
+  }
+
   if ("shrink-to-fit" in directives) {
     warnings.push(
       "The shrink-to-fit directive has been obsolete since iOS 9.2.\n  See https://www.scottohara.me/blog/2018/12/11/shrink-to-fit.html"
