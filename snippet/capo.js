@@ -899,7 +899,8 @@ function $580f7ed6bc170ae8$var$validateMetaViewport(element) {
         "minimum-scale",
         "maximum-scale",
         "user-scalable",
-        "interactive-widget"
+        "interactive-widget",
+        "viewport-fit"
     ]);
     Object.keys(directives).filter((directive)=>{
         // shrink-to-fit is not valid, but we have a separate warning for it.
