@@ -679,7 +679,7 @@ function validateMetaViewport(element) {
     const viewportFit = directives["viewport-fit"];
     const validValues = ["auto", "contain", "cover"];
     if (!validValues.includes(viewportFit)) {
-      warnings.push(`Unsupported value "${viewportFit}" found.`);
+      warnings.push(`Unsupported value "${viewportFit}" found. Should be one of: ${validValues.join(", ")}.`);
     }
   }
 
@@ -697,7 +697,7 @@ function validateMetaViewport(element) {
     "maximum-scale",
     "user-scalable",
     "interactive-widget",
-    'viewport-fit',
+    "viewport-fit",
   ]);
   Object.keys(directives)
     .filter((directive) => {
