@@ -697,12 +697,24 @@ function validateMetaViewport(element) {
     "maximum-scale",
     "user-scalable",
     "interactive-widget",
-    "viewport-fit",
   ]);
+
   Object.keys(directives)
     .filter((directive) => {
-      // shrink-to-fit is not valid, but we have a separate warning for it.
-      return !validDirectives.has(directive) && directive != "shrink-to-fit";
+      if (validDirectives.has(directive)) {
+        // The directive is valid.
+        return false;
+      }
+      if (directive == "shrink-to-fit") {
+        // shrink-to-fit is not valid, but we have a separate warning for it.
+        return false;
+      }
+      if (directive == "viewport-fit") {
+        // viewport-fit is non-standard, but widely supported.
+        // https://github.com/rviscomi/capo.js/issues/110
+        return false;
+      }
+      return true;
     })
     .forEach((directive) => {
       warnings.push(`Invalid viewport directive "${directive}".`);
