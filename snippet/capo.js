@@ -891,6 +891,15 @@ function $580f7ed6bc170ae8$var$validateMetaViewport(element) {
         ];
         if (!validValues.includes(interactiveWidget)) warnings.push(`Unsupported value "${interactiveWidget}" found.`);
     }
+    if ("viewport-fit" in directives) {
+        const viewportFit = directives["viewport-fit"];
+        const validValues = [
+            "auto",
+            "contain",
+            "cover"
+        ];
+        if (!validValues.includes(viewportFit)) warnings.push(`Unsupported value "${viewportFit}" found. Should be one of: ${validValues.join(", ")}.`);
+    }
     if ("shrink-to-fit" in directives) warnings.push("The shrink-to-fit directive has been obsolete since iOS 9.2.\n  See https://www.scottohara.me/blog/2018/12/11/shrink-to-fit.html");
     const validDirectives = new Set([
         "width",
@@ -902,8 +911,14 @@ function $580f7ed6bc170ae8$var$validateMetaViewport(element) {
         "interactive-widget"
     ]);
     Object.keys(directives).filter((directive)=>{
-        // shrink-to-fit is not valid, but we have a separate warning for it.
-        return !validDirectives.has(directive) && directive != "shrink-to-fit";
+        if (validDirectives.has(directive)) // The directive is valid.
+        return false;
+        if (directive == "shrink-to-fit") // shrink-to-fit is not valid, but we have a separate warning for it.
+        return false;
+        if (directive == "viewport-fit") // viewport-fit is non-standard, but widely supported.
+        // https://github.com/rviscomi/capo.js/issues/110
+        return false;
+        return true;
     }).forEach((directive)=>{
         warnings.push(`Invalid viewport directive "${directive}".`);
     });
