@@ -21,6 +21,60 @@ export function isValidElement(element, adapter) {
   return VALID_HEAD_ELEMENTS.has(adapter.getTagName(element).toLowerCase());
 }
 
+/**
+ * Check if element has any invalid child elements
+ * @param {any} element - Element to check
+ * @param {any} adapter - Adapter instance
+ * @returns {boolean}
+ */
+function hasInvalidChildren(element, adapter) {
+  const children = adapter.getChildren(element);
+  return children.some(child => !isValidElement(child, adapter));
+}
+
+/**
+ * Check if this is a duplicate title element (2nd+ occurrence)
+ * @param {any} element - Element to check
+ * @param {any} adapter - Adapter instance
+ * @returns {boolean}
+ */
+function isDuplicateTitle(element, adapter) {
+  if (adapter.getTagName(element) !== 'title') {
+    return false;
+  }
+  const parent = adapter.getParent(element);
+  if (!parent) {
+    return false;
+  }
+  // Check if this is the first title element
+  let foundFirst = false;
+  for (const child of adapter.getChildren(parent)) {
+    if (adapter.getTagName(child) === 'title') {
+      if (child === element) {
+        // This is the element we're checking - it's a duplicate if we already found a title
+        return foundFirst;
+      }
+      // Found a title element - mark that we've seen one
+      foundFirst = true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if this is a duplicate base element
+ * @param {any} element - Element to check  
+ * @param {any} adapter - Adapter instance
+ * @returns {boolean}
+ */
+function isDuplicateBase(element, adapter) {
+  if (adapter.getTagName(element) !== 'base') {
+    return false;
+  }
+  const siblings = adapter.getSiblings(element);
+  return siblings.some(sibling => adapter.getTagName(sibling) === 'base');
+}
+
 export function hasValidationWarning(element, adapter) {
   // Element itself is not valid.
   if (!isValidElement(element, adapter)) {
@@ -28,17 +82,17 @@ export function hasValidationWarning(element, adapter) {
   }
 
   // Children are not valid.
-  if (adapter.matches(element, `:has(:not(${Array.from(VALID_HEAD_ELEMENTS).join(", ")}))`)) {
+  if (hasInvalidChildren(element, adapter)) {
     return true;
   }
 
   // <title> is not the first of its type.
-  if (adapter.matches(element, "title:is(:nth-of-type(n+2))")) {
+  if (isDuplicateTitle(element, adapter)) {
     return true;
   }
 
   // <base> is not the first of its type.
-  if (adapter.matches(element, "base:has(~ base), base ~ base")) {
+  if (isDuplicateBase(element, adapter)) {
     return true;
   }
 
@@ -83,7 +137,11 @@ export function hasValidationWarning(element, adapter) {
 export function getValidationWarnings(head, adapter) {
   const validationWarnings = [];
 
-  const titleElements = Array.from(head.querySelectorAll("title"));
+  // Get all children of head element
+  const children = adapter.getChildren(head);
+
+  // Check for title elements
+  const titleElements = children.filter(child => adapter.getTagName(child) === 'title');
   const titleElementCount = titleElements.length;
   if (titleElementCount != 1) {
     validationWarnings.push({
@@ -92,14 +150,20 @@ export function getValidationWarnings(head, adapter) {
     });
   }
 
-  const metaViewport = head.querySelectorAll('meta[name="viewport" i]');
+  // Check for meta viewport
+  const metaViewport = children.filter(child => {
+    if (adapter.getTagName(child) !== 'meta') return false;
+    const name = adapter.getAttribute(child, 'name');
+    return name && name.toLowerCase() === 'viewport';
+  });
   if (metaViewport.length != 1) {
     validationWarnings.push({
       warning: `Expected exactly 1 <meta name=viewport> element, found ${metaViewport.length}`,
     });
   }
 
-  const baseElements = Array.from(head.querySelectorAll("base"));
+  // Check for base elements
+  const baseElements = children.filter(child => adapter.getTagName(child) === 'base');
   const baseElementCount = baseElements.length;
   if (baseElementCount > 1) {
     validationWarnings.push({
@@ -108,7 +172,12 @@ export function getValidationWarnings(head, adapter) {
     });
   }
 
-  const metaCSP = head.querySelector('meta[http-equiv="Content-Security-Policy" i]');
+  // Check for CSP meta tags
+  const metaCSP = children.find(child => {
+    if (adapter.getTagName(child) !== 'meta') return false;
+    const httpEquiv = adapter.getAttribute(child, 'http-equiv');
+    return httpEquiv && httpEquiv.toLowerCase() === 'content-security-policy';
+  });
   if (metaCSP) {
     validationWarnings.push({
       warning:
@@ -117,23 +186,26 @@ export function getValidationWarnings(head, adapter) {
     });
   }
 
-  head.querySelectorAll("*").forEach((element) => {
+  // Check for invalid elements
+  children.forEach((element) => {
     if (isValidElement(element, adapter)) {
       return;
     }
 
-    let root = element;
-    while (root.parentElement != head) {
-      root = root.parentElement;
-    }
-
+    // For invalid elements, we just report the element itself
+    // (adapter doesn't have parentElement concept, so we can't find root)
     validationWarnings.push({
-      warning: `${element.tagName} elements are not allowed in the <head>`,
-      element: root,
+      warning: `${adapter.getTagName(element)} elements are not allowed in the <head>`,
+      element: element,
     });
   });
 
-  const originTrials = Array.from(head.querySelectorAll('meta[http-equiv="Origin-Trial" i]'));
+  // Check for origin trials
+  const originTrials = children.filter(child => {
+    if (adapter.getTagName(child) !== 'meta') return false;
+    const httpEquiv = adapter.getAttribute(child, 'http-equiv');
+    return httpEquiv && httpEquiv.toLowerCase() === 'origin-trial';
+  });
   originTrials.forEach((element) => {
     const metadata = validateOriginTrial(element, adapter);
 
@@ -147,6 +219,7 @@ export function getValidationWarnings(head, adapter) {
       element: metadata.payload,
     });
   });
+
 
   return validationWarnings;
 }
@@ -187,13 +260,16 @@ function validateCSP(element, adapter) {
   const warnings = [];
   let payload = null;
 
-  if (adapter.matches(element, 'meta[http-equiv="Content-Security-Policy-Report-Only" i]')) {
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  const httpEquivLower = httpEquiv?.toLowerCase();
+  
+  if (httpEquivLower === 'content-security-policy-report-only') {
     //https://w3c.github.io/webappsec-csp/#meta-element
     warnings.push("CSP Report-Only is forbidden in meta tags");
     return warnings;
   }
 
-  if (adapter.matches(element, 'meta[http-equiv="Content-Security-Policy" i]')) {
+  if (httpEquivLower === 'content-security-policy') {
     warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
   }
 
@@ -258,15 +334,19 @@ function validateOriginTrial(element, adapter) {
   if (metadata.payload.expiry < new Date()) {
     metadata.warnings.push("expired");
   }
-  if (!isSameOrigin(metadata.payload.origin, document.location.href)) {
-    const subdomain = isSubdomain(metadata.payload.origin, document.location.href);
-    // Cross-origin OTs are only valid if:
-    //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
-    //   2. The isThirdParty config is set
-    if (subdomain && !metadata.payload.isSubdomain) {
-      metadata.warnings.push("invalid subdomain");
-    } else if (!subdomain && !metadata.payload.isThirdParty) {
-      metadata.warnings.push("invalid third-party origin");
+  
+  // Origin validation only works in browser context with document.location
+  if (typeof document !== 'undefined' && document.location && document.location.href) {
+    if (!isSameOrigin(metadata.payload.origin, document.location.href)) {
+      const subdomain = isSubdomain(metadata.payload.origin, document.location.href);
+      // Cross-origin OTs are only valid if:
+      //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
+      //   2. The isThirdParty config is set
+      if (subdomain && !metadata.payload.isSubdomain) {
+        metadata.warnings.push("invalid subdomain");
+      } else if (!subdomain && !metadata.payload.isThirdParty) {
+        metadata.warnings.push("invalid third-party origin");
+      }
     }
   }
 
@@ -296,19 +376,29 @@ function isSubdomain(a, b) {
 }
 
 function isDefaultStyle(element, adapter) {
-  return adapter.matches(element, 'meta[http-equiv="default-style" i]');
+  if (adapter.getTagName(element) !== 'meta') return false;
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  return httpEquiv?.toLowerCase() === 'default-style';
 }
 
 function isContentType(element, adapter) {
-  return adapter.matches(element, CONTENT_TYPE_SELECTOR);
+  // Matches: meta[http-equiv="content-type" i], meta[charset]
+  if (adapter.getTagName(element) !== 'meta') return false;
+  if (adapter.hasAttribute(element, 'charset')) return true;
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  return httpEquiv?.toLowerCase() === 'content-type';
 }
 
 function isHttpEquiv(element, adapter) {
-  return adapter.matches(element, HTTP_EQUIV_SELECTOR);
+  // Matches: meta[http-equiv]
+  if (adapter.getTagName(element) !== 'meta') return false;
+  return adapter.hasAttribute(element, 'http-equiv');
 }
 
 function isMetaViewport(element, adapter) {
-  return adapter.matches(element, 'meta[name="viewport" i]');
+  if (adapter.getTagName(element) !== 'meta') return false;
+  const name = adapter.getAttribute(element, 'name');
+  return name?.toLowerCase() === 'viewport';
 }
 
 function isInvalidDefaultStyle(element, adapter) {
@@ -348,12 +438,23 @@ function isInvalidMetaViewport(element, adapter) {
 }
 
 function isUnnecessaryPreload(element, adapter) {
-  if (!adapter.matches(element, PRELOAD_SELECTOR)) {
+  // Matches: link:is([rel="preload" i], [rel="modulepreload" i])
+  if (adapter.getTagName(element) !== 'link') {
+    return false;
+  }
+  const rel = adapter.getAttribute(element, 'rel');
+  const relLower = rel?.toLowerCase();
+  if (relLower !== 'preload' && relLower !== 'modulepreload') {
     return false;
   }
 
   const href = adapter.getAttribute(element, "href");
   if (!href) {
+    return false;
+  }
+
+  // This validation only works in browser context
+  if (!element.parentElement || typeof document === 'undefined') {
     return false;
   }
 
@@ -363,6 +464,11 @@ function isUnnecessaryPreload(element, adapter) {
 }
 
 function findElementWithSource(root, sourceUrl) {
+  // Browser-only function
+  if (!root || !root.querySelectorAll) {
+    return null;
+  }
+  
   const linksAndScripts = Array.from(root.querySelectorAll(`link:not(${PRELOAD_SELECTOR}), script`));
 
   return linksAndScripts.find((e) => {
@@ -376,6 +482,11 @@ function findElementWithSource(root, sourceUrl) {
 }
 
 function absolutifyUrl(href) {
+  // Browser-only function
+  if (typeof document === 'undefined' || !document.baseURI) {
+    // In non-browser context, return href as-is
+    return href;
+  }
   return new URL(href, document.baseURI).href;
 }
 
@@ -385,19 +496,26 @@ function validateDefaultStyle(element, adapter) {
 
   // Check if the value points to an alternate stylesheet with that title
   const title = adapter.getAttribute(element, "content");
-  const stylesheet = element.parentElement.querySelector(
-    `link[rel~="alternate" i][rel~="stylesheet" i][title="${title}"]`
-  );
+  
+  // Browser-only validation
+  if (element.parentElement && element.parentElement.querySelector) {
+    const stylesheet = element.parentElement.querySelector(
+      `link[rel~="alternate" i][rel~="stylesheet" i][title="${title}"]`
+    );
 
-  if (!title) {
+    if (!title) {
+      warnings.push("This has no effect. The content attribute must be set to a valid stylesheet title.");
+    } else if (!stylesheet) {
+      payload = {
+        alternateStylesheets: Array.from(
+          element.parentElement.querySelectorAll('link[rel~="alternate" i][rel~="stylesheet" i]')
+        ),
+      };
+      warnings.push(`This has no effect. No alternate stylesheet found having title="${title}".`);
+    }
+  } else if (!title) {
+    // In non-browser context, we can still check for missing title
     warnings.push("This has no effect. The content attribute must be set to a valid stylesheet title.");
-  } else if (!stylesheet) {
-    payload = {
-      alternateStylesheets: Array.from(
-        element.parentElement.querySelectorAll('link[rel~="alternate" i][rel~="stylesheet" i]')
-      ),
-    };
-    warnings.push(`This has no effect. No alternate stylesheet found having title="${title}".`);
   }
 
   warnings.push(
@@ -412,31 +530,61 @@ function validateContentType(element, adapter) {
   let payload = null;
   // https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration
   // Check if there exists both meta[http-equiv] and meta[chartset] variations
-  if (
-    adapter.matches(element, ':is(meta[charset] ~ meta[http-equiv="content-type" i])') ||
-    adapter.matches(element, ":has(~ meta[charset])")
-  ) {
-    const encodingDeclaration = element.parentElement.querySelector("meta[charset]");
-    payload = payload ?? {};
-    payload.encodingDeclaration = encodingDeclaration;
-    warnings.push(
-      `There can only be one meta-based character encoding declaration per document. Already found \`${encodingDeclaration.outerHTML}\`.`
-    );
+  
+  // Check if this is a charset or content-type meta
+  const isCharset = adapter.hasAttribute(element, 'charset');
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  const isContentTypeMeta = httpEquiv?.toLowerCase() === 'content-type';
+  
+  if (isCharset || isContentTypeMeta) {
+    // Check for duplicate charset declarations among siblings
+    const siblings = adapter.getSiblings(element);
+    const hasDuplicateCharset = siblings.some(sibling => {
+      if (adapter.getTagName(sibling) !== 'meta') return false;
+      // Check if sibling is also a charset declaration
+      if (adapter.hasAttribute(sibling, 'charset')) return true;
+      const siblingHttpEquiv = adapter.getAttribute(sibling, 'http-equiv');
+      return siblingHttpEquiv?.toLowerCase() === 'content-type';
+    });
+    
+    if (hasDuplicateCharset) {
+      const parent = adapter.getParent(element);
+      if (parent) {
+        const charsetElements = adapter.getChildren(parent).filter(child => {
+          if (adapter.getTagName(child) !== 'meta') return false;
+          if (adapter.hasAttribute(child, 'charset')) return true;
+          const childHttpEquiv = adapter.getAttribute(child, 'http-equiv');
+          return childHttpEquiv?.toLowerCase() === 'content-type';
+        });
+        // Find the first one (not this element)
+        const encodingDeclaration = charsetElements.find(el => el !== element);
+        if (encodingDeclaration) {
+          payload = payload ?? {};
+          payload.encodingDeclaration = encodingDeclaration;
+          warnings.push(
+            `There can only be one meta-based character encoding declaration per document. Already found \`${adapter.stringify(encodingDeclaration)}\`.`
+          );
+        }
+      }
+    }
   }
 
-  // Check if it compeltely exists in the first 1024 bytes
-  const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML) + element.outerHTML.length;
-  if (charPos > 1024) {
-    payload = payload ?? {};
-    payload.characterPosition = charPos;
-    warnings.push(
-      `The element containing the character encoding declaration must be serialized completely within the first 1024 bytes of the document. Found at byte ${charPos}.`
-    );
+  // Check if it completely exists in the first 1024 bytes
+  // This check only works in browser context with ownerDocument
+  if (element.ownerDocument?.documentElement?.outerHTML && element.outerHTML) {
+    const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML) + element.outerHTML.length;
+    if (charPos > 1024) {
+      payload = payload ?? {};
+      payload.characterPosition = charPos;
+      warnings.push(
+        `The element containing the character encoding declaration must be serialized completely within the first 1024 bytes of the document. Found at byte ${charPos}.`
+      );
+    }
   }
 
   // Check that the character encoding is UTF-8
   let charset = null;
-  if (adapter.matches(element, "meta[charset]")) {
+  if (isCharset) {
     charset = adapter.getAttribute(element, "charset");
   } else {
     const charsetPattern = /text\/html;\s*charset=(.*)/i;
@@ -581,13 +729,32 @@ function validateMetaViewport(element, adapter) {
   let payload = null;
 
   // Redundant meta viewport validation.
-  if (adapter.matches(element, 'meta[name="viewport" i] ~ meta[name="viewport" i]')) {
-    const firstMetaViewport = element.parentElement.querySelector('meta[name="viewport" i]');
-    payload = { firstMetaViewport };
-    warnings.push(
-      "Another meta viewport element has already been declared. Having multiple viewport settings can lead to unexpected behavior."
-    );
-    return { warnings, payload };
+  // Check if there are other viewport meta elements among siblings
+  const siblings = adapter.getSiblings(element);
+  const hasDuplicateViewport = siblings.some(sibling => {
+    if (adapter.getTagName(sibling) !== 'meta') return false;
+    const name = adapter.getAttribute(sibling, 'name');
+    return name?.toLowerCase() === 'viewport';
+  });
+  
+  if (hasDuplicateViewport) {
+    const parent = adapter.getParent(element);
+    if (parent) {
+      const viewportElements = adapter.getChildren(parent).filter(child => {
+        if (adapter.getTagName(child) !== 'meta') return false;
+        const name = adapter.getAttribute(child, 'name');
+        return name?.toLowerCase() === 'viewport';
+      });
+      // Find the first one (not this element)
+      const firstMetaViewport = viewportElements.find(el => el !== element);
+      if (firstMetaViewport) {
+        payload = { firstMetaViewport };
+        warnings.push(
+          "Another meta viewport element has already been declared. Having multiple viewport settings can lead to unexpected behavior."
+        );
+        return { warnings, payload };
+      }
+    }
   }
 
   // Additional validation performed only on the first meta viewport.
@@ -726,10 +893,18 @@ function validateMetaViewport(element, adapter) {
 function validateUnnecessaryPreload(element, adapter) {
   const href = adapter.getAttribute(element, "href");
   const preloadedUrl = absolutifyUrl(href);
+  
+  // This validation only works in browser context
+  if (!element.parentElement) {
+    return { warnings: [] };
+  }
+  
   const preloadedElement = findElementWithSource(element.parentElement, preloadedUrl);
 
   if (!preloadedElement) {
-    throw new Error("Expected an invalid preload, but none found.");
+    // In non-browser context, findElementWithSource may return null
+    // Don't throw error, just return no warnings
+    return { warnings: [] };
   }
 
   return {

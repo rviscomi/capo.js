@@ -231,45 +231,6 @@ describe('BrowserAdapter', () => {
     });
   });
 
-  describe('matches', () => {
-    it('should match simple tag selector', () => {
-      setup();
-      const el = createElement('<meta charset="utf-8">');
-      assert.equal(adapter.matches(el, 'meta'), true);
-    });
-
-    it('should match attribute selector', () => {
-      setup();
-      const el = createElement('<meta charset="utf-8">');
-      assert.equal(adapter.matches(el, 'meta[charset]'), true);
-      assert.equal(adapter.matches(el, 'meta[name]'), false);
-    });
-
-    it('should match attribute value selector', () => {
-      setup();
-      const el = createElement('<meta charset="utf-8">');
-      assert.equal(adapter.matches(el, 'meta[charset="utf-8"]'), true);
-      assert.equal(adapter.matches(el, 'meta[charset="iso-8859-1"]'), false);
-    });
-
-    it('should match complex selector', () => {
-      setup();
-      const el = createElement('<link rel="stylesheet" href="/styles.css">');
-      assert.equal(adapter.matches(el, 'link[rel="stylesheet"]'), true);
-    });
-
-    it('should return false for invalid selector', () => {
-      setup();
-      const el = createElement('<meta charset="utf-8">');
-      assert.equal(adapter.matches(el, ':::invalid:::'), false);
-    });
-
-    it('should return false for null node', () => {
-      setup();
-      assert.equal(adapter.matches(null, 'meta'), false);
-    });
-  });
-
   describe('getLocation', () => {
     it('should return null (not available in browser DOM)', () => {
       setup();

@@ -64,6 +64,7 @@
     "test:snapshots": "node --test tests/snapshots/*.test.js"
   },
   "devDependencies": {
+    "@html-eslint/parser": "^0.47.0",
     "dedent": "^1.7.0",
     "jsdom": "^27.0.1",
     "parcel": "latest"

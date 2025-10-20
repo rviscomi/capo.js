@@ -40,7 +40,20 @@ export class HtmlEslintAdapter {
    * @returns {string} - Tag name like 'meta', 'link', 'script'
    */
   getTagName(node) {
-    if (!node || !node.name) {
+    if (!node) {
+      return '';
+    }
+    
+    // Special handling for ScriptTag and StyleTag which don't have a name property
+    if (node.type === 'ScriptTag') {
+      return 'script';
+    }
+    if (node.type === 'StyleTag') {
+      return 'style';
+    }
+    
+    // Regular Tag nodes have a name property
+    if (!node.name) {
       return '';
     }
     return node.name.toLowerCase();
@@ -119,7 +132,21 @@ export class HtmlEslintAdapter {
    * @returns {string} - Text content
    */
   getTextContent(node) {
-    if (!node || !node.children) {
+    if (!node) {
+      return '';
+    }
+
+    // ScriptTag and StyleTag have special structure in real parser output
+    if (node.type === 'ScriptTag' || node.type === 'StyleTag') {
+      // Real parser output: node.value.value
+      if (node.value?.value) {
+        return node.value.value;
+      }
+      // Test mocks may use children array - fall through to handle that
+    }
+
+    // Regular Tag nodes and test mocks have children
+    if (!node.children) {
       return '';
     }
 
@@ -143,14 +170,32 @@ export class HtmlEslintAdapter {
   }
 
   /**
-   * Check if element matches a simple selector pattern
-   * @param {any} node - Element node
-   * @param {string} selector - Simple selector (tag[attr="value"])
-   * @returns {boolean}
+   * Get parent element of a node
+   * @param {any} node - Child node
+   * @returns {any | null} - Parent element node, or null if no parent
    */
-  matches(node, selector) {
-    // Implement simple selector matching for common patterns
-    return matchesSelector(node, selector, this);
+  getParent(node) {
+    if (!node || !node.parent) {
+      return null;
+    }
+    // Return parent if it's an element, otherwise null
+    return this.isElement(node.parent) ? node.parent : null;
+  }
+
+  /**
+   * Get sibling elements of a node
+   * @param {any} node - Element node
+   * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
+   */
+  getSiblings(node) {
+    if (!node) {
+      return [];
+    }
+    const parent = this.getParent(node);
+    if (!parent) {
+      return [];
+    }
+    return this.getChildren(parent).filter(child => child !== node);
   }
 
   /**
@@ -202,71 +247,4 @@ export class HtmlEslintAdapter {
 
     return `<${tagName} ${attrs}>`;
   }
-}
-
-/**
- * Simple selector matcher helper (supports tag[attr="value"] patterns)
- * 
- * This is a lightweight implementation for capo's needs.
- * Supports:
- * - Wildcard selector: '*'
- * - Tag selectors: 'meta', 'link', 'script'
- * - Attribute presence: 'script[src]'
- * - Attribute value: 'link[rel="stylesheet"]'
- * - Case-insensitive flag: 'meta[http-equiv="content-type" i]'
- * 
- * @param {any} node - The node to test
- * @param {string} selector - The selector string
- * @param {HtmlEslintAdapter} adapter - The adapter instance
- * @returns {boolean}
- */
-function matchesSelector(node, selector, adapter) {
-  // Handle wildcard selector
-  if (selector === '*') {
-    return true;
-  }
-  
-  // Reject complex selectors with combinators (not supported)
-  if (selector.includes('>') || selector.includes('+') || selector.includes('~') || /\s/.test(selector.replace(/\s+i\]/g, '').trim())) {
-    return false;
-  }
-  
-  // Parse simple selector: tag, tag[attr], tag[attr="value"], etc.
-  
-  // Extract tag name
-  const tagMatch = selector.match(/^([a-z*]+)/i);
-  const requiredTag = tagMatch ? tagMatch[1].toLowerCase() : null;
-  
-  if (requiredTag && requiredTag !== '*' && adapter.getTagName(node) !== requiredTag) {
-    return false;
-  }
-
-  // Extract attribute requirements [attr="value"]
-  // Supports: [attr], [attr="value"], [attr="value" i]
-  const attrPattern = /\[([a-z-]+)(?:="([^"]*)")?(?:\s+i)?\]/gi;
-  let match;
-  
-  while ((match = attrPattern.exec(selector)) !== null) {
-    const [fullMatch, attrName, attrValue] = match;
-    const actualValue = adapter.getAttribute(node, attrName);
-    
-    if (attrValue === undefined) {
-      // Just check attribute exists: [src]
-      if (actualValue === null) {
-        return false;
-      }
-    } else {
-      // Check attribute value: [rel="stylesheet"]
-      const isCaseInsensitive = fullMatch.includes(' i]');
-      const expected = isCaseInsensitive ? attrValue.toLowerCase() : attrValue;
-      const actual = actualValue === null ? null : 
-        (isCaseInsensitive ? actualValue.toLowerCase() : actualValue);
-      
-      if (actual !== expected) {
-        return false;
-      }
-    }
-  }
-
-  return true;
 }

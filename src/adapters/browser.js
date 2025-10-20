@@ -107,21 +107,31 @@ export class BrowserAdapter {
   }
 
   /**
-   * Check if element matches a simple selector pattern
-   * @param {any} node - Element node
-   * @param {string} selector - Simple selector (tag[attr="value"])
-   * @returns {boolean}
+   * Get parent element of a node
+   * @param {any} node - Child node
+   * @returns {any | null} - Parent element node, or null if no parent
    */
-  matches(node, selector) {
-    if (!node || typeof node.matches !== 'function') {
-      return false;
+  getParent(node) {
+    if (!node) {
+      return null;
     }
-    try {
-      return node.matches(selector);
-    } catch (e) {
-      // Invalid selector
-      return false;
+    return node.parentElement || null;
+  }
+
+  /**
+   * Get sibling elements of a node
+   * @param {any} node - Element node
+   * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
+   */
+  getSiblings(node) {
+    if (!node) {
+      return [];
     }
+    const parent = node.parentElement;
+    if (!parent) {
+      return [];
+    }
+    return Array.from(parent.children).filter(child => child !== node);
   }
 
   /**

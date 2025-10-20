@@ -37,34 +37,72 @@ export const META_HTTP_EQUIV_KEYWORDS = [
 
 
 export function isMeta(element, adapter) {
-  const httpEquivSelector = META_HTTP_EQUIV_KEYWORDS.map(keyword => {
-    return `[http-equiv="${keyword}" i]`;
-  }).join(', ');
+  const tagName = adapter.getTagName(element);
   
-  return adapter.matches(element, `meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
+  // Check if it's a base element
+  if (tagName === 'base') {
+    return true;
+  }
+  
+  // Check if it's a meta element with charset, viewport, or critical http-equiv
+  if (tagName !== 'meta') {
+    return false;
+  }
+  
+  // Check for charset attribute
+  if (adapter.hasAttribute(element, 'charset')) {
+    return true;
+  }
+  
+  // Check for viewport meta
+  const name = adapter.getAttribute(element, 'name');
+  if (name && name.toLowerCase() === 'viewport') {
+    return true;
+  }
+  
+  // Check for critical http-equiv values
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  if (httpEquiv) {
+    const normalizedValue = httpEquiv.toLowerCase();
+    return META_HTTP_EQUIV_KEYWORDS.includes(normalizedValue);
+  }
+  
+  return false;
 }
 
 export function isTitle(element, adapter) {
-  return adapter.matches(element, 'title');
+  return adapter.getTagName(element) === 'title';
 }
 
 export function isPreconnect(element, adapter) {
-  return adapter.matches(element, 'link[rel=preconnect]');
+  if (adapter.getTagName(element) !== 'link') {
+    return false;
+  }
+  
+  const rel = adapter.getAttribute(element, 'rel');
+  return rel?.toLowerCase() === 'preconnect';
 }
 
 export function isAsyncScript(element, adapter) {
-  return adapter.matches(element, 'script[src][async]');
+  if (adapter.getTagName(element) !== 'script') {
+    return false;
+  }
+  
+  return adapter.hasAttribute(element, 'src') && 
+         adapter.hasAttribute(element, 'async');
 }
 
 export function isImportStyles(element, adapter) {
   const importRe = /@import/;
 
-  if (adapter.matches(element, 'style')) {
+  if (adapter.getTagName(element) === 'style') {
     return importRe.test(adapter.getTextContent(element));
   }
 
   /* TODO: Support external stylesheets.
-  if (adapter.matches(element, 'link[rel=stylesheet][href]')) {
+  if (adapter.getTagName(element) === 'link' && 
+      adapter.getAttribute(element, 'rel')?.toLowerCase() === 'stylesheet' &&
+      adapter.hasAttribute(element, 'href')) {
     let response = fetch(adapter.getAttribute(element, 'href'));
     response = response.text();
     return importRe.test(response);
@@ -74,31 +112,133 @@ export function isImportStyles(element, adapter) {
 }
 
 export function isSyncScript(element, adapter) {
-  return adapter.matches(element, 'script:not([src][defer],[src][type=module],[src][async],[type*=json])');
+  // Must be a script element
+  if (adapter.getTagName(element) !== 'script') {
+    return false;
+  }
+  
+  // Original selector: script:not([src][defer],[src][type=module],[src][async],[type*=json])
+  // This excludes scripts that match ANY of these compound conditions:
+  
+  // Exclude: scripts with src AND defer
+  if (adapter.hasAttribute(element, 'src') && adapter.hasAttribute(element, 'defer')) {
+    return false;
+  }
+  
+  // Exclude: scripts with src AND type=module
+  if (adapter.hasAttribute(element, 'src')) {
+    const type = adapter.getAttribute(element, 'type');
+    if (type && type.toLowerCase() === 'module') {
+      return false;
+    }
+  }
+  
+  // Exclude: scripts with src AND async
+  if (adapter.hasAttribute(element, 'src') && adapter.hasAttribute(element, 'async')) {
+    return false;
+  }
+  
+  // Exclude: scripts with type containing "json"
+  const type = adapter.getAttribute(element, 'type');
+  if (type && type.toLowerCase().includes('json')) {
+    return false;
+  }
+  
+  return true;
 }
 
 export function isSyncStyles(element, adapter) {
-  return adapter.matches(element, 'link[rel=stylesheet],style');
+  const tagName = adapter.getTagName(element);
+  
+  // Check if it's a style element
+  if (tagName === 'style') {
+    return true;
+  }
+  
+  // Check if it's a stylesheet link
+  if (tagName === 'link') {
+    const rel = adapter.getAttribute(element, 'rel');
+    return rel?.toLowerCase() === 'stylesheet';
+  }
+  
+  return false;
 }
 
 export function isPreload(element, adapter) {
-  return adapter.matches(element, 'link:is([rel=preload], [rel=modulepreload])');
+  if (adapter.getTagName(element) !== 'link') {
+    return false;
+  }
+  
+  const rel = adapter.getAttribute(element, 'rel');
+  if (!rel) {
+    return false;
+  }
+  
+  const relLower = rel.toLowerCase();
+  return relLower === 'preload' || relLower === 'modulepreload';
 }
 
 export function isDeferScript(element, adapter) {
-  return adapter.matches(element, 'script[src][defer], script:not([src][async])[src][type=module]');
+  if (adapter.getTagName(element) !== 'script') {
+    return false;
+  }
+  
+  if (!adapter.hasAttribute(element, 'src')) {
+    return false;
+  }
+  
+  // Script with defer attribute
+  if (adapter.hasAttribute(element, 'defer')) {
+    return true;
+  }
+  
+  // Module scripts are defer by default, unless they have async
+  const type = adapter.getAttribute(element, 'type');
+  if (type && type.toLowerCase() === 'module') {
+    return !adapter.hasAttribute(element, 'async');
+  }
+  
+  return false;
 }
 
 export function isPrefetchPrerender(element, adapter) {
-  return adapter.matches(element, 'link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])');
+  if (adapter.getTagName(element) !== 'link') {
+    return false;
+  }
+  
+  const rel = adapter.getAttribute(element, 'rel');
+  if (!rel) {
+    return false;
+  }
+  
+  const relLower = rel.toLowerCase();
+  return relLower === 'prefetch' || 
+         relLower === 'dns-prefetch' || 
+         relLower === 'prerender';
 }
 
 export function isOriginTrial(element, adapter) {
-  return adapter.matches(element, 'meta[http-equiv="origin-trial"i]');
+  if (adapter.getTagName(element) !== 'meta') {
+    return false;
+  }
+  
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  return httpEquiv?.toLowerCase() === 'origin-trial';
 }
 
 export function isMetaCSP(element, adapter) {
-  return adapter.matches(element, 'meta[http-equiv="Content-Security-Policy" i], meta[http-equiv="Content-Security-Policy-Report-Only" i]');
+  if (adapter.getTagName(element) !== 'meta') {
+    return false;
+  }
+  
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  if (!httpEquiv) {
+    return false;
+  }
+  
+  const httpEquivLower = httpEquiv.toLowerCase();
+  return httpEquivLower === 'content-security-policy' || 
+         httpEquivLower === 'content-security-policy-report-only';
 }
 
 export function getWeight(element, adapter) {

@@ -155,7 +155,8 @@ describe('AdapterFactory', () => {
       getAttributeNames() { return []; }
       getTextContent() { return ''; }
       getChildren() { return []; }
-      matches() { return false; }
+      getParent() { return null; }
+      getSiblings() { return []; }
       getLocation() { return null; }
       stringify() { return '<test>'; }
     }
@@ -227,7 +228,8 @@ describe('AdapterFactory', () => {
         getAttributeNames() { return []; }
         getTextContent() { return ''; }
         getChildren() { return []; }
-        matches() { return false; }
+        getParent() { return null; }
+        getSiblings() { return []; }
         getLocation() { return null; }
         stringify() { return '<test>'; }
       }
@@ -281,7 +283,8 @@ describe('AdapterFactory', () => {
         getAttributeNames() { return []; }
         getTextContent() { return ''; }
         getChildren() { return []; }
-        matches() { return false; }
+        getParent() { return null; }
+        getSiblings() { return []; }
         getLocation() { return null; }
         stringify() { return '<test>'; }
       }

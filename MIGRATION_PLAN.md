@@ -28,27 +28,27 @@ This document outlines a migration plan to refactor `capo.js` into a DOM-agnosti
 
 ### 1.1 Core Adapter Contract
 
-The adapter interface abstracts all environment-specific operations. Below is the TypeScript/JSDoc definition:
+The adapter interface abstracts all environment-specific operations. Below is the JSDoc definition:
 
-```typescript
+```javascript
 /**
  * Adapter interface for abstracting HTML tree operations
  * @interface HTMLAdapter
  */
-interface HTMLAdapter {
+// interface HTMLAdapter {
   /**
    * Check if node is an Element (not text, comment, etc.)
    * @param {any} node - The node to check
    * @returns {boolean}
    */
-  isElement(node: any): boolean;
+  // isElement(node)
 
   /**
    * Get the tag name of an element (lowercase)
    * @param {any} node - Element node
    * @returns {string} - Tag name like 'meta', 'link', 'script'
    */
-  getTagName(node: any): string;
+  // getTagName(node)
 
   /**
    * Get attribute value from element
@@ -56,28 +56,28 @@ interface HTMLAdapter {
    * @param {string} attrName - Attribute name (case-insensitive)
    * @returns {string | null}
    */
-  getAttribute(node: any, attrName: string): string | null;
+  // getAttribute(node, attrName)
 
   /**
    * Get all attribute names for an element
    * @param {any} node - Element node
    * @returns {string[]}
    */
-  getAttributeNames(node: any): string[];
+  // getAttributeNames(node)
 
   /**
    * Get text content of a node (for inline scripts/styles)
    * @param {any} node - Element node
    * @returns {string}
    */
-  getTextContent(node: any): string;
+  // getTextContent(node)
 
   /**
    * Get child elements of a node
    * @param {any} node - Parent node
    * @returns {any[]} - Array of child nodes
    */
-  getChildren(node: any): any[];
+  // getChildren(node)
 
   /**
    * Check if element matches a simple selector pattern
@@ -85,64 +85,64 @@ interface HTMLAdapter {
    * @param {string} selector - Simple selector (tag[attr="value"])
    * @returns {boolean}
    */
-  matches(node: any, selector: string): boolean;
+  // matches(node, selector)
 
   /**
    * Get source location for a node (optional, for linting)
    * @param {any} node - Element node
    * @returns {{ line: number, column: number, endLine?: number, endColumn?: number } | null}
    */
-  getLocation(node: any): { line: number; column: number; endLine?: number; endColumn?: number } | null;
+  // getLocation(node)
 
   /**
    * Stringify element for logging/debugging
    * @param {any} node - Element node
    * @returns {string}
    */
-  stringify(node: any): string;
-}
+  // stringify(node)
+// }
 ```
 
 ### 1.2 Core Analysis API
 
-```typescript
+```javascript
 /**
  * Finding from capo analysis
  */
-interface CapoFinding {
-  ruleId: string;          // e.g., 'no-meta-csp', 'require-order', 'no-duplicate-title'
-  message: string;         // Human-readable message
-  node: any;               // Reference to the node (adapter-specific)
-  location?: {             // Optional location info for linting
-    line: number;
-    column: number;
-    endLine?: number;
-    endColumn?: number;
-  };
-  severity: 'error' | 'warning' | 'info';
-  data?: Record<string, any>;  // Additional metadata
-}
+// interface CapoFinding {
+  // ruleId: string;          // e.g., 'no-meta-csp', 'require-order', 'no-duplicate-title'
+  // message: string;         // Human-readable message
+  // node: any;               // Reference to the node (adapter-specific)
+  // location?: {             // Optional location info for linting
+    // line: number;
+    // column: number;
+    // endLine?: number;
+    // endColumn?: number;
+  // };
+  // severity: 'error' | 'warning' | 'info';
+  // data?: Record<string, any>;  // Additional metadata
+// }
 
 /**
  * Weight information for an element
  */
-interface ElementWeight {
-  node: any;
-  weight: number;          // 0-11, higher = should come earlier
-  category: string;        // 'META', 'TITLE', 'PRECONNECT', etc.
-  isValid: boolean;        // Whether element passes validation
-  warnings: string[];      // Element-specific warnings
-}
+// interface ElementWeight {
+  // node: any;
+  // weight: number;          // 0-11, higher = should come earlier
+  // category: string;        // 'META', 'TITLE', 'PRECONNECT', etc.
+  // isValid: boolean;        // Whether element passes validation
+  // warnings: string[];      // Element-specific warnings
+// }
 
 /**
  * Analysis results
  * Contains ALL findings from a single analysis pass
  */
-interface AnalysisResult {
-  weights: ElementWeight[];      // Weight info for every child element
-  findings: CapoFinding[];       // All rule violations found
-  headElement: any;              // The <head> node itself
-}
+// interface AnalysisResult {
+  // weights: ElementWeight[];      // Weight info for every child element
+  // findings: CapoFinding[];       // All rule violations found
+  // headElement: any;              // The <head> node itself
+// }
 
 /**
  * Main analysis entry point
@@ -160,7 +160,7 @@ interface AnalysisResult {
  * const orderingIssues = result.findings.filter(f => f.ruleId === 'require-order');
  * const cspIssues = result.findings.filter(f => f.ruleId === 'no-meta-csp');
  */
-function analyzeHead(headNode: any, adapter: HTMLAdapter, options?: object): AnalysisResult;
+// function analyzeHead(headNode, adapter, options);
 ```
 
 **Design Principle:** `analyzeHead()` runs **all** capo.js rules in a single pass and returns all findings. Consumers (like ESLint plugin) should:

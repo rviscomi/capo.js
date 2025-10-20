@@ -91,17 +91,21 @@ export const AdapterInterface = {
   },
 
   /**
-   * Check if element matches a simple selector pattern
-   * 
-   * NOTE: This is optional and can return false if selector matching
-   * is not available. Most detector functions use getAttribute() instead.
-   * 
-   * @param {any} node - Element node
-   * @param {string} selector - Simple selector (tag[attr="value"])
-   * @returns {boolean}
+   * Get parent element of a node
+   * @param {any} node - Child node
+   * @returns {any | null} - Parent element node, or null if no parent
    */
-  matches(node, selector) {
-    throw new Error('matches() not implemented');
+  getParent(node) {
+    throw new Error('getParent() not implemented');
+  },
+
+  /**
+   * Get sibling elements of a node
+   * @param {any} node - Element node
+   * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
+   */
+  getSiblings(node) {
+    throw new Error('getSiblings() not implemented');
   },
 
   /**
@@ -137,7 +141,8 @@ export function validateAdapter(adapter) {
     'getAttributeNames',
     'getTextContent',
     'getChildren',
-    'matches',
+    'getParent',
+    'getSiblings',
     'getLocation',
     'stringify',
   ];
