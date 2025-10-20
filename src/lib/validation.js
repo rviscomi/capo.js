@@ -1,4 +1,4 @@
-import { isMetaCSP, isOriginTrial } from "./rules";
+import { isMetaCSP, isOriginTrial } from "./rules.js";
 
 export const VALID_HEAD_ELEMENTS = new Set([
   "base",

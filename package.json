@@ -44,9 +44,18 @@
   },
   "scripts": {
     "watch": "parcel watch",
-    "build": "parcel build"
+    "build": "parcel build",
+    "test": "node --test tests/**/*.test.js",
+    "test:watch": "node --test --watch tests/**/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage tests/**/*.test.js",
+    "test:rules": "node --test tests/lib/rules.test.js",
+    "test:validation": "node --test tests/lib/validation.test.js",
+    "test:integration": "node --test tests/integration/*.test.js",
+    "test:snapshots": "node --test tests/snapshots/*.test.js"
   },
   "devDependencies": {
+    "dedent": "^1.7.0",
+    "jsdom": "^27.0.1",
     "parcel": "latest"
   }
 }
