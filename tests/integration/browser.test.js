@@ -4,6 +4,10 @@ import dedent from 'dedent';
 import { createDocument } from '../setup.js';
 import { getHeadWeights } from '../../src/lib/rules.js';
 import { getValidationWarnings } from '../../src/lib/validation.js';
+import { BrowserAdapter } from '../../src/adapters/browser.js';
+
+// Create adapter instance for all tests
+const adapter = new BrowserAdapter();
 
 describe('Browser Integration Tests', () => {
   describe('Full document analysis', () => {
@@ -20,8 +24,8 @@ describe('Browser Integration Tests', () => {
         <script defer src="lazy.js"></script>
       `);
 
-      const weights = getHeadWeights(head);
-      const warnings = getValidationWarnings(head);
+      const weights = getHeadWeights(head, adapter);
+      const warnings = getValidationWarnings(head, adapter);
 
       // Should have entries for all elements
       assert.strictEqual(weights.length, 9);
@@ -42,8 +46,8 @@ describe('Browser Integration Tests', () => {
         <meta charset="utf-8">
       `);
 
-      const weights = getHeadWeights(head);
-      const warnings = getValidationWarnings(head);
+      const weights = getHeadWeights(head, adapter);
+      const warnings = getValidationWarnings(head, adapter);
 
       // Should detect all elements
       assert.strictEqual(weights.length, 4);
@@ -69,7 +73,7 @@ describe('Browser Integration Tests', () => {
         <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
       `);
 
-      const warnings = getValidationWarnings(head);
+      const warnings = getValidationWarnings(head, adapter);
 
       // Should have warnings for multiple titles, multiple bases, multiple viewports, and CSP
       assert.ok(warnings.length >= 3, `Expected at least 3 warnings, got ${warnings.length}`);
@@ -86,8 +90,8 @@ describe('Browser Integration Tests', () => {
     it('should handle empty head', () => {
       const { head } = createDocument('');
 
-      const weights = getHeadWeights(head);
-      const warnings = getValidationWarnings(head);
+      const weights = getHeadWeights(head, adapter);
+      const warnings = getValidationWarnings(head, adapter);
 
       // Should have no elements
       assert.strictEqual(weights.length, 0);
@@ -109,8 +113,8 @@ describe('Browser Integration Tests', () => {
         <p>Even more invalid</p>
       `);
 
-      const weights = getHeadWeights(head);
-      const warnings = getValidationWarnings(head);
+      const weights = getHeadWeights(head, adapter);
+      const warnings = getValidationWarnings(head, adapter);
 
       // Invalid elements should still be counted
       assert.ok(weights.length >= 3, 'Should count invalid elements');
@@ -136,8 +140,8 @@ describe('Browser Integration Tests', () => {
         <script defer src="app.js"></script>
       `);
 
-      const weights = getHeadWeights(head);
-      const warnings = getValidationWarnings(head);
+      const weights = getHeadWeights(head, adapter);
+      const warnings = getValidationWarnings(head, adapter);
 
       assert.ok(weights.length > 0, 'Should analyze all elements');
       
@@ -163,8 +167,8 @@ describe('Browser Integration Tests', () => {
         <script async src="analytics.js"></script>
       `);
 
-      const weights = getHeadWeights(head);
-      const warnings = getValidationWarnings(head);
+      const weights = getHeadWeights(head, adapter);
+      const warnings = getValidationWarnings(head, adapter);
 
       // Should have all elements
       assert.ok(weights.length >= 10, 'Should detect all meta tags and links');
@@ -192,8 +196,8 @@ describe('Browser Integration Tests', () => {
         <script src="cart.js"></script>
       `);
 
-      const weights = getHeadWeights(head);
-      const warnings = getValidationWarnings(head);
+      const weights = getHeadWeights(head, adapter);
+      const warnings = getValidationWarnings(head, adapter);
 
       assert.ok(weights.length >= 11, 'Should detect all elements');
 
@@ -218,7 +222,7 @@ describe('Browser Integration Tests', () => {
         <script src="sync.js"></script>
       `);
 
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
 
       // Count how many ordering violations (where weight goes up instead of down)
       let violations = 0;
@@ -245,7 +249,7 @@ describe('Browser Integration Tests', () => {
         <meta charset="utf-8">
       `);
 
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
 
       // Find out-of-order elements
       let hasOrderingIssue = false;
@@ -269,7 +273,7 @@ describe('Browser Integration Tests', () => {
       `);
 
       // Should still process elements despite malformed HTML
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
       assert.ok(weights.length > 0, 'Should process malformed HTML');
     });
 
@@ -280,7 +284,7 @@ describe('Browser Integration Tests', () => {
         <script src="app.js" data-version="1.0" nonce="abc123"></script>
       `);
 
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
       assert.strictEqual(weights.length, 3, 'Should handle custom attributes');
     });
 
@@ -291,7 +295,7 @@ describe('Browser Integration Tests', () => {
         <SCRIPT src="app.js"></SCRIPT>
       `);
 
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
       assert.strictEqual(weights.length, 3, 'Should handle mixed case');
     });
 
@@ -302,7 +306,7 @@ describe('Browser Integration Tests', () => {
         <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==">
       `);
 
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
       assert.ok(weights.length >= 3, 'Should handle data URIs');
     });
 
@@ -314,7 +318,7 @@ describe('Browser Integration Tests', () => {
         <link rel="stylesheet" href="">
       `);
 
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
       assert.ok(weights.length >= 4, 'Should handle empty attributes');
     });
   });
@@ -328,8 +332,8 @@ describe('Browser Integration Tests', () => {
         <link rel="stylesheet" href="styles.css">
       `);
 
-      const weights = getHeadWeights(head);
-      const warnings = getValidationWarnings(head);
+      const weights = getHeadWeights(head, adapter);
+      const warnings = getValidationWarnings(head, adapter);
 
       // Should have elements
       assert.ok(weights.length > 0, 'Should have weighted elements');
@@ -351,8 +355,8 @@ describe('Browser Integration Tests', () => {
         <meta charset="iso-8859-1">
       `);
 
-      const weights = getHeadWeights(head);
-      const warnings = getValidationWarnings(head);
+      const weights = getHeadWeights(head, adapter);
+      const warnings = getValidationWarnings(head, adapter);
 
       assert.ok(warnings.length > 0, 'Should have warnings');
 

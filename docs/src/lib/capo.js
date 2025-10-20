@@ -1,6 +1,10 @@
+import {describe as $6tSDZ$describe, it as $6tSDZ$it} from "node:test";
+import $6tSDZ$nodeassertstrict from "node:assert/strict";
+
 function $parcel$export(e, n, v, s) {
   Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
 }
+// Legacy exports for backward compatibility
 const $47602b39438c5a8c$var$Hues = {
     PINK: 320,
     BLUE: 200
@@ -367,64 +371,64 @@ const $ee7e0c73e51ebfda$export$b7417cf4a2235f73 = [
     "origin-trial",
     "x-dns-prefetch-control"
 ];
-function $ee7e0c73e51ebfda$export$daeb0db0c224decd(element) {
+function $ee7e0c73e51ebfda$export$daeb0db0c224decd(element, adapter) {
     const httpEquivSelector = $ee7e0c73e51ebfda$export$b7417cf4a2235f73.map((keyword)=>{
         return `[http-equiv="${keyword}" i]`;
     }).join(", ");
-    return element.matches(`meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
+    return adapter.matches(element, `meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
 }
-function $ee7e0c73e51ebfda$export$e55aad21605f020a(element) {
-    return element.matches("title");
+function $ee7e0c73e51ebfda$export$e55aad21605f020a(element, adapter) {
+    return adapter.matches(element, "title");
 }
-function $ee7e0c73e51ebfda$export$a3316bd0a640eb8b(element) {
-    return element.matches("link[rel=preconnect]");
+function $ee7e0c73e51ebfda$export$a3316bd0a640eb8b(element, adapter) {
+    return adapter.matches(element, "link[rel=preconnect]");
 }
-function $ee7e0c73e51ebfda$export$20e2051ffd813ee3(element) {
-    return element.matches("script[src][async]");
+function $ee7e0c73e51ebfda$export$20e2051ffd813ee3(element, adapter) {
+    return adapter.matches(element, "script[src][async]");
 }
-function $ee7e0c73e51ebfda$export$be443fc6335656f0(element) {
+function $ee7e0c73e51ebfda$export$be443fc6335656f0(element, adapter) {
     const importRe = /@import/;
-    if (element.matches("style")) return importRe.test(element.textContent);
+    if (adapter.matches(element, "style")) return importRe.test(adapter.getTextContent(element));
     /* TODO: Support external stylesheets.
-  if (element.matches('link[rel=stylesheet][href]')) {
-    let response = fetch(element.href);
+  if (adapter.matches(element, 'link[rel=stylesheet][href]')) {
+    let response = fetch(adapter.getAttribute(element, 'href'));
     response = response.text();
     return importRe.test(response);
   } */ return false;
 }
-function $ee7e0c73e51ebfda$export$65983fc0a5543400(element) {
-    return element.matches("script:not([src][defer],[src][type=module],[src][async],[type*=json])");
+function $ee7e0c73e51ebfda$export$65983fc0a5543400(element, adapter) {
+    return adapter.matches(element, "script:not([src][defer],[src][type=module],[src][async],[type*=json])");
 }
-function $ee7e0c73e51ebfda$export$9d6cdbffb13bee21(element) {
-    return element.matches("link[rel=stylesheet],style");
+function $ee7e0c73e51ebfda$export$9d6cdbffb13bee21(element, adapter) {
+    return adapter.matches(element, "link[rel=stylesheet],style");
 }
-function $ee7e0c73e51ebfda$export$226ad5ba23be83f0(element) {
-    return element.matches("link:is([rel=preload], [rel=modulepreload])");
+function $ee7e0c73e51ebfda$export$226ad5ba23be83f0(element, adapter) {
+    return adapter.matches(element, "link:is([rel=preload], [rel=modulepreload])");
 }
-function $ee7e0c73e51ebfda$export$3d269f86e8bd1d24(element) {
-    return element.matches("script[src][defer], script:not([src][async])[src][type=module]");
+function $ee7e0c73e51ebfda$export$3d269f86e8bd1d24(element, adapter) {
+    return adapter.matches(element, "script[src][defer], script:not([src][async])[src][type=module]");
 }
-function $ee7e0c73e51ebfda$export$4d2ed086e1fec499(element) {
-    return element.matches("link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])");
+function $ee7e0c73e51ebfda$export$4d2ed086e1fec499(element, adapter) {
+    return adapter.matches(element, "link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])");
 }
-function $ee7e0c73e51ebfda$export$38a04d482ec50f88(element) {
-    return element.matches('meta[http-equiv="origin-trial"i]');
+function $ee7e0c73e51ebfda$export$38a04d482ec50f88(element, adapter) {
+    return adapter.matches(element, 'meta[http-equiv="origin-trial"i]');
 }
-function $ee7e0c73e51ebfda$export$14b1a2f64a600585(element) {
-    return element.matches('meta[http-equiv="Content-Security-Policy" i], meta[http-equiv="Content-Security-Policy-Report-Only" i]');
+function $ee7e0c73e51ebfda$export$14b1a2f64a600585(element, adapter) {
+    return adapter.matches(element, 'meta[http-equiv="Content-Security-Policy" i], meta[http-equiv="Content-Security-Policy-Report-Only" i]');
 }
-function $ee7e0c73e51ebfda$export$de32fe5d64aee40c(element) {
+function $ee7e0c73e51ebfda$export$de32fe5d64aee40c(element, adapter) {
     for (let [id, detector] of Object.entries($ee7e0c73e51ebfda$export$6ade8bb3620eb74b)){
-        if (detector(element)) return $ee7e0c73e51ebfda$export$881088883fcab450[id];
+        if (detector(element, adapter)) return $ee7e0c73e51ebfda$export$881088883fcab450[id];
     }
     return $ee7e0c73e51ebfda$export$881088883fcab450.OTHER;
 }
-function $ee7e0c73e51ebfda$export$5cc4a311ddbe699c(head) {
-    const headChildren = Array.from(head.children);
+function $ee7e0c73e51ebfda$export$5cc4a311ddbe699c(head, adapter) {
+    const headChildren = adapter.getChildren(head);
     return headChildren.map((element)=>{
         return {
             element: element,
-            weight: $ee7e0c73e51ebfda$export$de32fe5d64aee40c(element)
+            weight: $ee7e0c73e51ebfda$export$de32fe5d64aee40c(element, adapter)
         };
     });
 }
@@ -454,35 +458,35 @@ const $c322f9a5057eaf5c$export$79e124b7caef7aa9 = new Set([
 const $c322f9a5057eaf5c$export$2f975f13375faaa1 = 'meta[http-equiv="content-type" i], meta[charset]';
 const $c322f9a5057eaf5c$export$9739336dee0b3205 = "meta[http-equiv]";
 const $c322f9a5057eaf5c$export$5540ac2a18901364 = 'link:is([rel="preload" i], [rel="modulepreload" i])';
-function $c322f9a5057eaf5c$export$a8257692ac88316c(element) {
-    return $c322f9a5057eaf5c$export$79e124b7caef7aa9.has(element.tagName.toLowerCase());
+function $c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter) {
+    return $c322f9a5057eaf5c$export$79e124b7caef7aa9.has(adapter.getTagName(element).toLowerCase());
 }
-function $c322f9a5057eaf5c$export$eeefd08c3a6f8db7(element) {
+function $c322f9a5057eaf5c$export$eeefd08c3a6f8db7(element, adapter) {
     // Element itself is not valid.
-    if (!$c322f9a5057eaf5c$export$a8257692ac88316c(element)) return true;
+    if (!$c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter)) return true;
     // Children are not valid.
-    if (element.matches(`:has(:not(${Array.from($c322f9a5057eaf5c$export$79e124b7caef7aa9).join(", ")}))`)) return true;
+    if (adapter.matches(element, `:has(:not(${Array.from($c322f9a5057eaf5c$export$79e124b7caef7aa9).join(", ")}))`)) return true;
     // <title> is not the first of its type.
-    if (element.matches("title:is(:nth-of-type(n+2))")) return true;
+    if (adapter.matches(element, "title:is(:nth-of-type(n+2))")) return true;
     // <base> is not the first of its type.
-    if (element.matches("base:has(~ base), base ~ base")) return true;
+    if (adapter.matches(element, "base:has(~ base), base ~ base")) return true;
     // CSP meta tag anywhere.
-    if ((0, $ee7e0c73e51ebfda$export$14b1a2f64a600585)(element)) return true;
+    if ((0, $ee7e0c73e51ebfda$export$14b1a2f64a600585)(element, adapter)) return true;
     // Invalid http-equiv.
-    if ($c322f9a5057eaf5c$var$isInvalidHttpEquiv(element)) return true;
+    if ($c322f9a5057eaf5c$var$isInvalidHttpEquiv(element, adapter)) return true;
     // Invalid meta viewport.
-    if ($c322f9a5057eaf5c$var$isInvalidMetaViewport(element)) return true;
+    if ($c322f9a5057eaf5c$var$isInvalidMetaViewport(element, adapter)) return true;
     // Invalid default-style.
-    if ($c322f9a5057eaf5c$var$isInvalidDefaultStyle(element)) return true;
+    if ($c322f9a5057eaf5c$var$isInvalidDefaultStyle(element, adapter)) return true;
     // Invalid character encoding.
-    if ($c322f9a5057eaf5c$var$isInvalidContentType(element)) return true;
+    if ($c322f9a5057eaf5c$var$isInvalidContentType(element, adapter)) return true;
     // Origin trial expired, or invalid origin.
-    if ($c322f9a5057eaf5c$var$isInvalidOriginTrial(element)) return true;
+    if ($c322f9a5057eaf5c$var$isInvalidOriginTrial(element, adapter)) return true;
     // Preload is unnecessary.
-    if ($c322f9a5057eaf5c$var$isUnnecessaryPreload(element)) return true;
+    if ($c322f9a5057eaf5c$var$isUnnecessaryPreload(element, adapter)) return true;
     return false;
 }
-function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head) {
+function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head, adapter) {
     const validationWarnings = [];
     const titleElements = Array.from(head.querySelectorAll("title"));
     const titleElementCount = titleElements.length;
@@ -506,7 +510,7 @@ function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head) {
         element: metaCSP
     });
     head.querySelectorAll("*").forEach((element)=>{
-        if ($c322f9a5057eaf5c$export$a8257692ac88316c(element)) return;
+        if ($c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter)) return;
         let root = element;
         while(root.parentElement != head)root = root.parentElement;
         validationWarnings.push({
@@ -516,7 +520,7 @@ function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head) {
     });
     const originTrials = Array.from(head.querySelectorAll('meta[http-equiv="Origin-Trial" i]'));
     originTrials.forEach((element)=>{
-        const metadata = $c322f9a5057eaf5c$var$validateOriginTrial(element);
+        const metadata = $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter);
         if (metadata.warnings.length == 0) return;
         validationWarnings.push({
             warning: `Invalid origin trial token: ${metadata.warnings.join(", ")}`,
@@ -528,26 +532,26 @@ function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head) {
     });
     return validationWarnings;
 }
-function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element) {
-    if ((0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element)) return $c322f9a5057eaf5c$var$validateOriginTrial(element);
-    if ((0, $ee7e0c73e51ebfda$export$14b1a2f64a600585)(element)) return $c322f9a5057eaf5c$var$validateCSP(element);
-    if ($c322f9a5057eaf5c$var$isDefaultStyle(element)) return $c322f9a5057eaf5c$var$validateDefaultStyle(element);
-    if ($c322f9a5057eaf5c$var$isMetaViewport(element)) return $c322f9a5057eaf5c$var$validateMetaViewport(element);
-    if ($c322f9a5057eaf5c$var$isContentType(element)) return $c322f9a5057eaf5c$var$validateContentType(element);
-    if ($c322f9a5057eaf5c$var$isHttpEquiv(element)) return $c322f9a5057eaf5c$var$validateHttpEquiv(element);
-    if ($c322f9a5057eaf5c$var$isUnnecessaryPreload(element)) return $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element);
+function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element, adapter) {
+    if ((0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element, adapter)) return $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter);
+    if ((0, $ee7e0c73e51ebfda$export$14b1a2f64a600585)(element, adapter)) return $c322f9a5057eaf5c$var$validateCSP(element, adapter);
+    if ($c322f9a5057eaf5c$var$isDefaultStyle(element, adapter)) return $c322f9a5057eaf5c$var$validateDefaultStyle(element, adapter);
+    if ($c322f9a5057eaf5c$var$isMetaViewport(element, adapter)) return $c322f9a5057eaf5c$var$validateMetaViewport(element, adapter);
+    if ($c322f9a5057eaf5c$var$isContentType(element, adapter)) return $c322f9a5057eaf5c$var$validateContentType(element, adapter);
+    if ($c322f9a5057eaf5c$var$isHttpEquiv(element, adapter)) return $c322f9a5057eaf5c$var$validateHttpEquiv(element, adapter);
+    if ($c322f9a5057eaf5c$var$isUnnecessaryPreload(element, adapter)) return $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element, adapter);
     return {};
 }
-function $c322f9a5057eaf5c$var$validateCSP(element) {
+function $c322f9a5057eaf5c$var$validateCSP(element, adapter) {
     const warnings = [];
     let payload = null;
-    if (element.matches('meta[http-equiv="Content-Security-Policy-Report-Only" i]')) {
+    if (adapter.matches(element, 'meta[http-equiv="Content-Security-Policy-Report-Only" i]')) {
         //https://w3c.github.io/webappsec-csp/#meta-element
         warnings.push("CSP Report-Only is forbidden in meta tags");
         return warnings;
     }
-    if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
-    const content = element.getAttribute("content");
+    if (adapter.matches(element, 'meta[http-equiv="Content-Security-Policy" i]')) warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
+    const content = adapter.getAttribute(element, "content");
     if (!content) {
         warnings.push("Invalid CSP. The content attribute must be set.");
         return {
@@ -572,17 +576,17 @@ function $c322f9a5057eaf5c$var$validateCSP(element) {
         payload: payload
     };
 }
-function $c322f9a5057eaf5c$var$isInvalidOriginTrial(element) {
-    if (!(0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element)) return false;
-    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateOriginTrial(element);
+function $c322f9a5057eaf5c$var$isInvalidOriginTrial(element, adapter) {
+    if (!(0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element, adapter)) return false;
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter);
     return warnings.length > 0;
 }
-function $c322f9a5057eaf5c$var$validateOriginTrial(element) {
+function $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter) {
     const metadata = {
         payload: null,
         warnings: []
     };
-    const token = element.getAttribute("content");
+    const token = adapter.getAttribute(element, "content");
     try {
         metadata.payload = $c322f9a5057eaf5c$var$decodeOriginTrialToken(token);
     } catch  {
@@ -621,41 +625,41 @@ function $c322f9a5057eaf5c$var$isSubdomain(a, b) {
     b = new URL(b);
     return b.host.endsWith(`.${a.host}`);
 }
-function $c322f9a5057eaf5c$var$isDefaultStyle(element) {
-    return element.matches('meta[http-equiv="default-style" i]');
+function $c322f9a5057eaf5c$var$isDefaultStyle(element, adapter) {
+    return adapter.matches(element, 'meta[http-equiv="default-style" i]');
 }
-function $c322f9a5057eaf5c$var$isContentType(element) {
-    return element.matches($c322f9a5057eaf5c$export$2f975f13375faaa1);
+function $c322f9a5057eaf5c$var$isContentType(element, adapter) {
+    return adapter.matches(element, $c322f9a5057eaf5c$export$2f975f13375faaa1);
 }
-function $c322f9a5057eaf5c$var$isHttpEquiv(element) {
-    return element.matches($c322f9a5057eaf5c$export$9739336dee0b3205);
+function $c322f9a5057eaf5c$var$isHttpEquiv(element, adapter) {
+    return adapter.matches(element, $c322f9a5057eaf5c$export$9739336dee0b3205);
 }
-function $c322f9a5057eaf5c$var$isMetaViewport(element) {
-    return element.matches('meta[name="viewport" i]');
+function $c322f9a5057eaf5c$var$isMetaViewport(element, adapter) {
+    return adapter.matches(element, 'meta[name="viewport" i]');
 }
-function $c322f9a5057eaf5c$var$isInvalidDefaultStyle(element) {
-    if (!$c322f9a5057eaf5c$var$isDefaultStyle(element)) return false;
-    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateDefaultStyle(element);
+function $c322f9a5057eaf5c$var$isInvalidDefaultStyle(element, adapter) {
+    if (!$c322f9a5057eaf5c$var$isDefaultStyle(element, adapter)) return false;
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateDefaultStyle(element, adapter);
     return warnings.length > 0;
 }
-function $c322f9a5057eaf5c$var$isInvalidContentType(element) {
-    if (!$c322f9a5057eaf5c$var$isContentType(element)) return false;
-    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateContentType(element);
+function $c322f9a5057eaf5c$var$isInvalidContentType(element, adapter) {
+    if (!$c322f9a5057eaf5c$var$isContentType(element, adapter)) return false;
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateContentType(element, adapter);
     return warnings.length > 0;
 }
-function $c322f9a5057eaf5c$var$isInvalidHttpEquiv(element) {
-    if (!$c322f9a5057eaf5c$var$isHttpEquiv(element)) return false;
-    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateHttpEquiv(element);
+function $c322f9a5057eaf5c$var$isInvalidHttpEquiv(element, adapter) {
+    if (!$c322f9a5057eaf5c$var$isHttpEquiv(element, adapter)) return false;
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateHttpEquiv(element, adapter);
     return warnings.length > 0;
 }
-function $c322f9a5057eaf5c$var$isInvalidMetaViewport(element) {
-    if (!$c322f9a5057eaf5c$var$isMetaViewport(element)) return false;
-    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateMetaViewport(element);
+function $c322f9a5057eaf5c$var$isInvalidMetaViewport(element, adapter) {
+    if (!$c322f9a5057eaf5c$var$isMetaViewport(element, adapter)) return false;
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateMetaViewport(element, adapter);
     return warnings.length > 0;
 }
-function $c322f9a5057eaf5c$var$isUnnecessaryPreload(element) {
-    if (!element.matches($c322f9a5057eaf5c$export$5540ac2a18901364)) return false;
-    const href = element.getAttribute("href");
+function $c322f9a5057eaf5c$var$isUnnecessaryPreload(element, adapter) {
+    if (!adapter.matches(element, $c322f9a5057eaf5c$export$5540ac2a18901364)) return false;
+    const href = adapter.getAttribute(element, "href");
     if (!href) return false;
     const preloadedUrl = $c322f9a5057eaf5c$var$absolutifyUrl(href);
     return $c322f9a5057eaf5c$var$findElementWithSource(element.parentElement, preloadedUrl) != null;
@@ -671,11 +675,11 @@ function $c322f9a5057eaf5c$var$findElementWithSource(root, sourceUrl) {
 function $c322f9a5057eaf5c$var$absolutifyUrl(href) {
     return new URL(href, document.baseURI).href;
 }
-function $c322f9a5057eaf5c$var$validateDefaultStyle(element) {
+function $c322f9a5057eaf5c$var$validateDefaultStyle(element, adapter) {
     const warnings = [];
     let payload = null;
     // Check if the value points to an alternate stylesheet with that title
-    const title = element.getAttribute("content");
+    const title = adapter.getAttribute(element, "content");
     const stylesheet = element.parentElement.querySelector(`link[rel~="alternate" i][rel~="stylesheet" i][title="${title}"]`);
     if (!title) warnings.push("This has no effect. The content attribute must be set to a valid stylesheet title.");
     else if (!stylesheet) {
@@ -690,12 +694,12 @@ function $c322f9a5057eaf5c$var$validateDefaultStyle(element) {
         payload: payload
     };
 }
-function $c322f9a5057eaf5c$var$validateContentType(element) {
+function $c322f9a5057eaf5c$var$validateContentType(element, adapter) {
     const warnings = [];
     let payload = null;
     // https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration
     // Check if there exists both meta[http-equiv] and meta[chartset] variations
-    if (element.matches(':is(meta[charset] ~ meta[http-equiv="content-type" i])') || element.matches(":has(~ meta[charset])")) {
+    if (adapter.matches(element, ':is(meta[charset] ~ meta[http-equiv="content-type" i])') || adapter.matches(element, ":has(~ meta[charset])")) {
         const encodingDeclaration = element.parentElement.querySelector("meta[charset]");
         payload = payload ?? {};
         payload.encodingDeclaration = encodingDeclaration;
@@ -710,10 +714,10 @@ function $c322f9a5057eaf5c$var$validateContentType(element) {
     }
     // Check that the character encoding is UTF-8
     let charset = null;
-    if (element.matches("meta[charset]")) charset = element.getAttribute("charset");
+    if (adapter.matches(element, "meta[charset]")) charset = adapter.getAttribute(element, "charset");
     else {
         const charsetPattern = /text\/html;\s*charset=(.*)/i;
-        charset = element.getAttribute("content")?.match(charsetPattern)?.[1]?.trim();
+        charset = adapter.getAttribute(element, "content")?.match(charsetPattern)?.[1]?.trim();
     }
     if (charset?.toLowerCase() != "utf-8") {
         payload = payload ?? {};
@@ -727,10 +731,10 @@ function $c322f9a5057eaf5c$var$validateContentType(element) {
         payload: payload
     };
 }
-function $c322f9a5057eaf5c$var$validateHttpEquiv(element) {
+function $c322f9a5057eaf5c$var$validateHttpEquiv(element, adapter) {
     const warnings = [];
-    const type = element.getAttribute("http-equiv").toLowerCase();
-    const content = element.getAttribute("content")?.toLowerCase();
+    const type = adapter.getAttribute(element, "http-equiv").toLowerCase();
+    const content = adapter.getAttribute(element, "content")?.toLowerCase();
     switch(type){
         case "content-security-policy":
         case "content-security-policy-report-only":
@@ -814,11 +818,11 @@ function $c322f9a5057eaf5c$var$validateHttpEquiv(element) {
         warnings: warnings
     };
 }
-function $c322f9a5057eaf5c$var$validateMetaViewport(element) {
+function $c322f9a5057eaf5c$var$validateMetaViewport(element, adapter) {
     const warnings = [];
     let payload = null;
     // Redundant meta viewport validation.
-    if (element.matches('meta[name="viewport" i] ~ meta[name="viewport" i]')) {
+    if (adapter.matches(element, 'meta[name="viewport" i] ~ meta[name="viewport" i]')) {
         const firstMetaViewport = element.parentElement.querySelector('meta[name="viewport" i]');
         payload = {
             firstMetaViewport: firstMetaViewport
@@ -830,7 +834,7 @@ function $c322f9a5057eaf5c$var$validateMetaViewport(element) {
         };
     }
     // Additional validation performed only on the first meta viewport.
-    const content = element.getAttribute("content")?.toLowerCase();
+    const content = adapter.getAttribute(element, "content")?.toLowerCase();
     if (!content) {
         warnings.push("Invalid viewport. The content attribute must be set.");
         return {
@@ -926,8 +930,8 @@ function $c322f9a5057eaf5c$var$validateMetaViewport(element) {
         payload: payload
     };
 }
-function $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element) {
-    const href = element.getAttribute("href");
+function $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element, adapter) {
+    const href = adapter.getAttribute(element, "href");
     const preloadedUrl = $c322f9a5057eaf5c$var$absolutifyUrl(href);
     const preloadedElement = $c322f9a5057eaf5c$var$findElementWithSource(element.parentElement, preloadedUrl);
     if (!preloadedElement) throw new Error("Expected an invalid preload, but none found.");
@@ -939,20 +943,973 @@ function $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element) {
 }
 
 
+/**
+ * Capo.js v2.0 - DOM-agnostic HTML <head> analyzer
+ * 
+ * Main entry point for programmatic usage.
+ * Exports both the core analyzer API and adapter implementations.
+ * 
+ * @module capo
+ */ // Core Analysis API
+/**
+ * Core DOM-agnostic analyzer for capo.js
+ * Provides single-pass analysis of HTML <head> elements
+ * 
+ * @module core/analyzer
+ */ 
+
+function $3a27d49fa01d98e6$export$66aa292af6e88fd9(headNode, adapter, options = {}) {
+    const { includeValidation: includeValidation = true, includeCustomValidations: includeCustomValidations = true } = options;
+    // Pass 1: Compute weights for all elements
+    const weights = $ee7e0c73e51ebfda$export$5cc4a311ddbe699c(headNode, adapter);
+    // Pass 2: Get document-level validation warnings
+    const validationWarnings = includeValidation ? (0, $c322f9a5057eaf5c$export$b01ab94d0cd042a0)(headNode, adapter) : [];
+    // Pass 3: Get element-level custom validations
+    const customValidations = includeCustomValidations ? $3a27d49fa01d98e6$var$getElementValidations(headNode, adapter) : [];
+    return {
+        weights: weights,
+        validationWarnings: validationWarnings,
+        customValidations: customValidations,
+        headElement: headNode
+    };
+}
+/**
+ * Get custom validations for all elements in head
+ * 
+ * @param {any} headNode - The <head> element
+ * @param {Object} adapter - HTMLAdapter implementation
+ * @returns {Array<CustomValidation>}
+ * @private
+ */ function $3a27d49fa01d98e6$var$getElementValidations(headNode, adapter) {
+    const customValidations = [];
+    const children = adapter.getChildren(headNode);
+    for (const element of children){
+        const validation = (0, $c322f9a5057eaf5c$export$6c93e2175c028eeb)(element, adapter);
+        if (validation && validation.warnings && validation.warnings.length > 0) customValidations.push({
+            element: element,
+            warnings: validation.warnings
+        });
+    }
+    return customValidations;
+}
+function $3a27d49fa01d98e6$export$a824357f4ceaf2cf(weight) {
+    // Find the category that matches this weight
+    for (const [category, value] of Object.entries($ee7e0c73e51ebfda$export$881088883fcab450)){
+        if (value === weight) return category;
+    }
+    return "UNKNOWN";
+}
+function $3a27d49fa01d98e6$export$9d3d5cf01843f4a8(weights) {
+    const violations = [];
+    for(let i = 0; i < weights.length - 1; i++){
+        const current = weights[i];
+        const next = weights[i + 1];
+        if (current.weight < next.weight) {
+            const currentCategory = $3a27d49fa01d98e6$export$a824357f4ceaf2cf(current.weight);
+            const nextCategory = $3a27d49fa01d98e6$export$a824357f4ceaf2cf(next.weight);
+            violations.push({
+                index: i + 1,
+                currentElement: current.element,
+                nextElement: next.element,
+                currentWeight: current.weight,
+                nextWeight: next.weight,
+                currentCategory: currentCategory,
+                nextCategory: nextCategory,
+                message: `${nextCategory} element should come before ${currentCategory} element`
+            });
+        }
+    }
+    return violations;
+}
+function $3a27d49fa01d98e6$export$283ccd6e4ed2051d(headNode, adapter, options = {}) {
+    const result = $3a27d49fa01d98e6$export$66aa292af6e88fd9(headNode, adapter, options);
+    const orderingViolations = $3a27d49fa01d98e6$export$9d3d5cf01843f4a8(result.weights);
+    return {
+        ...result,
+        orderingViolations: orderingViolations
+    };
+}
+
+
+
+
+/**
+ * @file Browser DOM adapter
+ * 
+ * Wraps native DOM Element APIs to implement the HTMLAdapter interface.
+ * This adapter is used in browser environments where capo.js operates
+ * on actual DOM elements.
+ */ /**
+ * Browser DOM adapter
+ * 
+ * Wraps native DOM Element APIs for use with capo.js core logic.
+ * 
+ * @implements {HTMLAdapter}
+ * @example
+ * import { BrowserAdapter } from './adapters/browser.js';
+ * import { analyzeHead } from './core/analyzer.js';
+ * 
+ * const adapter = new BrowserAdapter();
+ * const head = document.querySelector('head');
+ * const result = analyzeHead(head, adapter);
+ */ class $6e48536853157d9f$export$e467cc3399500025 {
+    /**
+   * Check if node is an Element (not text, comment, etc.)
+   * @param {any} node - The node to check
+   * @returns {boolean}
+   */ isElement(node) {
+        if (!node) return false;
+        // Node.ELEMENT_NODE === 1
+        return node.nodeType === 1;
+    }
+    /**
+   * Get the tag name of an element (lowercase)
+   * @param {any} node - Element node
+   * @returns {string} - Tag name like 'meta', 'link', 'script'
+   */ getTagName(node) {
+        if (!node || !node.tagName) return "";
+        return node.tagName.toLowerCase();
+    }
+    /**
+   * Get attribute value from element
+   * @param {any} node - Element node
+   * @param {string} attrName - Attribute name (case-insensitive)
+   * @returns {string | null} - Attribute value or null if not found
+   */ getAttribute(node, attrName) {
+        if (!node || typeof node.getAttribute !== "function") return null;
+        return node.getAttribute(attrName);
+    }
+    /**
+   * Check if element has a specific attribute
+   * @param {any} node - Element node
+   * @param {string} attrName - Attribute name (case-insensitive)
+   * @returns {boolean} - True if attribute exists
+   */ hasAttribute(node, attrName) {
+        if (!node || typeof node.hasAttribute !== "function") return false;
+        return node.hasAttribute(attrName);
+    }
+    /**
+   * Get all attribute names for an element
+   * @param {any} node - Element node
+   * @returns {string[]} - Array of attribute names
+   */ getAttributeNames(node) {
+        if (!node || typeof node.getAttributeNames !== "function") return [];
+        return node.getAttributeNames();
+    }
+    /**
+   * Get text content of a node (for inline scripts/styles)
+   * @param {any} node - Element node
+   * @returns {string} - Text content
+   */ getTextContent(node) {
+        if (!node) return "";
+        return node.textContent || "";
+    }
+    /**
+   * Get child elements of a node
+   * @param {any} node - Parent node
+   * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
+   */ getChildren(node) {
+        if (!node || !node.children) return [];
+        return Array.from(node.children);
+    }
+    /**
+   * Check if element matches a simple selector pattern
+   * @param {any} node - Element node
+   * @param {string} selector - Simple selector (tag[attr="value"])
+   * @returns {boolean}
+   */ matches(node, selector) {
+        if (!node || typeof node.matches !== "function") return false;
+        try {
+            return node.matches(selector);
+        } catch (e) {
+            // Invalid selector
+            return false;
+        }
+    }
+    /**
+   * Get source location for a node (optional, for linting)
+   * 
+   * Browser DOM elements don't have source location information,
+   * so this always returns null.
+   * 
+   * @param {any} node - Element node
+   * @returns {null}
+   */ getLocation(node) {
+        // Not available in browser DOM
+        return null;
+    }
+    /**
+   * Stringify element for logging/debugging
+   * @param {any} node - Element node
+   * @returns {string} - String representation like "<meta charset='utf-8'>"
+   */ stringify(node) {
+        if (!node || !node.nodeName) return "[invalid node]";
+        const tagName = this.getTagName(node);
+        const attrNames = this.getAttributeNames(node);
+        if (attrNames.length === 0) return `<${tagName}>`;
+        // Build attribute string
+        const attrs = attrNames.map((attr)=>{
+            const value = this.getAttribute(node, attr);
+            // Escape value for display
+            const escapedValue = value ? value.replace(/"/g, "&quot;") : "";
+            return `${attr}="${escapedValue}"`;
+        }).join(" ");
+        return `<${tagName} ${attrs}>`;
+    }
+}
+
+
+/**
+ * @file HTML ESLint Parser adapter for @html-eslint/parser AST nodes
+ * 
+ * This adapter works with AST nodes from @html-eslint/parser,
+ * which is used by eslint-plugin-capo and other HTML linting tools.
+ */ /**
+ * HTML ESLint Parser adapter for @html-eslint/parser AST nodes
+ * 
+ * Compatible with eslint-plugin-capo's node structure.
+ * 
+ * @implements {HTMLAdapter}
+ * @example
+ * import { HtmlEslintAdapter } from './adapters/html-eslint.js';
+ * import { analyzeHead } from './core/analyzer.js';
+ * 
+ * const adapter = new HtmlEslintAdapter();
+ * const headNode = context.getSourceCode().ast; // ESLint context
+ * const result = analyzeHead(headNode, adapter);
+ */ class $b98fb2b7457a95a0$export$c4babe4201bf7f14 {
+    /**
+   * Check if node is an Element (not text, comment, etc.)
+   * @param {any} node - The node to check
+   * @returns {boolean}
+   */ isElement(node) {
+        if (!node) return false;
+        return node.type === "Tag" || node.type === "ScriptTag" || node.type === "StyleTag";
+    }
+    /**
+   * Get the tag name of an element (lowercase)
+   * @param {any} node - Element node
+   * @returns {string} - Tag name like 'meta', 'link', 'script'
+   */ getTagName(node) {
+        if (!node || !node.name) return "";
+        return node.name.toLowerCase();
+    }
+    /**
+   * Get attribute value from element
+   * @param {any} node - Element node
+   * @param {string} attrName - Attribute name (case-insensitive)
+   * @returns {string | null} - Attribute value or null if not found
+   */ getAttribute(node, attrName) {
+        if (!node || !node.attributes) return null;
+        const normalizedAttrName = attrName.toLowerCase();
+        const attr = node.attributes.find((a)=>{
+            const keyName = a.key?.value;
+            return keyName?.toLowerCase() === normalizedAttrName;
+        });
+        if (!attr || !attr.value) return null;
+        // Handle different value types
+        if (attr.value.type === "AttributeValue") return attr.value.value;
+        // For quoted values
+        if (typeof attr.value.value === "string") return attr.value.value;
+        return null;
+    }
+    /**
+   * Check if element has a specific attribute
+   * @param {any} node - Element node
+   * @param {string} attrName - Attribute name (case-insensitive)
+   * @returns {boolean} - True if attribute exists
+   */ hasAttribute(node, attrName) {
+        if (!node || !node.attributes) return false;
+        const normalizedAttrName = attrName.toLowerCase();
+        return node.attributes.some((a)=>{
+            const keyName = a.key?.value;
+            return keyName?.toLowerCase() === normalizedAttrName;
+        });
+    }
+    /**
+   * Get all attribute names for an element
+   * @param {any} node - Element node
+   * @returns {string[]} - Array of attribute names
+   */ getAttributeNames(node) {
+        if (!node || !node.attributes) return [];
+        return node.attributes.map((a)=>a.key?.value).filter(Boolean);
+    }
+    /**
+   * Get text content of a node (for inline scripts/styles)
+   * @param {any} node - Element node
+   * @returns {string} - Text content
+   */ getTextContent(node) {
+        if (!node || !node.children) return "";
+        return node.children.filter((child)=>child.type === "VText" || child.type === "Text").map((child)=>child.value).join("");
+    }
+    /**
+   * Get child elements of a node
+   * @param {any} node - Parent node
+   * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
+   */ getChildren(node) {
+        if (!node || !node.children) return [];
+        return node.children.filter((child)=>this.isElement(child));
+    }
+    /**
+   * Check if element matches a simple selector pattern
+   * @param {any} node - Element node
+   * @param {string} selector - Simple selector (tag[attr="value"])
+   * @returns {boolean}
+   */ matches(node, selector) {
+        // Implement simple selector matching for common patterns
+        return $b98fb2b7457a95a0$var$matchesSelector(node, selector, this);
+    }
+    /**
+   * Get source location for a node (for linting)
+   * @param {any} node - Element node
+   * @returns {{ line: number, column: number, endLine?: number, endColumn?: number } | null}
+   */ getLocation(node) {
+        if (!node || !node.loc) return null;
+        return {
+            line: node.loc.start.line,
+            column: node.loc.start.column,
+            endLine: node.loc.end?.line,
+            endColumn: node.loc.end?.column
+        };
+    }
+    /**
+   * Stringify element for logging/debugging
+   * @param {any} node - Element node
+   * @returns {string} - String representation like "<meta charset='utf-8'>"
+   */ stringify(node) {
+        if (!node) return "[invalid node]";
+        const tagName = this.getTagName(node);
+        const attrNames = this.getAttributeNames(node);
+        if (attrNames.length === 0) return `<${tagName}>`;
+        const attrs = attrNames.map((name)=>{
+            const value = this.getAttribute(node, name);
+            if (value === null) // Boolean attribute without value (e.g., async)
+            return name;
+            const escapedValue = value.replace(/"/g, '\\"');
+            return `${name}="${escapedValue}"`;
+        }).join(" ");
+        return `<${tagName} ${attrs}>`;
+    }
+}
+/**
+ * Simple selector matcher helper (supports tag[attr="value"] patterns)
+ * 
+ * This is a lightweight implementation for capo's needs.
+ * Supports:
+ * - Wildcard selector: '*'
+ * - Tag selectors: 'meta', 'link', 'script'
+ * - Attribute presence: 'script[src]'
+ * - Attribute value: 'link[rel="stylesheet"]'
+ * - Case-insensitive flag: 'meta[http-equiv="content-type" i]'
+ * 
+ * @param {any} node - The node to test
+ * @param {string} selector - The selector string
+ * @param {HtmlEslintAdapter} adapter - The adapter instance
+ * @returns {boolean}
+ */ function $b98fb2b7457a95a0$var$matchesSelector(node, selector, adapter) {
+    // Handle wildcard selector
+    if (selector === "*") return true;
+    // Reject complex selectors with combinators (not supported)
+    if (selector.includes(">") || selector.includes("+") || selector.includes("~") || /\s/.test(selector.replace(/\s+i\]/g, "").trim())) return false;
+    // Parse simple selector: tag, tag[attr], tag[attr="value"], etc.
+    // Extract tag name
+    const tagMatch = selector.match(/^([a-z*]+)/i);
+    const requiredTag = tagMatch ? tagMatch[1].toLowerCase() : null;
+    if (requiredTag && requiredTag !== "*" && adapter.getTagName(node) !== requiredTag) return false;
+    // Extract attribute requirements [attr="value"]
+    // Supports: [attr], [attr="value"], [attr="value" i]
+    const attrPattern = /\[([a-z-]+)(?:="([^"]*)")?(?:\s+i)?\]/gi;
+    let match;
+    while((match = attrPattern.exec(selector)) !== null){
+        const [fullMatch, attrName, attrValue] = match;
+        const actualValue = adapter.getAttribute(node, attrName);
+        if (attrValue === undefined) {
+            // Just check attribute exists: [src]
+            if (actualValue === null) return false;
+        } else {
+            // Check attribute value: [rel="stylesheet"]
+            const isCaseInsensitive = fullMatch.includes(" i]");
+            const expected = isCaseInsensitive ? attrValue.toLowerCase() : attrValue;
+            const actual = actualValue === null ? null : isCaseInsensitive ? actualValue.toLowerCase() : actualValue;
+            if (actual !== expected) return false;
+        }
+    }
+    return true;
+}
+
+
+/**
+ * @file Adapter Factory
+ * 
+ * Provides a registry-based factory for creating adapters.
+ * Supports both explicit adapter creation by name and auto-detection
+ * from node structure.
+ */ 
+
+/**
+ * @file Base adapter interface for HTML tree operations
+ * 
+ * This file defines the contract that all adapters must implement.
+ * Adapters abstract away environment-specific operations (browser DOM vs AST nodes)
+ * to make capo.js core logic reusable across different contexts.
+ * 
+ * @interface HTMLAdapter
+ */ /**
+ * Base adapter interface (documentation only)
+ * 
+ * Actual adapters should implement all these methods.
+ * This serves as both documentation and a reference implementation.
+ * 
+ * @example
+ * import { BrowserAdapter } from './browser.js';
+ * import { ParserAdapter } from './parser.js';
+ * 
+ * // For browser DOM:
+ * const adapter = new BrowserAdapter();
+ * 
+ * // For ESLint HTML parser AST:
+ * const adapter = new ParserAdapter();
+ */ const $7afc5bf68bcc75e1$export$d1d100ae3c773a95 = {
+    /**
+   * Check if node is an Element (not text, comment, etc.)
+   * @param {any} node - The node to check
+   * @returns {boolean}
+   */ isElement (node) {
+        throw new Error("isElement() not implemented");
+    },
+    /**
+   * Get the tag name of an element (lowercase)
+   * @param {any} node - Element node
+   * @returns {string} - Tag name like 'meta', 'link', 'script'
+   */ getTagName (node) {
+        throw new Error("getTagName() not implemented");
+    },
+    /**
+   * Get attribute value from element
+   * @param {any} node - Element node
+   * @param {string} attrName - Attribute name (case-insensitive)
+   * @returns {string | null} - Attribute value or null if not found
+   */ getAttribute (node, attrName) {
+        throw new Error("getAttribute() not implemented");
+    },
+    /**
+   * Check if element has a specific attribute
+   * @param {any} node - Element node
+   * @param {string} attrName - Attribute name (case-insensitive)
+   * @returns {boolean} - True if attribute exists
+   */ hasAttribute (node, attrName) {
+        throw new Error("hasAttribute() not implemented");
+    },
+    /**
+   * Get all attribute names for an element
+   * @param {any} node - Element node
+   * @returns {string[]} - Array of attribute names
+   */ getAttributeNames (node) {
+        throw new Error("getAttributeNames() not implemented");
+    },
+    /**
+   * Get text content of a node (for inline scripts/styles)
+   * @param {any} node - Element node
+   * @returns {string} - Text content
+   */ getTextContent (node) {
+        throw new Error("getTextContent() not implemented");
+    },
+    /**
+   * Get child elements of a node
+   * @param {any} node - Parent node
+   * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
+   */ getChildren (node) {
+        throw new Error("getChildren() not implemented");
+    },
+    /**
+   * Check if element matches a simple selector pattern
+   * 
+   * NOTE: This is optional and can return false if selector matching
+   * is not available. Most detector functions use getAttribute() instead.
+   * 
+   * @param {any} node - Element node
+   * @param {string} selector - Simple selector (tag[attr="value"])
+   * @returns {boolean}
+   */ matches (node, selector) {
+        throw new Error("matches() not implemented");
+    },
+    /**
+   * Get source location for a node (optional, for linting)
+   * @param {any} node - Element node
+   * @returns {{ line: number, column: number, endLine?: number, endColumn?: number } | null}
+   */ getLocation (node) {
+        throw new Error("getLocation() not implemented");
+    },
+    /**
+   * Stringify element for logging/debugging
+   * @param {any} node - Element node
+   * @returns {string} - String representation like "<meta charset='utf-8'>"
+   */ stringify (node) {
+        throw new Error("stringify() not implemented");
+    }
+};
+function $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b(adapter) {
+    const requiredMethods = [
+        "isElement",
+        "getTagName",
+        "getAttribute",
+        "hasAttribute",
+        "getAttributeNames",
+        "getTextContent",
+        "getChildren",
+        "matches",
+        "getLocation",
+        "stringify"
+    ];
+    for (const method of requiredMethods){
+        if (typeof adapter[method] !== "function") throw new Error(`Adapter missing required method: ${method}()`);
+    }
+}
+
+
+/**
+ * Registry of available adapters
+ * Maps adapter names to their constructor classes
+ */ const $8c7d65d7a3625032$var$registry = new Map([
+    [
+        "browser",
+        (0, $6e48536853157d9f$export$e467cc3399500025)
+    ],
+    [
+        "html-eslint",
+        (0, $b98fb2b7457a95a0$export$c4babe4201bf7f14)
+    ],
+    [
+        "@html-eslint/parser",
+        (0, $b98fb2b7457a95a0$export$c4babe4201bf7f14)
+    ]
+]);
+class $8c7d65d7a3625032$export$4f24674036ad9ae3 {
+    /**
+   * Create an adapter by name or auto-detect from node
+   * 
+   * @param {string|any} nameOrNode - Adapter name string or node to detect from
+   * @returns {BrowserAdapter|HtmlEslintAdapter} Adapter instance
+   * @throws {Error} If adapter name is unknown or node type cannot be detected
+   */ static create(nameOrNode) {
+        // If string name provided, look up in registry
+        if (typeof nameOrNode === "string") return this.createByName(nameOrNode);
+        // Otherwise auto-detect from node structure
+        return this.detect(nameOrNode);
+    }
+    /**
+   * Create an adapter by registered name
+   * 
+   * @param {string} name - Adapter name ('browser', 'html-eslint', etc.)
+   * @returns {BrowserAdapter|HtmlEslintAdapter} Adapter instance
+   * @throws {Error} If adapter name is not registered
+   */ static createByName(name) {
+        const AdapterClass = $8c7d65d7a3625032$var$registry.get(name);
+        if (!AdapterClass) {
+            const available = Array.from($8c7d65d7a3625032$var$registry.keys()).join(", ");
+            throw new Error(`Unknown adapter: "${name}". Available adapters: ${available}`);
+        }
+        const adapter = new AdapterClass();
+        // Validate that adapter implements the interface correctly
+        try {
+            (0, $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b)(adapter);
+        } catch (error) {
+            throw new Error(`Adapter "${name}" failed validation: ${error.message}`);
+        }
+        return adapter;
+    }
+    /**
+   * Auto-detect adapter from node structure
+   * 
+   * Examines the node to determine which adapter should be used.
+   * 
+   * @param {any} node - Node to examine
+   * @returns {BrowserAdapter|HtmlEslintAdapter} Detected adapter
+   * @throws {Error} If node type cannot be detected
+   */ static detect(node) {
+        if (!node) throw new Error("Cannot detect adapter: node is null or undefined");
+        // Browser DOM Element
+        // Check for nodeType property (standard DOM API)
+        if (typeof node.nodeType === "number" && node.nodeType === 1) return new (0, $6e48536853157d9f$export$e467cc3399500025)();
+        // @html-eslint/parser AST node
+        // Check for type property with Tag/ScriptTag/StyleTag values
+        if (node.type === "Tag" || node.type === "ScriptTag" || node.type === "StyleTag") return new (0, $b98fb2b7457a95a0$export$c4babe4201bf7f14)();
+        // Future: JSX AST node detection
+        // if (node.type === 'JSXElement') {
+        //   return new JsxAdapter();
+        // }
+        // Unknown node type
+        const nodeInfo = node.type ? `type="${node.type}"` : `nodeType=${node.nodeType}`;
+        throw new Error(`Cannot detect adapter for node with ${nodeInfo}. ` + "Supported types: Browser DOM Element (nodeType=1), " + '@html-eslint/parser AST (type="Tag"|"ScriptTag"|"StyleTag")');
+    }
+    /**
+   * Register a new adapter
+   * 
+   * Allows external code to register custom adapters for new parser types.
+   * 
+   * @param {string} name - Name to register adapter under
+   * @param {Function} AdapterClass - Adapter constructor class
+   * @throws {Error} If AdapterClass is not a constructor
+   * 
+   * @example
+   * import { JsxAdapter } from './my-jsx-adapter.js';
+   * AdapterFactory.register('jsx', JsxAdapter);
+   * const adapter = AdapterFactory.create('jsx');
+   */ static register(name, AdapterClass) {
+        if (typeof AdapterClass !== "function") throw new Error(`Cannot register adapter "${name}": AdapterClass must be a constructor function`);
+        // Test that the adapter can be instantiated
+        try {
+            const testInstance = new AdapterClass();
+            (0, $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b)(testInstance);
+        } catch (error) {
+            throw new Error(`Cannot register adapter "${name}": ${error.message}`);
+        }
+        $8c7d65d7a3625032$var$registry.set(name, AdapterClass);
+    }
+    /**
+   * List all registered adapter names
+   * 
+   * @returns {string[]} Array of registered adapter names
+   */ static list() {
+        return Array.from($8c7d65d7a3625032$var$registry.keys());
+    }
+    /**
+   * Check if an adapter is registered
+   * 
+   * @param {string} name - Adapter name to check
+   * @returns {boolean} True if adapter is registered
+   */ static has(name) {
+        return $8c7d65d7a3625032$var$registry.has(name);
+    }
+    /**
+   * Unregister an adapter
+   * 
+   * Useful for testing or removing custom adapters.
+   * Cannot remove built-in adapters (browser, html-eslint).
+   * 
+   * @param {string} name - Adapter name to remove
+   * @returns {boolean} True if adapter was removed
+   */ static unregister(name) {
+        // Protect built-in adapters
+        if (name === "browser" || name === "html-eslint" || name === "@html-eslint/parser") throw new Error(`Cannot unregister built-in adapter: "${name}"`);
+        return $8c7d65d7a3625032$var$registry.delete(name);
+    }
+}
+
+
+
+/**
+ * Reusable test suite for adapter validation
+ * 
+ * This module provides a standard test suite that can be used to validate
+ * any custom adapter implementation. Consumers can import this and run it
+ * against their own adapters to ensure compliance with the AdapterInterface.
+ * 
+ * @example
+ * import { describe } from 'node:test';
+ * import { runAdapterTestSuite } from '@rviscomi/capo.js/adapters/test-suite';
+ * import { MyCustomAdapter } from './my-adapter.js';
+ * 
+ * describe('MyCustomAdapter', () => {
+ *   runAdapterTestSuite(MyCustomAdapter, {
+ *     createElement: (html) => {
+ *       // Return a node compatible with your adapter
+ *       return parseHtml(html);
+ *     }
+ *   });
+ * });
+ */ 
+
+function $22c1c8d6cdd1ca82$export$4ec454eef06cdb86(AdapterClass, options) {
+    const { createElement: createElement, supportsLocation: supportsLocation = false } = options;
+    if (!createElement) throw new Error("createElement function is required in test options");
+    let adapter;
+    function setup() {
+        adapter = new AdapterClass();
+    }
+    (0, $6tSDZ$describe)("isElement", ()=>{
+        (0, $6tSDZ$it)("should return true for valid element nodes", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.isElement(el), true, "Should identify valid element");
+        });
+        (0, $6tSDZ$it)("should return false for null", ()=>{
+            setup();
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.isElement(null), false, "Should return false for null");
+        });
+        (0, $6tSDZ$it)("should return false for undefined", ()=>{
+            setup();
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.isElement(undefined), false, "Should return false for undefined");
+        });
+    });
+    (0, $6tSDZ$describe)("getTagName", ()=>{
+        (0, $6tSDZ$it)("should return lowercase tag name for meta", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getTagName(el), "meta");
+        });
+        (0, $6tSDZ$it)("should return lowercase tag name for LINK (uppercase HTML)", ()=>{
+            setup();
+            const el = createElement('<LINK rel="stylesheet" href="styles.css">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getTagName(el), "link");
+        });
+        (0, $6tSDZ$it)("should return lowercase tag name for script", ()=>{
+            setup();
+            const el = createElement('<script src="app.js"></script>');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getTagName(el), "script");
+        });
+        (0, $6tSDZ$it)("should handle null node gracefully", ()=>{
+            setup();
+            const result = adapter.getTagName(null);
+            (0, $6tSDZ$nodeassertstrict).equal(typeof result, "string", "Should return a string");
+        });
+    });
+    (0, $6tSDZ$describe)("getAttribute", ()=>{
+        (0, $6tSDZ$it)("should get attribute value", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getAttribute(el, "charset"), "utf-8");
+        });
+        (0, $6tSDZ$it)("should be case-insensitive for attribute names", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getAttribute(el, "CHARSET"), "utf-8");
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getAttribute(el, "CharSet"), "utf-8");
+        });
+        (0, $6tSDZ$it)("should return null for missing attribute", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getAttribute(el, "name"), null);
+        });
+        (0, $6tSDZ$it)("should handle complex attribute values", ()=>{
+            setup();
+            const el = createElement('<meta http-equiv="Content-Security-Policy">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getAttribute(el, "http-equiv"), "Content-Security-Policy");
+        });
+        (0, $6tSDZ$it)("should handle null node gracefully", ()=>{
+            setup();
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getAttribute(null, "charset"), null);
+        });
+    });
+    (0, $6tSDZ$describe)("hasAttribute", ()=>{
+        (0, $6tSDZ$it)("should return true when attribute exists", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.hasAttribute(el, "charset"), true);
+        });
+        (0, $6tSDZ$it)("should return false when attribute does not exist", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.hasAttribute(el, "name"), false);
+        });
+        (0, $6tSDZ$it)("should be case-insensitive", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.hasAttribute(el, "CHARSET"), true);
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.hasAttribute(el, "CharSet"), true);
+        });
+        (0, $6tSDZ$it)("should handle null node gracefully", ()=>{
+            setup();
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.hasAttribute(null, "charset"), false);
+        });
+    });
+    (0, $6tSDZ$describe)("getAttributeNames", ()=>{
+        (0, $6tSDZ$it)("should return all attribute names", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8" name="viewport">');
+            const names = adapter.getAttributeNames(el);
+            (0, $6tSDZ$nodeassertstrict).ok(Array.isArray(names), "Should return an array");
+            (0, $6tSDZ$nodeassertstrict).ok(names.includes("charset"), "Should include charset");
+            (0, $6tSDZ$nodeassertstrict).ok(names.includes("name"), "Should include name");
+        });
+        (0, $6tSDZ$it)("should return empty array for element with no attributes", ()=>{
+            setup();
+            const el = createElement("<title>Test</title>");
+            const names = adapter.getAttributeNames(el);
+            (0, $6tSDZ$nodeassertstrict).deepEqual(names, []);
+        });
+        (0, $6tSDZ$it)("should handle null node gracefully", ()=>{
+            setup();
+            const names = adapter.getAttributeNames(null);
+            (0, $6tSDZ$nodeassertstrict).ok(Array.isArray(names), "Should return an array");
+            (0, $6tSDZ$nodeassertstrict).equal(names.length, 0, "Should be empty for null");
+        });
+    });
+    (0, $6tSDZ$describe)("getTextContent", ()=>{
+        (0, $6tSDZ$it)("should get text content from title", ()=>{
+            setup();
+            const el = createElement("<title>Hello World</title>");
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getTextContent(el), "Hello World");
+        });
+        (0, $6tSDZ$it)("should get text content from inline script", ()=>{
+            setup();
+            const el = createElement('<script>console.log("test");</script>');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getTextContent(el), 'console.log("test");');
+        });
+        (0, $6tSDZ$it)("should get text content from inline style", ()=>{
+            setup();
+            const el = createElement("<style>body { margin: 0; }</style>");
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getTextContent(el), "body { margin: 0; }");
+        });
+        (0, $6tSDZ$it)("should return empty string for empty element", ()=>{
+            setup();
+            const el = createElement("<title></title>");
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getTextContent(el), "");
+        });
+        (0, $6tSDZ$it)("should handle null node gracefully", ()=>{
+            setup();
+            const result = adapter.getTextContent(null);
+            (0, $6tSDZ$nodeassertstrict).equal(typeof result, "string", "Should return a string");
+        });
+    });
+    (0, $6tSDZ$describe)("getChildren", ()=>{
+        (0, $6tSDZ$it)("should return array of child elements", ()=>{
+            setup();
+            const el = createElement('<noscript><link rel="stylesheet" href="noscript.css"></noscript>');
+            const children = adapter.getChildren(el);
+            (0, $6tSDZ$nodeassertstrict).ok(Array.isArray(children), "Should return an array");
+            (0, $6tSDZ$nodeassertstrict).equal(children.length, 1, "Should have 1 child");
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getTagName(children[0]), "link", "Child should be link element");
+        });
+        (0, $6tSDZ$it)("should return empty array for element with no children", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            const children = adapter.getChildren(el);
+            (0, $6tSDZ$nodeassertstrict).deepEqual(children, []);
+        });
+        (0, $6tSDZ$it)("should handle null node gracefully", ()=>{
+            setup();
+            const children = adapter.getChildren(null);
+            (0, $6tSDZ$nodeassertstrict).ok(Array.isArray(children), "Should return an array");
+            (0, $6tSDZ$nodeassertstrict).equal(children.length, 0, "Should be empty for null");
+        });
+    });
+    (0, $6tSDZ$describe)("matches", ()=>{
+        (0, $6tSDZ$it)("should match simple tag selector", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.matches(el, "meta"), true);
+        });
+        (0, $6tSDZ$it)("should match attribute selector", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.matches(el, "[charset]"), true);
+        });
+        (0, $6tSDZ$it)("should match attribute value selector", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.matches(el, 'meta[charset="utf-8"]'), true);
+        });
+        (0, $6tSDZ$it)("should match complex selector", ()=>{
+            setup();
+            const el = createElement('<link rel="preload" as="font">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.matches(el, 'link[rel="preload"][as="font"]'), true);
+        });
+        (0, $6tSDZ$it)("should return false for non-matching selector", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.matches(el, "link"), false);
+        });
+        (0, $6tSDZ$it)("should handle null node gracefully", ()=>{
+            setup();
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.matches(null, "meta"), false);
+        });
+    });
+    (0, $6tSDZ$describe)("getLocation", ()=>{
+        if (supportsLocation) (0, $6tSDZ$it)("should return location object with line and column", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            const loc = adapter.getLocation(el);
+            (0, $6tSDZ$nodeassertstrict).ok(loc !== null, "Should return location object");
+            (0, $6tSDZ$nodeassertstrict).ok(typeof loc === "object", "Location should be an object");
+            (0, $6tSDZ$nodeassertstrict).ok("line" in loc || "start" in loc, "Should have line or start property");
+        });
+        else (0, $6tSDZ$it)("should return null (location not supported)", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getLocation(el), null);
+        });
+        (0, $6tSDZ$it)("should handle null node gracefully", ()=>{
+            setup();
+            (0, $6tSDZ$nodeassertstrict).equal(adapter.getLocation(null), null);
+        });
+    });
+    (0, $6tSDZ$describe)("stringify", ()=>{
+        (0, $6tSDZ$it)("should stringify element with single attribute", ()=>{
+            setup();
+            const el = createElement('<meta charset="utf-8">');
+            const str = adapter.stringify(el);
+            (0, $6tSDZ$nodeassertstrict).ok(str.includes("meta"), "Should include tag name");
+            (0, $6tSDZ$nodeassertstrict).ok(str.includes("charset"), "Should include attribute name");
+            (0, $6tSDZ$nodeassertstrict).ok(str.includes("utf-8"), "Should include attribute value");
+        });
+        (0, $6tSDZ$it)("should stringify element with multiple attributes", ()=>{
+            setup();
+            const el = createElement('<link rel="stylesheet" href="styles.css">');
+            const str = adapter.stringify(el);
+            (0, $6tSDZ$nodeassertstrict).ok(str.includes("link"), "Should include tag name");
+            (0, $6tSDZ$nodeassertstrict).ok(str.includes("rel"), "Should include rel attribute");
+            (0, $6tSDZ$nodeassertstrict).ok(str.includes("href"), "Should include href attribute");
+        });
+        (0, $6tSDZ$it)("should stringify element with no attributes", ()=>{
+            setup();
+            const el = createElement("<title>Test</title>");
+            const str = adapter.stringify(el);
+            (0, $6tSDZ$nodeassertstrict).ok(str.includes("title"), "Should include tag name");
+        });
+        (0, $6tSDZ$it)("should handle null node gracefully", ()=>{
+            setup();
+            const str = adapter.stringify(null);
+            (0, $6tSDZ$nodeassertstrict).equal(typeof str, "string", "Should return a string");
+        });
+    });
+}
+function $22c1c8d6cdd1ca82$export$bd2cc5cc82925264(AdapterClass) {
+    (0, $6tSDZ$describe)("Adapter Compliance", ()=>{
+        (0, $6tSDZ$it)("should implement all required methods", ()=>{
+            const adapter = new AdapterClass();
+            const requiredMethods = [
+                "isElement",
+                "getTagName",
+                "getAttribute",
+                "hasAttribute",
+                "getAttributeNames",
+                "getTextContent",
+                "getChildren",
+                "matches",
+                "getLocation",
+                "stringify"
+            ];
+            for (const method of requiredMethods)(0, $6tSDZ$nodeassertstrict).equal(typeof adapter[method], "function", `Adapter must implement ${method}() method`);
+        });
+        (0, $6tSDZ$it)("should be instantiable without errors", ()=>{
+            (0, $6tSDZ$nodeassertstrict).doesNotThrow(()=>{
+                new AdapterClass();
+            });
+        });
+    });
+}
+
+
+
+
+
 
 
 function $b9ac488c89f25519$export$8679af897d1c058e(io, validation) {
-    const validationWarnings = validation.getValidationWarnings(io.getHead());
+    const adapter = new (0, $6e48536853157d9f$export$e467cc3399500025)();
+    const validationWarnings = validation.getValidationWarnings(io.getHead(), adapter);
     io.logValidationWarnings(validationWarnings);
 }
 function $b9ac488c89f25519$export$b65597cffe09aebc(io, validation, rules) {
+    const adapter = new (0, $6e48536853157d9f$export$e467cc3399500025)();
     const headElement = io.getHead();
-    const headWeights = rules.getHeadWeights(headElement).map(({ element: element, weight: weight })=>{
+    const headWeights = rules.getHeadWeights(headElement, adapter).map(({ element: element, weight: weight })=>{
         return {
             weight: weight,
             element: io.getLoggableElement(element),
-            isValid: !validation.hasValidationWarning(element),
-            customValidations: validation.getCustomValidations(element)
+            isValid: !validation.hasValidationWarning(element, adapter),
+            customValidations: validation.getCustomValidations(element, adapter)
         };
     });
     io.visualizeHead("Actual", headElement, headWeights);

@@ -1,0 +1,68 @@
+/**
+ * Capo.js v2.0 - DOM-agnostic HTML <head> analyzer
+ * 
+ * Main entry point for programmatic usage.
+ * Exports both the core analyzer API and adapter implementations.
+ * 
+ * @module capo
+ */
+
+// Core Analysis API
+export {
+  analyzeHead,
+  analyzeHeadWithOrdering,
+  checkOrdering,
+  getWeightCategory
+} from './core/analyzer.js';
+
+// Rules API
+export {
+  ElementWeights,
+  getWeight,
+  getHeadWeights,
+  isMeta,
+  isTitle,
+  isPreconnect,
+  isAsyncScript,
+  isImportStyles,
+  isSyncScript,
+  isSyncStyles,
+  isPreload,
+  isDeferScript,
+  isPrefetchPrerender,
+  isOriginTrial,
+  isMetaCSP
+} from './lib/rules.js';
+
+// Validation API
+export {
+  VALID_HEAD_ELEMENTS,
+  isValidElement,
+  hasValidationWarning,
+  getValidationWarnings,
+  getCustomValidations
+} from './lib/validation.js';
+
+// Adapters
+export {
+  BrowserAdapter
+} from './adapters/browser.js';
+
+export {
+  HtmlEslintAdapter
+} from './adapters/html-eslint.js';
+
+export {
+  AdapterFactory
+} from './adapters/factory.js';
+
+export {
+  AdapterInterface,
+  validateAdapter
+} from './adapters/adapter.js';
+
+// Test utilities for custom adapters
+export {
+  runAdapterTestSuite,
+  testAdapterCompliance
+} from './adapters/test-suite.js';

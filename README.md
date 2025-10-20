@@ -23,6 +23,110 @@ This script helps you identify which elements are out of order.
 
 For applications that add lots of dynamic content to the `<head>` on the client, it'd be more accurate to look at the server-rendered `<head>` instead.
 
+## Programmatic API (v2.0)
+
+You can also use capo.js programmatically to analyze HTML `<head>` elements in Node.js or other JavaScript environments.
+
+### Installation
+
+```bash
+npm install capo.js
+```
+
+### Basic Usage
+
+```javascript
+import { analyzeHead, HtmlEslintAdapter } from 'capo.js';
+
+// Analyze a head element
+const head = /* your head element */;
+const adapter = new HtmlEslintAdapter();
+const result = analyzeHead(head, adapter);
+
+console.log(result.elements);      // Array of head elements with weights
+console.log(result.violations);    // Number of ordering violations
+console.log(result.warnings);      // Validation warnings
+```
+
+### Using Adapters
+
+Capo.js uses adapters to work with different HTML representations:
+
+```javascript
+import { analyzeHead, BrowserAdapter, HtmlEslintAdapter } from 'capo.js';
+
+// For browser DOM (if using in browser context)
+const browserAdapter = new BrowserAdapter();
+const browserResult = analyzeHead(document.head, browserAdapter);
+
+// For @html-eslint (in ESLint plugins)
+const eslintAdapter = new HtmlEslintAdapter();
+const eslintResult = analyzeHead(headNode, eslintAdapter);
+```
+
+### Subpath Exports
+
+Import only what you need for smaller bundle sizes:
+
+```javascript
+// Import just the core analyzer
+import { analyzeHead, checkOrdering } from 'capo.js/core';
+
+// Import just adapters
+import { BrowserAdapter, HtmlEslintAdapter } from 'capo.js/adapters';
+
+// Import specific adapters
+import { BrowserAdapter } from 'capo.js/adapters/browser';
+
+// Import rules API
+import { ElementWeights, getWeight } from 'capo.js/rules';
+
+// Import validation API
+import { isValidElement, getValidationWarnings } from 'capo.js/validation';
+```
+
+### API Reference
+
+#### Core Functions
+
+- `analyzeHead(head, adapter)` - Analyzes a head element and returns detailed results
+- `analyzeHeadWithOrdering(head, adapter)` - Analyzes with ordering violations
+- `checkOrdering(elements)` - Checks for ordering violations in element array
+- `getWeightCategory(weight)` - Gets the category name for a weight value
+
+#### Rules API
+
+- `ElementWeights` - Constant object mapping element types to weight values
+- `getWeight(element, adapter)` - Gets the weight for a specific element
+- `getHeadWeights(head, adapter)` - Gets weights for all elements in head
+
+Plus individual detector functions: `isMeta()`, `isTitle()`, `isPreconnect()`, etc.
+
+#### Validation API
+
+- `VALID_HEAD_ELEMENTS` - Array of valid head element names
+- `isValidElement(element, adapter)` - Checks if an element is valid in head
+- `hasValidationWarning(element, adapter)` - Checks if element has warnings
+- `getValidationWarnings(head, adapter)` - Gets all validation warnings
+- `getCustomValidations(element, adapter)` - Gets custom validation rules
+
+#### Adapters
+
+- `BrowserAdapter` - For working with browser DOM elements
+- `HtmlEslintAdapter` - For working with @html-eslint AST nodes
+- `AdapterFactory` - Factory for creating adapters from strings
+- `AdapterInterface` - Base interface for custom adapters
+- `validateAdapter(adapter)` - Validates an adapter implementation
+
+### Migration from v1.x
+
+See [MIGRATION.md](MIGRATION.md) for detailed migration guide.
+
+**Key changes:**
+- All analysis functions now require an adapter parameter
+- New subpath exports for granular imports
+- Enhanced TypeScript support via JSDoc
+
 ### Chrome extension
 
 ![Capo.js Chrome extension](https://github.com/rviscomi/capo.js/assets/1120896/389bcec0-567d-448f-9897-eee5ca373e6b)

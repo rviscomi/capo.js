@@ -1,16 +1,20 @@
+import { analyzeHead, BrowserAdapter } from '../index.js';
+
 export function validateHead(io, validation) {
-  const validationWarnings = validation.getValidationWarnings(io.getHead());
+  const adapter = new BrowserAdapter();
+  const validationWarnings = validation.getValidationWarnings(io.getHead(), adapter);
   io.logValidationWarnings(validationWarnings);
 }
 
 export function logWeights(io, validation, rules) {
+  const adapter = new BrowserAdapter();
   const headElement = io.getHead();
-  const headWeights = rules.getHeadWeights(headElement).map(({element, weight}) => {
+  const headWeights = rules.getHeadWeights(headElement, adapter).map(({element, weight}) => {
     return {
       weight,
       element: io.getLoggableElement(element),
-      isValid: !validation.hasValidationWarning(element),
-      customValidations: validation.getCustomValidations(element)
+      isValid: !validation.hasValidationWarning(element, adapter),
+      customValidations: validation.getCustomValidations(element, adapter)
     };
   });
   
@@ -26,3 +30,4 @@ export function logWeights(io, validation, rules) {
 
   return headWeights;
 }
+

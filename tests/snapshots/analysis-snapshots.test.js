@@ -18,6 +18,10 @@ import dedent from 'dedent';
 import { createDocument } from '../setup.js';
 import { getHeadWeights } from '../../src/lib/rules.js';
 import { getValidationWarnings } from '../../src/lib/validation.js';
+import { BrowserAdapter } from '../../src/adapters/browser.js';
+
+// Create adapter instance for all tests
+const adapter = new BrowserAdapter();
 
 /**
  * Analyzes a complete HTML document and returns a snapshot
@@ -27,7 +31,7 @@ import { getValidationWarnings } from '../../src/lib/validation.js';
  */
 function analyzeDocument(headHTML) {
   const { head } = createDocument(headHTML);
-  const weights = getHeadWeights(head);
+  const weights = getHeadWeights(head, adapter);
   
   // Skip validation warnings for origin trial tests - they require browser document object
   // Just test the element weights and ordering

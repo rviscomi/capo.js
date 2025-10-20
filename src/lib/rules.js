@@ -36,36 +36,36 @@ export const META_HTTP_EQUIV_KEYWORDS = [
 ];
 
 
-export function isMeta(element) {
+export function isMeta(element, adapter) {
   const httpEquivSelector = META_HTTP_EQUIV_KEYWORDS.map(keyword => {
     return `[http-equiv="${keyword}" i]`;
   }).join(', ');
   
-  return element.matches(`meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
+  return adapter.matches(element, `meta:is([charset], ${httpEquivSelector}, [name=viewport]), base`);
 }
 
-export function isTitle(element) {
-  return element.matches('title');
+export function isTitle(element, adapter) {
+  return adapter.matches(element, 'title');
 }
 
-export function isPreconnect(element) {
-  return element.matches('link[rel=preconnect]');
+export function isPreconnect(element, adapter) {
+  return adapter.matches(element, 'link[rel=preconnect]');
 }
 
-export function isAsyncScript(element) {
-  return element.matches('script[src][async]');
+export function isAsyncScript(element, adapter) {
+  return adapter.matches(element, 'script[src][async]');
 }
 
-export function isImportStyles(element) {
+export function isImportStyles(element, adapter) {
   const importRe = /@import/;
 
-  if (element.matches('style')) {
-    return importRe.test(element.textContent);
+  if (adapter.matches(element, 'style')) {
+    return importRe.test(adapter.getTextContent(element));
   }
 
   /* TODO: Support external stylesheets.
-  if (element.matches('link[rel=stylesheet][href]')) {
-    let response = fetch(element.href);
+  if (adapter.matches(element, 'link[rel=stylesheet][href]')) {
+    let response = fetch(adapter.getAttribute(element, 'href'));
     response = response.text();
     return importRe.test(response);
   } */
@@ -73,37 +73,37 @@ export function isImportStyles(element) {
   return false;
 }
 
-export function isSyncScript(element) {
-  return element.matches('script:not([src][defer],[src][type=module],[src][async],[type*=json])');
+export function isSyncScript(element, adapter) {
+  return adapter.matches(element, 'script:not([src][defer],[src][type=module],[src][async],[type*=json])');
 }
 
-export function isSyncStyles(element) {
-  return element.matches('link[rel=stylesheet],style');
+export function isSyncStyles(element, adapter) {
+  return adapter.matches(element, 'link[rel=stylesheet],style');
 }
 
-export function isPreload(element) {
-  return element.matches('link:is([rel=preload], [rel=modulepreload])');
+export function isPreload(element, adapter) {
+  return adapter.matches(element, 'link:is([rel=preload], [rel=modulepreload])');
 }
 
-export function isDeferScript(element) {
-  return element.matches('script[src][defer], script:not([src][async])[src][type=module]');
+export function isDeferScript(element, adapter) {
+  return adapter.matches(element, 'script[src][defer], script:not([src][async])[src][type=module]');
 }
 
-export function isPrefetchPrerender(element) {
-  return element.matches('link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])');
+export function isPrefetchPrerender(element, adapter) {
+  return adapter.matches(element, 'link:is([rel=prefetch], [rel=dns-prefetch], [rel=prerender])');
 }
 
-export function isOriginTrial(element) {
-  return element.matches('meta[http-equiv="origin-trial"i]');
+export function isOriginTrial(element, adapter) {
+  return adapter.matches(element, 'meta[http-equiv="origin-trial"i]');
 }
 
-export function isMetaCSP(element) {
-  return element.matches('meta[http-equiv="Content-Security-Policy" i], meta[http-equiv="Content-Security-Policy-Report-Only" i]');
+export function isMetaCSP(element, adapter) {
+  return adapter.matches(element, 'meta[http-equiv="Content-Security-Policy" i], meta[http-equiv="Content-Security-Policy-Report-Only" i]');
 }
 
-export function getWeight(element) {
+export function getWeight(element, adapter) {
   for (let [id, detector] of Object.entries(ElementDetectors)) {
-    if (detector(element)) {
+    if (detector(element, adapter)) {
       return ElementWeights[id];
     }
   }
@@ -111,12 +111,12 @@ export function getWeight(element) {
   return ElementWeights.OTHER;
 }
 
-export function getHeadWeights(head) {
-  const headChildren = Array.from(head.children);
+export function getHeadWeights(head, adapter) {
+  const headChildren = adapter.getChildren(head);
   return headChildren.map(element => {
     return {
       element,
-      weight: getWeight(element)
+      weight: getWeight(element, adapter)
     };
   });
 }

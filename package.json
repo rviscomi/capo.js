@@ -1,6 +1,6 @@
 {
   "name": "@rviscomi/capo.js",
-  "version": "1.5.3",
+  "version": "2.0.0",
   "description": "Get your ﹤𝚑𝚎𝚊𝚍﹥ in order",
   "author": "Rick Viscomi",
   "license": "Apache-2.0",
@@ -13,7 +13,17 @@
   },
   "homepage": "https://rviscomi.github.io/capo.js/",
   "type": "module",
-  "main": "src/main.js",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./core": "./src/core/analyzer.js",
+    "./adapters": "./src/adapters/index.js",
+    "./adapters/browser": "./src/adapters/browser.js",
+    "./adapters/html-eslint": "./src/adapters/html-eslint.js",
+    "./adapters/factory": "./src/adapters/factory.js",
+    "./rules": "./src/lib/rules.js",
+    "./validation": "./src/lib/validation.js"
+  },
   "directories": {
     "doc": "docs"
   },

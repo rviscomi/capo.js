@@ -18,7 +18,11 @@ import {
   getWeight,
   getHeadWeights,
 } from '../../src/lib/rules.js';
+import { BrowserAdapter } from '../../src/adapters/browser.js';
 import { createElement, createDocument } from '../setup.js';
+
+// Create adapter instance for all tests
+const adapter = new BrowserAdapter();
 
 describe('rules.js', () => {
   describe('ElementWeights', () => {
@@ -53,281 +57,281 @@ describe('rules.js', () => {
   describe('isMeta', () => {
     it('should detect base elements', () => {
       const element = createElement('<base href="/">');
-      assert.strictEqual(isMeta(element), true);
+      assert.strictEqual(isMeta(element, adapter), true);
     });
 
     it('should detect meta charset', () => {
       const element = createElement('<meta charset="utf-8">');
-      assert.strictEqual(isMeta(element), true);
+      assert.strictEqual(isMeta(element, adapter), true);
     });
 
     it('should detect meta viewport', () => {
       const element = createElement('<meta name="viewport" content="width=device-width">');
-      assert.strictEqual(isMeta(element), true);
+      assert.strictEqual(isMeta(element, adapter), true);
     });
 
     it('should detect high-priority http-equiv values', () => {
       META_HTTP_EQUIV_KEYWORDS.forEach(keyword => {
         const element = createElement(`<meta http-equiv="${keyword}" content="test">`);
-        assert.strictEqual(isMeta(element), true, `Should detect http-equiv="${keyword}"`);
+        assert.strictEqual(isMeta(element, adapter), true, `Should detect http-equiv="${keyword}"`);
       });
     });
 
     it('should NOT detect regular meta tags', () => {
       const element = createElement('<meta name="description" content="test">');
-      assert.strictEqual(isMeta(element), false);
+      assert.strictEqual(isMeta(element, adapter), false);
     });
 
     it('should NOT detect other elements', () => {
       const element = createElement('<title>Test</title>');
-      assert.strictEqual(isMeta(element), false);
+      assert.strictEqual(isMeta(element, adapter), false);
     });
   });
 
   describe('isTitle', () => {
     it('should detect title elements', () => {
       const element = createElement('<title>Test Page</title>');
-      assert.strictEqual(isTitle(element), true);
+      assert.strictEqual(isTitle(element, adapter), true);
     });
 
     it('should NOT detect other elements', () => {
       const element = createElement('<meta charset="utf-8">');
-      assert.strictEqual(isTitle(element), false);
+      assert.strictEqual(isTitle(element, adapter), false);
     });
   });
 
   describe('isPreconnect', () => {
     it('should detect preconnect links', () => {
       const element = createElement('<link rel="preconnect" href="https://fonts.googleapis.com">');
-      assert.strictEqual(isPreconnect(element), true);
+      assert.strictEqual(isPreconnect(element, adapter), true);
     });
 
     it('should NOT detect other link types', () => {
       const element = createElement('<link rel="stylesheet" href="styles.css">');
-      assert.strictEqual(isPreconnect(element), false);
+      assert.strictEqual(isPreconnect(element, adapter), false);
     });
 
     it('should NOT detect other elements', () => {
       const element = createElement('<meta charset="utf-8">');
-      assert.strictEqual(isPreconnect(element), false);
+      assert.strictEqual(isPreconnect(element, adapter), false);
     });
   });
 
   describe('isAsyncScript', () => {
     it('should detect async scripts with src', () => {
       const element = createElement('<script src="analytics.js" async></script>');
-      assert.strictEqual(isAsyncScript(element), true);
+      assert.strictEqual(isAsyncScript(element, adapter), true);
     });
 
     it('should NOT detect sync scripts', () => {
       const element = createElement('<script src="app.js"></script>');
-      assert.strictEqual(isAsyncScript(element), false);
+      assert.strictEqual(isAsyncScript(element, adapter), false);
     });
 
     it('should NOT detect inline async scripts (no src)', () => {
       const element = createElement('<script async>console.log("test")</script>');
-      assert.strictEqual(isAsyncScript(element), false);
+      assert.strictEqual(isAsyncScript(element, adapter), false);
     });
 
     it('should NOT detect defer scripts', () => {
       const element = createElement('<script src="app.js" defer></script>');
-      assert.strictEqual(isAsyncScript(element), false);
+      assert.strictEqual(isAsyncScript(element, adapter), false);
     });
   });
 
   describe('isImportStyles', () => {
     it('should detect style with @import', () => {
       const element = createElement('<style>@import url("fonts.css");</style>');
-      assert.strictEqual(isImportStyles(element), true);
+      assert.strictEqual(isImportStyles(element, adapter), true);
     });
 
     it('should detect style with @import in middle of content', () => {
       const element = createElement('<style>body { margin: 0; } @import url("fonts.css"); p { color: red; }</style>');
-      assert.strictEqual(isImportStyles(element), true);
+      assert.strictEqual(isImportStyles(element, adapter), true);
     });
 
     it('should NOT detect regular styles', () => {
       const element = createElement('<style>body { margin: 0; }</style>');
-      assert.strictEqual(isImportStyles(element), false);
+      assert.strictEqual(isImportStyles(element, adapter), false);
     });
 
     it('should NOT detect empty styles', () => {
       const element = createElement('<style></style>');
-      assert.strictEqual(isImportStyles(element), false);
+      assert.strictEqual(isImportStyles(element, adapter), false);
     });
 
     it('should NOT detect link stylesheets', () => {
       const element = createElement('<link rel="stylesheet" href="styles.css">');
-      assert.strictEqual(isImportStyles(element), false);
+      assert.strictEqual(isImportStyles(element, adapter), false);
     });
   });
 
   describe('isSyncScript', () => {
     it('should detect synchronous script tags', () => {
       const element = createElement('<script src="app.js"></script>');
-      assert.strictEqual(isSyncScript(element), true);
+      assert.strictEqual(isSyncScript(element, adapter), true);
     });
 
     it('should detect inline scripts', () => {
       const element = createElement('<script>console.log("test")</script>');
-      assert.strictEqual(isSyncScript(element), true);
+      assert.strictEqual(isSyncScript(element, adapter), true);
     });
 
     it('should NOT detect async scripts', () => {
       const element = createElement('<script src="app.js" async></script>');
-      assert.strictEqual(isSyncScript(element), false);
+      assert.strictEqual(isSyncScript(element, adapter), false);
     });
 
     it('should NOT detect defer scripts', () => {
       const element = createElement('<script src="app.js" defer></script>');
-      assert.strictEqual(isSyncScript(element), false);
+      assert.strictEqual(isSyncScript(element, adapter), false);
     });
 
     it('should NOT detect module scripts', () => {
       const element = createElement('<script src="app.js" type="module"></script>');
-      assert.strictEqual(isSyncScript(element), false);
+      assert.strictEqual(isSyncScript(element, adapter), false);
     });
 
     it('should NOT detect JSON scripts', () => {
       const element = createElement('<script type="application/json">{"key": "value"}</script>');
-      assert.strictEqual(isSyncScript(element), false);
+      assert.strictEqual(isSyncScript(element, adapter), false);
     });
   });
 
   describe('isSyncStyles', () => {
     it('should detect link stylesheets', () => {
       const element = createElement('<link rel="stylesheet" href="styles.css">');
-      assert.strictEqual(isSyncStyles(element), true);
+      assert.strictEqual(isSyncStyles(element, adapter), true);
     });
 
     it('should detect inline styles', () => {
       const element = createElement('<style>body { margin: 0; }</style>');
-      assert.strictEqual(isSyncStyles(element), true);
+      assert.strictEqual(isSyncStyles(element, adapter), true);
     });
 
     it('should detect styles with @import', () => {
       const element = createElement('<style>@import url("fonts.css");</style>');
-      assert.strictEqual(isSyncStyles(element), true);
+      assert.strictEqual(isSyncStyles(element, adapter), true);
     });
 
     it('should NOT detect preload links', () => {
       const element = createElement('<link rel="preload" href="font.woff2" as="font">');
-      assert.strictEqual(isSyncStyles(element), false);
+      assert.strictEqual(isSyncStyles(element, adapter), false);
     });
   });
 
   describe('isPreload', () => {
     it('should detect preload links', () => {
       const element = createElement('<link rel="preload" href="font.woff2" as="font">');
-      assert.strictEqual(isPreload(element), true);
+      assert.strictEqual(isPreload(element, adapter), true);
     });
 
     it('should detect modulepreload links', () => {
       const element = createElement('<link rel="modulepreload" href="module.js">');
-      assert.strictEqual(isPreload(element), true);
+      assert.strictEqual(isPreload(element, adapter), true);
     });
 
     it('should NOT detect stylesheet links', () => {
       const element = createElement('<link rel="stylesheet" href="styles.css">');
-      assert.strictEqual(isPreload(element), false);
+      assert.strictEqual(isPreload(element, adapter), false);
     });
 
     it('should NOT detect preconnect links', () => {
       const element = createElement('<link rel="preconnect" href="https://fonts.googleapis.com">');
-      assert.strictEqual(isPreload(element), false);
+      assert.strictEqual(isPreload(element, adapter), false);
     });
   });
 
   describe('isDeferScript', () => {
     it('should detect defer scripts', () => {
       const element = createElement('<script src="app.js" defer></script>');
-      assert.strictEqual(isDeferScript(element), true);
+      assert.strictEqual(isDeferScript(element, adapter), true);
     });
 
     it('should detect module scripts (non-async)', () => {
       const element = createElement('<script src="module.js" type="module"></script>');
-      assert.strictEqual(isDeferScript(element), true);
+      assert.strictEqual(isDeferScript(element, adapter), true);
     });
 
     it('should NOT detect async module scripts', () => {
       const element = createElement('<script src="module.js" type="module" async></script>');
-      assert.strictEqual(isDeferScript(element), false);
+      assert.strictEqual(isDeferScript(element, adapter), false);
     });
 
     it('should NOT detect sync scripts', () => {
       const element = createElement('<script src="app.js"></script>');
-      assert.strictEqual(isDeferScript(element), false);
+      assert.strictEqual(isDeferScript(element, adapter), false);
     });
 
     it('should NOT detect inline scripts', () => {
       const element = createElement('<script>console.log("test")</script>');
-      assert.strictEqual(isDeferScript(element), false);
+      assert.strictEqual(isDeferScript(element, adapter), false);
     });
   });
 
   describe('isPrefetchPrerender', () => {
     it('should detect prefetch links', () => {
       const element = createElement('<link rel="prefetch" href="next.html">');
-      assert.strictEqual(isPrefetchPrerender(element), true);
+      assert.strictEqual(isPrefetchPrerender(element, adapter), true);
     });
 
     it('should detect dns-prefetch links', () => {
       const element = createElement('<link rel="dns-prefetch" href="https://api.example.com">');
-      assert.strictEqual(isPrefetchPrerender(element), true);
+      assert.strictEqual(isPrefetchPrerender(element, adapter), true);
     });
 
     it('should detect prerender links', () => {
       const element = createElement('<link rel="prerender" href="next.html">');
-      assert.strictEqual(isPrefetchPrerender(element), true);
+      assert.strictEqual(isPrefetchPrerender(element, adapter), true);
     });
 
     it('should NOT detect preconnect links', () => {
       const element = createElement('<link rel="preconnect" href="https://fonts.googleapis.com">');
-      assert.strictEqual(isPrefetchPrerender(element), false);
+      assert.strictEqual(isPrefetchPrerender(element, adapter), false);
     });
 
     it('should NOT detect preload links', () => {
       const element = createElement('<link rel="preload" href="font.woff2" as="font">');
-      assert.strictEqual(isPrefetchPrerender(element), false);
+      assert.strictEqual(isPrefetchPrerender(element, adapter), false);
     });
   });
 
   describe('isOriginTrial', () => {
     it('should detect origin trial meta tags', () => {
       const element = createElement('<meta http-equiv="origin-trial" content="token">');
-      assert.strictEqual(isOriginTrial(element), true);
+      assert.strictEqual(isOriginTrial(element, adapter), true);
     });
 
     it('should detect origin trial with case variations', () => {
       const element = createElement('<meta http-equiv="Origin-Trial" content="token">');
-      assert.strictEqual(isOriginTrial(element), true);
+      assert.strictEqual(isOriginTrial(element, adapter), true);
     });
 
     it('should NOT detect other http-equiv values', () => {
       const element = createElement('<meta http-equiv="content-type" content="text/html">');
-      assert.strictEqual(isOriginTrial(element), false);
+      assert.strictEqual(isOriginTrial(element, adapter), false);
     });
   });
 
   describe('isMetaCSP', () => {
     it('should detect CSP meta tags', () => {
       const element = createElement('<meta http-equiv="Content-Security-Policy" content="default-src \'self\'">');
-      assert.strictEqual(isMetaCSP(element), true);
+      assert.strictEqual(isMetaCSP(element, adapter), true);
     });
 
     it('should detect CSP report-only meta tags', () => {
       const element = createElement('<meta http-equiv="Content-Security-Policy-Report-Only" content="default-src \'self\'">');
-      assert.strictEqual(isMetaCSP(element), true);
+      assert.strictEqual(isMetaCSP(element, adapter), true);
     });
 
     it('should detect CSP with case variations', () => {
       const element = createElement('<meta http-equiv="content-security-policy" content="default-src \'self\'">');
-      assert.strictEqual(isMetaCSP(element), true);
+      assert.strictEqual(isMetaCSP(element, adapter), true);
     });
 
     it('should NOT detect other meta tags', () => {
       const element = createElement('<meta charset="utf-8">');
-      assert.strictEqual(isMetaCSP(element), false);
+      assert.strictEqual(isMetaCSP(element, adapter), false);
     });
   });
 
@@ -354,7 +358,7 @@ describe('rules.js', () => {
     testCases.forEach(({ html, expected, type }) => {
       it(`should return ${expected} (${type}) for ${html}`, () => {
         const element = createElement(html);
-        assert.strictEqual(getWeight(element), expected);
+        assert.strictEqual(getWeight(element, adapter), expected);
       });
     });
   });
@@ -367,7 +371,7 @@ describe('rules.js', () => {
         <script src="app.js"></script>
       `);
 
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
       
       assert.strictEqual(weights.length, 3);
       assert.strictEqual(weights[0].weight, ElementWeights.META);
@@ -377,13 +381,13 @@ describe('rules.js', () => {
 
     it('should return empty array for empty head', () => {
       const { head } = createDocument('');
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
       assert.strictEqual(weights.length, 0);
     });
 
     it('should include element references', () => {
       const { head } = createDocument('<meta charset="utf-8">');
-      const weights = getHeadWeights(head);
+      const weights = getHeadWeights(head, adapter);
       
       assert.strictEqual(weights.length, 1);
       assert.ok(weights[0].element);
