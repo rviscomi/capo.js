@@ -22,18 +22,13 @@
     "./adapters/html-eslint": "./src/adapters/html-eslint.js",
     "./adapters/factory": "./src/adapters/factory.js",
     "./rules": "./src/lib/rules.js",
-    "./validation": "./src/lib/validation.js"
+    "./validation": "./src/lib/validation.js",
+    "./adapters/test-suite": "./src/adapters/test-suite.js"
   },
   "directories": {
     "doc": "docs"
   },
   "targets": {
-    "snippet": {
-      "source": "src/snippet/capo.js",
-      "distDir": "snippet",
-      "sourceMap": false,
-      "optimize": false
-    },
     "crx": {
       "source": "src/crx/capo.js",
       "distDir": "crx",

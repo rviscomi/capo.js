@@ -37,26 +37,21 @@ import { getValidationWarnings, getCustomValidations } from '../lib/validation.j
  */
 
 /**
- * Analyze a <head> element and return comprehensive findings
- * 
- * This is the main entry point for DOM-agnostic analysis. It computes:
- * - Element weights for ordering analysis
- * - Document-level validation warnings (missing title, duplicate elements, etc.)
- * - Element-level custom validations (CSP, viewport, charset, etc.)
- * 
- * @param {any} headNode - The <head> element (DOM Element or AST node)
- * @param {Object} adapter - HTMLAdapter implementation (BrowserAdapter, HtmlEslintAdapter, etc.)
+ * Analyze the head element and return element weights, validation warnings, and custom validations.
+ *
+ * @param {any} headNode - The head element to analyze
+ * @param {Object} adapter - Adapter for element operations
  * @param {Object} [options={}] - Analysis options
- * @param {boolean} [options.includeValidation=true] - Include validation warnings
- * @param {boolean} [options.includeCustomValidations=true] - Include element-level validations
- * @returns {AnalysisResult}
- * 
+ * @param {boolean} [options.includeValidation=true] - Whether to include document-level validation warnings
+ * @param {boolean} [options.includeCustomValidations=true] - Whether to include element-level custom validations
+ * @returns {Object} Analysis results
+ * @returns {Array} returns.weights - Array of element weight objects
+ * @returns {Array} returns.validationWarnings - Document-level validation warnings
+ * @returns {Array} returns.customValidations - Element-level custom validation results
+ * @returns {any} returns.headElement - The analyzed head element
+ *
  * @example
- * import { analyzeHead } from 'capo.js/core';
- * import { BrowserAdapter } from 'capo.js/adapters';
- * 
- * const head = document.querySelector('head');
- * const adapter = new BrowserAdapter();
+ * const adapter = new HtmlEslintAdapter();
  * const results = analyzeHead(head, adapter);
  * 
  * console.log(`Found ${results.weights.length} elements`);
@@ -102,12 +97,14 @@ function getElementValidations(headNode, adapter) {
   const children = adapter.getChildren(headNode);
 
   for (const element of children) {
-    const validation = getCustomValidations(element, adapter);
+    const validation = getCustomValidations(element, adapter, headNode);
     
     if (validation && validation.warnings && validation.warnings.length > 0) {
       customValidations.push({
+        ruleId: validation.ruleId,
         element,
         warnings: validation.warnings,
+        payload: validation.payload,
       });
     }
   }

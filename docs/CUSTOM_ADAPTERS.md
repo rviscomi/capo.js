@@ -157,7 +157,7 @@ Run the comprehensive test suite to validate behavior:
 
 ```javascript
 import { describe } from 'node:test';
-import { runAdapterTestSuite, testAdapterCompliance } from '@rviscomi/capo.js/adapters';
+import { runAdapterTestSuite, testAdapterCompliance } from '@rviscomi/capo.js/adapters/test-suite';
 import { MyCustomAdapter } from './my-custom-adapter.js';
 import { parseHtml } from './my-parser.js';  // Your parser
 
@@ -173,6 +173,35 @@ describe('MyCustomAdapter', () => {
   
   // OR: Quick compliance check only
   testAdapterCompliance(MyCustomAdapter);
+});
+```
+
+### Note on Parent Pointers
+
+Some adapters, like those for ESLint, require parent pointers on nodes to support `getParent()` and `getSiblings()`. If your parser doesn't provide these pointers by default (like `@html-eslint/parser`), you must shim them in your test setup.
+
+For ESLint adapters, it's recommended to use ESLint's `RuleTester` in your tests to provide a realistic environment where parent pointers are automatically injected:
+
+```javascript
+import { RuleTester } from 'eslint';
+import * as htmlParser from '@html-eslint/parser';
+
+const ruleTester = new RuleTester({
+  languageOptions: { parser: htmlParser }
+});
+
+runAdapterTestSuite(MyAdapter, {
+  createElement: (html) => {
+    let capturedNode = null;
+    ruleTester.run('capture', {
+      create: () => ({
+        Tag: (node) => { if (!capturedNode) capturedNode = node; }
+      })
+    }, {
+      valid: [html]
+    });
+    return capturedNode;
+  }
 });
 ```
 
@@ -282,7 +311,7 @@ export class JsxAdapter extends AdapterInterface {
 ```javascript
 // jsx-adapter.test.js
 import { describe } from 'node:test';
-import { runAdapterTestSuite } from '@rviscomi/capo.js/adapters';
+import { runAdapterTestSuite } from '@rviscomi/capo.js/adapters/test-suite';
 import { JsxAdapter } from './jsx-adapter.js';
 import { parse } from '@babel/parser';
 
@@ -326,7 +355,8 @@ const weights = getHeadWeights(jsxHeadElement, adapter);
 3. **Handle null gracefully** - All methods should handle null/undefined inputs
 4. **Return consistent types** - Follow the exact return types in the interface
 5. **Be case-insensitive** - Attribute names should be case-insensitive
-6. **Document your adapter** - Explain what parser/format it supports
+6. **Handle Parent Pointers** - If your parser doesn't provide `node.parent`, you may need to shim it or use a traversal helper, especially for tests.
+7. **Document your adapter** - Explain what parser/format it supports
 
 ## API Reference
 

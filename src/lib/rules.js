@@ -84,11 +84,8 @@ export function isPreconnect(element, adapter) {
 }
 
 export function isAsyncScript(element, adapter) {
-  if (adapter.getTagName(element) !== 'script') {
-    return false;
-  }
-  
-  return adapter.hasAttribute(element, 'src') && 
+  return adapter.getTagName(element) === 'script' &&
+    adapter.hasAttribute(element, 'src') && 
          adapter.hasAttribute(element, 'async');
 }
 
@@ -253,10 +250,16 @@ export function getWeight(element, adapter) {
 
 export function getHeadWeights(head, adapter) {
   const headChildren = adapter.getChildren(head);
-  return headChildren.map(element => {
-    return {
-      element,
-      weight: getWeight(element, adapter)
-    };
-  });
+  return headChildren
+    .filter(element => {
+      // Filter out text nodes and comments - only include actual elements
+      const tagName = adapter.getTagName(element);
+      return tagName && tagName !== '';
+    })
+    .map(element => {
+      return {
+        element,
+        weight: getWeight(element, adapter)
+      };
+    });
 }

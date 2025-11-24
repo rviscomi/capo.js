@@ -1,5 +1,4 @@
 import * as capo from '../main.js';
-import * as logging from '../snippet/logging.js';
 
 
 const FORCED_OPTIONS = {
@@ -10,7 +9,7 @@ const FORCED_OPTIONS = {
  * Interface for the capo.js web client.
  * 
  * For configuration options see:
- * https://rviscomi.github.io/capo.js/user/config/#configuring-the-snippet
+ * https://rviscomi.github.io/capo.js/user/config/
  * 
  * @param input HTML string
  * @param output Mock console implementation
@@ -26,6 +25,5 @@ export function run(input, output, userOptions={}) {
   const io = new capo.io.IO(staticDoc.documentElement, options, output);
 
   io.init();
-  logging.validateHead(io, capo.validation);
-  logging.logWeights(io, capo.validation, capo.rules);
+  logging.logAnalysis(io);
 } 

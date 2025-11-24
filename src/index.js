@@ -62,7 +62,5 @@ export {
 } from './adapters/adapter.js';
 
 // Test utilities for custom adapters
-export {
-  runAdapterTestSuite,
-  testAdapterCompliance
-} from './adapters/test-suite.js';
+// These are exported via package.json for node usage only
+// to avoid bundling node:test in the browser.

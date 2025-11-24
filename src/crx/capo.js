@@ -1,10 +1,8 @@
 import * as capo from "../main.js";
-import * as logging from "../snippet/logging.js";
 
 async function run(io) {
   await io.init();
-  logging.validateHead(io, capo.validation);
-  const headWeights = logging.logWeights(io, capo.validation, capo.rules);
+  const headWeights = logging.logAnalysis(io);
 
   return {
     actual: headWeights.map(

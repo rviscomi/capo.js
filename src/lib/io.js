@@ -123,7 +123,7 @@ export class IO {
 
   logElementFromSelector({ weight, selector, innerHTML, isValid, customValidations = {} }) {
     weight = +weight;
-    const viz = this.getElementVisualization(weight);
+    const viz = this.getElementVisualization(weight, isValid);
     let element = this.createElementFromSelector(selector);
     element.innerHTML = innerHTML;
     element = this.getLoggableElement(element);
@@ -131,7 +131,7 @@ export class IO {
     this.logElement({ viz, weight, element, isValid, customValidations });
   }
 
-  logElement({ viz, weight, element, isValid, customValidations, omitPrefix = false }) {
+  logElement({ viz, weight, element, isValid, customValidations = {}, omitPrefix = false }) {
     if (!omitPrefix) {
       viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
     }
@@ -203,10 +203,10 @@ export class IO {
     return { visual, styles };
   }
 
-  getElementVisualization(weight) {
+  getElementVisualization(weight, isValid = true) {
     const visual = `%c${new Array(weight + 1).fill("█").join("")}`;
     const color = this.getColor(weight);
-    const style = `color: ${color}`;
+    let style = `color: ${color}`;
 
     return { visual, style };
   }
@@ -222,7 +222,7 @@ export class IO {
     );
 
     headWeights.forEach(({ weight, element, isValid, customValidations }) => {
-      const viz = this.getElementVisualization(weight);
+      const viz = this.getElementVisualization(weight, isValid);
       this.logElement({
         viz,
         weight,

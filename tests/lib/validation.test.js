@@ -84,6 +84,11 @@ describe('validation.js', () => {
       const element = createElement('<link rel="stylesheet" href="styles.css">');
       assert.strictEqual(hasValidationWarning(element, adapter), false);
     });
+
+    it('should warn on font preload missing crossorigin', () => {
+      const element = createElement('<link rel="preload" as="font" href="font.woff2">');
+      assert.strictEqual(hasValidationWarning(element, adapter), true);
+    });
   });
 
   describe('getValidationWarnings', () => {
@@ -144,10 +149,9 @@ describe('validation.js', () => {
         <meta name="viewport" content="width=device-width">
         <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
       `);
-      const warnings = getValidationWarnings(head, adapter);
-      const cspWarning = warnings.find(w => w.warning.includes('CSP meta tags'));
-      assert.ok(cspWarning);
-      assert.ok(cspWarning.warning.includes('preload scanner'));
+      const cspMeta = head.querySelector('meta[http-equiv="Content-Security-Policy"]');
+      const { warnings } = getCustomValidations(cspMeta, adapter);
+      assert.ok(warnings.some(w => w.includes('meta CSP discouraged')));
     });
 
     it('should return warnings array', () => {
@@ -464,6 +468,35 @@ describe('validation.js', () => {
       assert.ok(warnings.some(w => w.includes('flash of unstyled content')));
     });
   });
+
+  describe('validateInvalidFontPreload', () => {
+    it('should warn when crossorigin is missing', () => {
+      const element = createElement('<link rel="preload" as="font" href="font.woff2">');
+      const { warnings = [] } = getCustomValidations(element, adapter);
+      assert.ok(warnings.some(w => w.includes('crossorigin attribute')));
+    });
+
+    it('should not warn when crossorigin is present', () => {
+      const element = createElement('<link rel="preload" as="font" href="font.woff2" crossorigin>');
+      const { warnings = [] } = getCustomValidations(element, adapter);
+      assert.strictEqual(warnings.length, 0);
+    });
+
+    it('should not warn when crossorigin is present with value', () => {
+      const element = createElement('<link rel="preload" as="font" href="font.woff2" crossorigin="anonymous">');
+      const { warnings = [] } = getCustomValidations(element, adapter);
+      assert.strictEqual(warnings.length, 0);
+    });
+
+    it('should not warn for non-font preload', () => {
+      const element = createElement('<link rel="preload" as="script" href="script.js">');
+      const { warnings = [] } = getCustomValidations(element, adapter);
+      // May have other warnings (like unnecessary preload), but not font-specific ones
+      const hasFontWarning = warnings.some(w => w.includes('crossorigin attribute'));
+      assert.strictEqual(hasFontWarning, false);
+    });
+  });
+
 
   // Note: Preload validation tests are skipped because isUnnecessaryPreload
   // requires document.baseURI which isn't available in the Node.js test environment.

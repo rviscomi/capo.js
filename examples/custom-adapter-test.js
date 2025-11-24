@@ -6,7 +6,8 @@
  */
 
 import { describe } from 'node:test';
-import { runAdapterTestSuite, testAdapterCompliance } from '@rviscomi/capo.js/adapters';
+import { runAdapterTestSuite } from '../src/adapters/test-suite.js';
+import { testAdapterCompliance } from '@rviscomi/capo.js/adapters';
 import { MyJsxAdapter } from './my-jsx-adapter.js';
 
 // Hypothetical JSX parser

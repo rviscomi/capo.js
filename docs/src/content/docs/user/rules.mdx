@@ -67,6 +67,9 @@ Due to a known [performance bug](https://bugs.chromium.org/p/chromium/issues/det
 
 To effectively mitigate all possible security risks, this declaration should be set before any resource content, so capo.js recommends placing it in the top position.
 
+Note that the meta tag version of CSP has functional limitations compared to the HTTP header, such as lack of support for the `report-to` directive.
+
+
 #### `origin-trial`
 
 `origin-trial` is a non-standard keyword that allows developers to test new web platform features on a per-origin basis.
@@ -93,6 +96,10 @@ To avoid encoding issues with user-visible content like the `<title>` element, c
 
 ### `<meta name=viewport>`
 
+The viewport meta tag is used to control the layout of the page on mobile devices.
+
+To avoid a flash of unstyled content or incorrect sizing on mobile devices, capo.js recommends placing the viewport meta tag in the top position.
+
 ### `<base>`
 
 The `base` element sets the base URL for all relative URLs in the document.
@@ -103,21 +110,47 @@ To avoid any broken links for resources loaded early in the document, capo.js re
 
 ### `<title>`
 
+capo.js recommends placing the `<title>` element early in the document to ensure it's discoverable by the browser as early as possible. This is important for users to see the title in the browser tab or title bar, which serves as a signal that the page is loading.
+
+Additionally, placing the `<title>` after the [`<meta charset>`](#meta-charset) ensures that any special characters in the title are rendered correctly.
+
 ## <InlineCapoWeightBars weight="9" /> 9. Preconnect hints
 
 ### `<link rel=preconnect>`
+
+Preconnect hints tell the browser to establish a connection to a domain as early as possible, reducing the latency of future requests to that domain.
+
+To maximize the benefit of preconnecting, capo.js recommends placing these hints early in the document, before any resources from that domain are requested.
 
 ## <InlineCapoWeightBars weight="8" /> 8. Asynchronous scripts
 
 ### `<script async src>`
 
+Asynchronous scripts are downloaded in parallel to parsing and executed as soon as they are available.
+
+Because they don't block parsing, capo.js recommends placing them early in the document to start the download as soon as possible.
+
 ## <InlineCapoWeightBars weight="7" /> 7. Import styles
 
 ### `@import`
 
+:::caution[Performance warning]
+capo.js discourages using `@import` in favor of the [`<link rel=stylesheet>`](#link-relstylesheet) element. See [don't use @import](http://stevesouders.com/blog/2009/04/09/dont-use-import/) for more information.
+:::
+
+The `@import` rule is used to import style rules from other style sheets.
+
+Because `@import` rules must precede all other types of rules, capo.js recommends placing them early in the document.
+
+Capo.js scans the content of `<style>` tags for `@import` rules. If found, the entire `<style>` element is given a higher weight to encourage moving it earlier in the document, or ideally, replacing the `@import` with a `<link rel=stylesheet>` element.
+
 ## <InlineCapoWeightBars weight="6" /> 6. Synchronous scripts
 
 ### `<script src>`
+
+Synchronous scripts block the parsing of the document until they are downloaded and executed.
+
+Capo.js recommends placing them before synchronous styles. While the script still blocks parsing, modern browsers' preload scanners will discover and start downloading subsequent stylesheets in parallel. If placed after stylesheets, the script's execution would be blocked until the stylesheets are fully loaded.
 
 ## <InlineCapoWeightBars weight="5" /> 5. Synchronous styles
 
@@ -125,15 +158,27 @@ To avoid any broken links for resources loaded early in the document, capo.js re
 
 ### `<style>`
 
+Synchronous styles are critical for rendering the page.
+
+Capo.js recommends placing them early in the document, but after synchronous scripts (if any), to ensure they are discovered and downloaded as soon as possible.
+
 ## <InlineCapoWeightBars weight="4" /> 4. Preload hints
 
 ### `<link rel=preload>`
 
 ### `<link rel=modulepreload>`
 
+Preload hints tell the browser to download a resource as soon as possible, as it will be needed soon.
+
+While helpful, they are generally less critical than actual resources (like styles and scripts) that are needed immediately. Capo.js recommends placing them after critical resources, but before deferred scripts and prefetch hints, to ensure these resources start downloading as soon as possible.
+
 ## <InlineCapoWeightBars weight="3" /> 3. Deferred scripts
 
 ### `<script defer src>`
+
+Deferred scripts are downloaded in parallel to parsing but executed only after the document has been fully parsed.
+
+Because they don't block parsing and execute later, capo.js recommends placing them after critical resources and preload hints, but before prefetch hints.
 
 ## <InlineCapoWeightBars weight="2" /> 2. Prefetch and prerender hints
 
@@ -143,4 +188,15 @@ To avoid any broken links for resources loaded early in the document, capo.js re
 
 ### `<link rel=prerender>`
 
+Prefetch and prerender hints tell the browser to prepare for resources that might be needed for future navigations.
+
+Because they are not needed for the current page, capo.js recommends placing them at the bottom of the `<head>` to ensure they don't compete with resources needed for the current page.
+
+While `dns-prefetch` also deals with connection setup like [`preconnect`](#link-relpreconnect), it is placed here because it is a speculative hint for future navigations or low-priority resources, whereas `preconnect` is for resources needed immediately.
+
+
 ## <InlineCapoWeightBars weight="1" /> 1. Everything else
+
+Any other elements found in the `<head>` that don't match the above categories are given the lowest weight.
+
+This includes elements like Open Graph tags (`<meta property="og:title">`), description tags (`<meta name="description">`), icons (`<link rel="icon">`), and other elements that don't affect the loading or rendering of the page. Capo.js recommends placing these at the very bottom of the `<head>`.

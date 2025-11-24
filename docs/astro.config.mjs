@@ -32,10 +32,10 @@ export default defineConfig({
           },
         },
       ],
-      social: {
-        github: "https://github.com/rviscomi/capo.js",
-        twitter: "https://twitter.com/rick_viscomi",
-      },
+      social: [
+        { label: "GitHub", href: "https://github.com/rviscomi/capo.js", icon: "github" },
+        { label: "Bluesky", href: "https://bsky.app/profile/rviscomi.dev", icon: "blueSky" },
+      ],
       editLink: {
         baseUrl: "https://github.com/rviscomi/capo.js/edit/main/docs/",
       },
@@ -60,16 +60,7 @@ export default defineConfig({
               link: "/user/assessment-mode/",
             },
             { label: "Validation", link: "/user/validation/" },
-            { label: "Configuration", link: "/user/config/" },
-          ],
-        },
-        {
-          label: "User guides",
-          items: [
             { label: "Extension", link: "/user/extension/" },
-            { label: "Snippet", link: "/user/snippet/" },
-            { label: "WebPageTest", link: "/user/webpagetest/" },
-            { label: "BigQuery", link: "/user/bigquery/" },
           ],
         },
         {

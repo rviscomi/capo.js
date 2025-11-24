@@ -15,8 +15,7 @@ This script helps you identify which elements are out of order.
 
 ✨ _New: Install the [Capo Chrome extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb)_ ✨
 
-1. Copy [capo.js](https://raw.githubusercontent.com/rviscomi/capo.js/main/snippet/capo.js)
-2. Run it in a new [DevTools snippet](https://developer.chrome.com/docs/devtools/javascript/snippets/), or use a [bookmarklet](https://caiorss.github.io/bookmarklet-maker/) generator
+1. Install the [Chrome extension](https://chrome.google.com/webstore/detail/capo/ohkeehjepccojmgephomofandmjaafid)
 3. Explore the console logs
 
 <img width="1552" alt="capo screenshot" src="https://github.com/rviscomi/capo.js/assets/1120896/b29672f9-1f05-4a05-a85e-df27acd153bd">
@@ -133,13 +132,6 @@ See [MIGRATION.md](MIGRATION.md) for detailed migration guide.
 
 WIP see [crx/](crx/)
 
-### WebPageTest
-
-You can use the [`capo` WebPageTest custom metric](webpagetest/) to evaluate only the server-rendered HTML `<head>`. Note that because this approach doesn't output to the console, we lose the visualization.
-
-### BigQuery
-
-You can also use the [`httparchive.fn.CAPO`](bigquery/) function on BigQuery to process HTML response bodies in the HTTP Archive dataset. Similar to the WebPageTest approach, the output is very basic.
 
 ### Other
 

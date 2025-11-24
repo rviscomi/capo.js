@@ -36,7 +36,7 @@ export class HtmlEslintAdapter {
 
   /**
    * Get the tag name of an element (lowercase)
-   * @param {any} node - Element node
+   * @param {any} element - Element node
    * @returns {string} - Tag name like 'meta', 'link', 'script'
    */
   getTagName(node) {
@@ -53,10 +53,8 @@ export class HtmlEslintAdapter {
     }
     
     // Regular Tag nodes have a name property
-    if (!node.name) {
-      return '';
-    }
-    return node.name.toLowerCase();
+    // Ensure it's lowercase as per the JSDoc
+    return node.name ? node.name.toLowerCase() : '';
   }
 
   /**
@@ -127,7 +125,20 @@ export class HtmlEslintAdapter {
   }
 
   /**
-   * Get text content of a node (for inline scripts/styles)
+   * Get the direct children of an element
+   * @param {any} node - Element node
+   * @returns {any[]} - Array of child element nodes (excluding text nodes)
+   */
+  getChildren(node) {
+    if (!node || !node.children) {
+      return [];
+    }
+    // Return only element children, exclude text nodes and comments
+    return node.children.filter(child => this.isElement(child));
+  }
+
+  /**
+   * Get the text content of an element
    * @param {any} node - Element node
    * @returns {string} - Text content
    */
@@ -136,37 +147,20 @@ export class HtmlEslintAdapter {
       return '';
     }
 
-    // ScriptTag and StyleTag have special structure in real parser output
-    if (node.type === 'ScriptTag' || node.type === 'StyleTag') {
-      // Real parser output: node.value.value
-      if (node.value?.value) {
-        return node.value.value;
-      }
-      // Test mocks may use children array - fall through to handle that
+    // Special handling for StyleTag and ScriptTag which have a value property
+    if ((node.type === 'StyleTag' || node.type === 'ScriptTag') && node.value) {
+      return node.value.value || '';
     }
 
-    // Regular Tag nodes and test mocks have children
-    if (!node.children) {
+    if (!node.children || node.children.length === 0) {
       return '';
     }
 
+    // Concatenate all text nodes (both Text and VText types)
     return node.children
-      .filter(child => child.type === 'VText' || child.type === 'Text')
+      .filter(child => child.type === 'Text' || child.type === 'VText')
       .map(child => child.value)
       .join('');
-  }
-
-  /**
-   * Get child elements of a node
-   * @param {any} node - Parent node
-   * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
-   */
-  getChildren(node) {
-    if (!node || !node.children) {
-      return [];
-    }
-
-    return node.children.filter(child => this.isElement(child));
   }
 
   /**

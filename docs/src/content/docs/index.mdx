@@ -34,8 +34,7 @@ Capo helps you identify which elements are out of order.
 
 OR:
 
-1. Copy [capo.js](https://raw.githubusercontent.com/rviscomi/capo.js/main/snippet/capo.js)
-2. Run it in a new [DevTools snippet](https://developer.chrome.com/docs/devtools/javascript/snippets/), or use a [bookmarklet](https://caiorss.github.io/bookmarklet-maker/) generator
+1. Install the [Chrome extension](https://chrome.google.com/webstore/detail/capo/ohkeehjepccojmgephomofandmjaafid)
 3. Explore the console logs
 
 ![Capo running in Chrome](../../assets/capo-chrome.png)
@@ -49,13 +48,6 @@ For applications that add lots of dynamic content to the `<head>` on the client,
 
 WIP see the [extension](/capo.js/user/extension/) guide.
 
-### WebPageTest
-
-You can use the [`capo` WebPageTest custom metric](/capo.js/user/webpagetest/) to evaluate only the server-rendered HTML `<head>`. Note that because this approach doesn't output to the console, we lose the visualization.
-
-### BigQuery
-
-You can also use the [`httparchive.fn.CAPO`](/capo.js/user/bigquery/) function on BigQuery to process HTML response bodies in the HTTP Archive dataset. Similar to the WebPageTest approach, the output is very basic.
 
 ### Other
 
