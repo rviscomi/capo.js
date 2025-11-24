@@ -29,13 +29,13 @@ You can also use capo.js programmatically to analyze HTML `<head>` elements in N
 ### Installation
 
 ```bash
-npm install capo.js
+npm install @rviscomi/capo.js
 ```
 
 ### Basic Usage
 
 ```javascript
-import { analyzeHead, HtmlEslintAdapter } from 'capo.js';
+import { analyzeHead, HtmlEslintAdapter } from '@rviscomi/capo.js';
 
 // Analyze a head element
 const head = /* your head element */;
@@ -52,7 +52,7 @@ console.log(result.warnings);      // Validation warnings
 Capo.js uses adapters to work with different HTML representations:
 
 ```javascript
-import { analyzeHead, BrowserAdapter, HtmlEslintAdapter } from 'capo.js';
+import { analyzeHead, BrowserAdapter, HtmlEslintAdapter } from '@rviscomi/capo.js';
 
 // For browser DOM (if using in browser context)
 const browserAdapter = new BrowserAdapter();
@@ -69,19 +69,19 @@ Import only what you need for smaller bundle sizes:
 
 ```javascript
 // Import just the core analyzer
-import { analyzeHead, checkOrdering } from 'capo.js/core';
+import { analyzeHead, checkOrdering } from '@rviscomi/capo.js/core';
 
 // Import just adapters
-import { BrowserAdapter, HtmlEslintAdapter } from 'capo.js/adapters';
+import { BrowserAdapter, HtmlEslintAdapter } from '@rviscomi/capo.js/adapters';
 
 // Import specific adapters
-import { BrowserAdapter } from 'capo.js/adapters/browser';
+import { BrowserAdapter } from '@rviscomi/capo.js/adapters/browser';
 
 // Import rules API
-import { ElementWeights, getWeight } from 'capo.js/rules';
+import { ElementWeights, getWeight } from '@rviscomi/capo.js/rules';
 
 // Import validation API
-import { isValidElement, getValidationWarnings } from 'capo.js/validation';
+import { isValidElement, getValidationWarnings } from '@rviscomi/capo.js/validation';
 ```
 
 ### API Reference

@@ -24,7 +24,7 @@
  * // For ESLint HTML parser AST:
  * const adapter = new ParserAdapter();
  */
-export const AdapterInterface = {
+export class AdapterInterface {
   /**
    * Check if node is an Element (not text, comment, etc.)
    * @param {any} node - The node to check
@@ -32,7 +32,7 @@ export const AdapterInterface = {
    */
   isElement(node) {
     throw new Error('isElement() not implemented');
-  },
+  }
 
   /**
    * Get the tag name of an element (lowercase)
@@ -41,7 +41,7 @@ export const AdapterInterface = {
    */
   getTagName(node) {
     throw new Error('getTagName() not implemented');
-  },
+  }
 
   /**
    * Get attribute value from element
@@ -51,7 +51,7 @@ export const AdapterInterface = {
    */
   getAttribute(node, attrName) {
     throw new Error('getAttribute() not implemented');
-  },
+  }
 
   /**
    * Check if element has a specific attribute
@@ -61,7 +61,7 @@ export const AdapterInterface = {
    */
   hasAttribute(node, attrName) {
     throw new Error('hasAttribute() not implemented');
-  },
+  }
 
   /**
    * Get all attribute names for an element
@@ -70,7 +70,7 @@ export const AdapterInterface = {
    */
   getAttributeNames(node) {
     throw new Error('getAttributeNames() not implemented');
-  },
+  }
 
   /**
    * Get text content of a node (for inline scripts/styles)
@@ -79,7 +79,7 @@ export const AdapterInterface = {
    */
   getTextContent(node) {
     throw new Error('getTextContent() not implemented');
-  },
+  }
 
   /**
    * Get child elements of a node
@@ -88,7 +88,7 @@ export const AdapterInterface = {
    */
   getChildren(node) {
     throw new Error('getChildren() not implemented');
-  },
+  }
 
   /**
    * Get parent element of a node
@@ -97,7 +97,7 @@ export const AdapterInterface = {
    */
   getParent(node) {
     throw new Error('getParent() not implemented');
-  },
+  }
 
   /**
    * Get sibling elements of a node
@@ -106,7 +106,7 @@ export const AdapterInterface = {
    */
   getSiblings(node) {
     throw new Error('getSiblings() not implemented');
-  },
+  }
 
   /**
    * Get source location for a node (optional, for linting)
@@ -115,7 +115,7 @@ export const AdapterInterface = {
    */
   getLocation(node) {
     throw new Error('getLocation() not implemented');
-  },
+  }
 
   /**
    * Stringify element for logging/debugging
@@ -124,8 +124,8 @@ export const AdapterInterface = {
    */
   stringify(node) {
     throw new Error('stringify() not implemented');
-  },
-};
+  }
+}
 
 /**
  * Validate that an object implements the HTMLAdapter interface

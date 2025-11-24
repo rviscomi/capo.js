@@ -1,4 +1,9 @@
-# Creating and Testing Custom Adapters
+---
+title: Custom Adapters
+description: Learn how to create and test custom adapters for capo.js.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 This guide explains how to create custom adapters for capo.js and validate them using the built-in test utilities.
 
@@ -216,6 +221,8 @@ runAdapterTestSuite(MyAdapter, {
 
 ## Full Example: JSX Adapter
 
+<Tabs>
+  <TabItem label="Adapter">
 ```javascript
 // jsx-adapter.js
 import { AdapterInterface } from '@rviscomi/capo.js/adapters';
@@ -253,10 +260,20 @@ export class JsxAdapter extends AdapterInterface {
   
   getTextContent(node) {
     if (!this.isElement(node)) return '';
-    // JSX text is in children
+    // JSX text is in children, but can also be in expressions (e.g. for style/script)
     return node.children
-      .filter(c => c.type === 'JSXText')
-      .map(c => c.value)
+      .map(c => {
+        if (c.type === 'JSXText') return c.value;
+        if (c.type === 'JSXExpressionContainer') {
+          if (c.expression.type === 'TemplateLiteral') {
+            return c.expression.quasis[0].value.cooked;
+          }
+          if (c.expression.type === 'StringLiteral') {
+            return c.expression.value;
+          }
+        }
+        return '';
+      })
       .join('');
   }
   
@@ -297,6 +314,16 @@ export class JsxAdapter extends AdapterInterface {
     };
   }
   
+  getParent(node) {
+    return (node && node.parent) || null;
+  }
+
+  getSiblings(node) {
+    const parent = this.getParent(node);
+    if (!parent) return [];
+    return this.getChildren(parent).filter(c => c !== node);
+  }
+  
   stringify(node) {
     if (!this.isElement(node)) return '';
     const tag = this.getTagName(node);
@@ -307,7 +334,8 @@ export class JsxAdapter extends AdapterInterface {
   }
 }
 ```
-
+  </TabItem>
+  <TabItem label="Test">
 ```javascript
 // jsx-adapter.test.js
 import { describe } from 'node:test';
@@ -318,21 +346,43 @@ import { parse } from '@babel/parser';
 describe('JsxAdapter', () => {
   runAdapterTestSuite(JsxAdapter, {
     createElement: (htmlString) => {
-      // Parse HTML-like string as JSX
-      const code = `const el = ${htmlString.replace(/>/g, '/>')};`;
+      // Convert HTML to JSX by closing self-closing tags
+      const selfClosingTags = ['meta', 'link', 'base', 'br', 'img', 'input', 'hr'];
+      let jsxString = htmlString;
+      selfClosingTags.forEach(tag => {
+        const regex = new RegExp(`<(${tag}(?:\\s+[^>]*)?)>`, 'gi');
+        jsxString = jsxString.replace(regex, '<$1 />');
+      });
+
+      // Handle style/script content by wrapping in template literals
+      jsxString = jsxString.replace(/<(style|script)([^>]*)>([\s\S]*?)<\/\1>/gi, '<$1$2>{`$3`}</$1>');
+
+      const code = `const el = (<>${jsxString}</>);`;
       const ast = parse(code, {
         plugins: ['jsx'],
         sourceType: 'module'
       });
       
-      // Extract JSX element from AST
-      return ast.program.body[0].declarations[0].init;
+      // Extract JSX element from AST (inside fragment)
+      const root = ast.program.body[0].declarations[0].init.children[0];
+
+      // Add parent pointers for tests that need them
+      const traverse = (node, parent = null) => {
+        if (!node) return;
+        node.parent = parent;
+        if (node.children) {
+          node.children.forEach(child => traverse(child, node));
+        }
+      };
+      traverse(root);
+      return root;
     },
     supportsLocation: true
   });
 });
 ```
-
+  </TabItem>
+  <TabItem label="Usage">
 ```javascript
 // Usage
 import { AdapterFactory } from '@rviscomi/capo.js/adapters';
@@ -347,6 +397,8 @@ import { getHeadWeights } from '@rviscomi/capo.js';
 const adapter = AdapterFactory.create('jsx');
 const weights = getHeadWeights(jsxHeadElement, adapter);
 ```
+  </TabItem>
+</Tabs>
 
 ## Best Practices
 

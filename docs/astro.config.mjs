@@ -67,6 +67,7 @@ export default defineConfig({
           label: "Developer guides",
           items: [
             { label: "Contributing to Capo", link: "/developer/contributing/" },
+            { label: "Custom adapters", link: "/developer/custom-adapters/" },
             {
               label: "Installing the extension locally",
               link: "/developer/crx-local/",
