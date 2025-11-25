@@ -1317,16 +1317,20 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
                 customValidations: customValidation || {}
             };
         });
-        const sortedHeadWeights = [
-            ...headWeights
-        ].sort((a, b)=>b.weight - a.weight);
         this.logValidationWarnings(result.validationWarnings);
         // Log custom validations (e.g. origin trials) at the top level
         result.customValidations.forEach((v)=>{
             if (v.warnings.length > 0) this.console.warn(`${this.options.loggingPrefix}${v.warnings[0]}`, v.element, v.payload || "");
         });
         this.visualizeHead("Actual", headElement, headWeights);
-        this.visualizeHead("Sorted", headElement, sortedHeadWeights);
+        const sortedHeadWeights = [
+            ...headWeights
+        ].sort((a, b)=>b.weight - a.weight);
+        const sortedHeadElement = headElement.cloneNode(false);
+        sortedHeadWeights.forEach(({ element: element })=>{
+            if (element) sortedHeadElement.appendChild(element.cloneNode(true));
+        });
+        this.visualizeHead("Sorted", sortedHeadElement, sortedHeadWeights);
         return headWeights;
     }
     logElementFromSelector({ weight: weight, selector: selector, innerHTML: innerHTML, isValid: isValid, customValidations: customValidations = {} }) {
@@ -1346,11 +1350,13 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
     logElement({ viz: viz, weight: weight, element: element, isValid: isValid, customValidations: customValidations = {}, omitPrefix: omitPrefix = false }) {
         if (!omitPrefix) viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
         let loggingLevel = "log";
+        const loggedElement = element.cloneNode(false);
+        loggedElement.innerHTML = "";
         const args = [
             viz.visual,
             viz.style,
             weight + 1,
-            element
+            loggedElement
         ];
         if (!this.options.isValidationEnabled()) {
             this.console[loggingLevel](...args);

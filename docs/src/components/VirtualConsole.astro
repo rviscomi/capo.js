@@ -1,0 +1,316 @@
+---
+---
+<virtual-console id="virtual-console"></virtual-console>
+
+<script>
+  class VirtualConsole extends HTMLElement {
+    constructor() {
+      super();
+      this.group = null;
+    }
+
+    clear() {
+      this.innerHTML = '';
+    }
+
+    highlightHTML(html) {
+      return html.replace(/&lt;(\/?)([\w-]+)(.*?)&gt;/g, (match, slash, tag, attrs) => {
+        const highlightedAttrs = attrs.replace(/ ([\w-]+)=(&quot;.*?&quot;)/g, ' <span class="attr">$1</span>=<span class="val">$2</span>');
+        return `&lt;${slash}<span class="tag">${tag}</span>${highlightedAttrs}&gt;`;
+      });
+    }
+
+    highlightJSON(json) {
+      return json.replace(/(&quot;.*?&quot;(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+        let cls = 'number';
+        if (/^&quot;/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'key';
+          } else {
+            cls = 'string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'boolean';
+        } else if (/null/.test(match)) {
+          cls = 'null';
+        }
+        return `<span class="${cls}">${match}</span>`;
+      });
+    }
+
+    renderLog(...args) {
+      let output = [];
+      for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        if (arg === undefined || arg === null) {
+          continue;
+        }
+
+        if (typeof arg === 'number') {
+          output.push(`<span class="weight">${arg}</span>`);
+          continue;
+        }
+
+        if (typeof arg === 'string' && /^\d+$/.test(arg.trim())) {
+          output.push(`<span class="weight">${escapeHTML(arg)}</span>`);
+          continue;
+        }
+
+        if (typeof arg === 'object' && arg !== null) {
+          if (arg instanceof HTMLElement) {
+            // Stringify element
+            let html = escapeHTML(arg.outerHTML);
+            output.push(this.highlightHTML(html));
+            continue;
+          }
+          let json = escapeHTML(JSON.stringify(arg, null, 2));
+          output.push(`<pre>${this.highlightJSON(json)}</pre>`);
+          continue;
+        }
+        
+        if (typeof arg == 'string') {
+          // Handle console styles
+          const fragments = arg.split('%c');
+          if (fragments.length == 1) {
+            output.push(escapeHTML(arg));
+            continue;
+          }
+
+          let currentGroup = [];
+          let result = [];
+          result.push(nlToBr(escapeHTML(fragments[0])));
+
+          for (let j = 1; j < fragments.length; j++) {
+            const fragment = fragments[j];
+            const style = args[i + j].split(';').find(s => {
+              return s.split(':')[0].trim() == 'background-color' || s.split(':')[0].trim() == 'background-image';
+            }) || args[i + j];
+            const isColorBarSpan = style && (style.includes('background-color') || style.includes('background-image')) && (fragment === ' ' || fragment === '');
+            const span = `<span class="color-bar-item" style="${style}">${nlToBr(escapeHTML(fragment))}</span>`;
+
+            if (isColorBarSpan) {
+              currentGroup.push(span);
+            } else {
+              if (currentGroup.length > 0) {
+                result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+                currentGroup = [];
+              }
+              result.push(span);
+            }
+            delete args[i + j];
+          }
+          if (currentGroup.length > 0) {
+            result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+          }
+
+          output.push(result.join(''));
+        }
+      }
+
+      return output.join(' ');
+    }
+
+    logAtLevel(level, ...args) {
+      const div = document.createElement('div');
+      div.classList.add(level);
+      div.innerHTML = this.renderLog(...args);
+
+      if (this.group) {
+        this.group.appendChild(div);
+      } else {
+        this.appendChild(div);
+      }
+    }
+
+    log(...args) {
+      this.logAtLevel('log', ...args);
+      console.log(...args);
+    }
+
+    warn(...args) {
+      this.logAtLevel('warn', ...args);
+      console.warn(...args);
+    }
+
+    error(...args) {
+      this.logAtLevel('error', ...args);
+      console.error(...args);
+    }
+
+    groupCollapsed(...args) {
+      const details = document.createElement('details');
+      const summary = document.createElement('summary');
+      summary.innerHTML = this.renderLog(...args);
+      details.appendChild(summary);
+
+      if (this.group) {
+        this.group.appendChild(details);
+      } else {
+        this.appendChild(details);
+      }
+      this.group = details;
+      console.groupCollapsed(...args);
+    }
+
+    groupEnd(...args) {
+      if (this.group) {
+        // Move up one level if possible, or back to root
+        const parent = this.group.parentElement;
+        if (parent && parent.tagName === 'DETAILS') {
+          this.group = parent;
+        } else {
+          this.group = null;
+        }
+      }
+      console.groupEnd(...args);
+    }
+  }
+
+  function nlToBr(str) {
+    return str.replace(/\n/g, '<br>');
+  }
+
+  function escapeHTML(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  customElements.define('virtual-console', VirtualConsole);
+</script>
+
+<style is:global>
+  virtual-console {
+    display: block;
+    --vc-warn-bg: rgba(255, 159, 67, 0.2);
+    --vc-warn-color: #ffe0b2;
+    --vc-warn-border: #ff9f43;
+    --vc-error-bg: rgba(255, 99, 132, 0.2);
+    --vc-error-color: #ff6384;
+    --vc-error-border: #ff6384;
+
+    :root[data-theme='light'] & {
+      --vc-warn-bg: #fffbe5;
+      --vc-warn-color: #333;
+      --vc-warn-border: #ee9c6d;
+      --vc-error-bg: #fee;
+      --vc-error-color: #333;
+      --vc-error-border: #f00;
+    }
+
+    .warn {
+      background-color: var(--vc-warn-bg);
+      color: var(--vc-warn-color);
+      border-left: 4px solid var(--vc-warn-border);
+    }
+
+    .error {
+      background-color: var(--vc-error-bg);
+      color: var(--vc-error-color);
+      border-left: 4px solid var(--vc-error-border);
+    }
+
+    & > {
+      .log, .warn, .error {
+        margin-top: 1rem;
+        width: 100%;
+      }
+    }
+
+    details {
+      &[open] > summary::before {
+        transform: rotate(90deg);
+      }
+
+      .log, .warn, .error {
+        margin-top: 0;
+        margin-left: -4px;
+      }
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+      list-style: none;
+      padding: 0.25rem 0.5rem;
+      font-family: monospace;
+      width: 600px;
+      max-width: 100%;
+      box-sizing: border-box;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &::before {
+        content: '▶';
+        display: inline-block;
+        margin-right: 0.5rem;
+        transition: transform 0.2s;
+      }
+    }
+
+    div {
+      padding: 0.25rem 0.5rem;
+      border-bottom: 1px solid var(--sl-color-gray-5);
+      font-family: monospace;
+      white-space: pre-wrap;
+      width: 600px;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+    }
+
+    --vc-token-tag: #ff79c6;
+    --vc-token-attr: #50fa7b;
+    --vc-token-val: #f1fa8c;
+    --vc-token-string: #f1fa8c;
+    --vc-token-number: #bd93f9;
+    --vc-token-boolean: #bd93f9;
+    --vc-token-null: #bd93f9;
+    --vc-token-key: #8be9fd;
+
+    /* Starlight light mode support */
+    :root[data-theme='light'] & {
+      --vc-token-tag: #881280;
+      --vc-token-attr: #994500;
+      --vc-token-val: #1a1aa6;
+      --vc-token-string: #1a1aa6;
+      --vc-token-number: #1a1aa6;
+      --vc-token-boolean: #1a1aa6;
+      --vc-token-null: #1a1aa6;
+      --vc-token-key: #202124;
+    }
+
+    .weight {
+      color: #a29bfe;
+      margin: 0 0.5rem;
+    }
+
+    .tag { color: var(--vc-token-tag); }
+    .attr { color: var(--vc-token-attr); }
+    .val { color: var(--vc-token-val); }
+    .string { color: var(--vc-token-string); }
+    .number { color: var(--vc-token-number); }
+    .boolean { color: var(--vc-token-boolean); }
+    .null { color: var(--vc-token-null); }
+    .key { color: var(--vc-token-key); }
+
+    .color-bar {
+      display: flex;
+      align-content: stretch;
+      padding: 0; /* Remove padding for styled logs to allow full width */
+      width: 100%;
+      box-sizing: border-box;
+
+      .color-bar-item {
+        flex: 1 0 0;
+        height: 1.5rem; /* Give it some height */
+      }
+    }
+  }
+</style>

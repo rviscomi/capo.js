@@ -133,8 +133,6 @@ export class IO {
       };
     });
 
-    const sortedHeadWeights = [...headWeights].sort((a, b) => b.weight - a.weight);
-
     this.logValidationWarnings(result.validationWarnings);
 
     // Log custom validations (e.g. origin trials) at the top level
@@ -145,7 +143,15 @@ export class IO {
     });
 
     this.visualizeHead("Actual", headElement, headWeights);
-    this.visualizeHead("Sorted", headElement, sortedHeadWeights);
+
+    const sortedHeadWeights = [...headWeights].sort((a, b) => b.weight - a.weight);
+    const sortedHeadElement = headElement.cloneNode(false);
+    sortedHeadWeights.forEach(({ element }) => {
+      if (element) {
+        sortedHeadElement.appendChild(element.cloneNode(true));
+      }
+    });
+    this.visualizeHead("Sorted", sortedHeadElement, sortedHeadWeights);
 
     return headWeights;
   }
