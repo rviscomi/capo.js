@@ -13,7 +13,7 @@ export {
   analyzeHeadWithOrdering,
   checkOrdering,
   getWeightCategory
-} from './core/analyzer.js';
+} from './analyzer.js';
 
 // Rules API
 export {

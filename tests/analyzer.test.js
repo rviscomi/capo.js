@@ -1,12 +1,12 @@
 /**
- * Tests for core/analyzer.js
+ * Tests for analyzer.js
  * Tests the DOM-agnostic analysis functions
  */
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { JSDOM } from 'jsdom';
-import { analyzeHead, analyzeHeadWithOrdering, getWeightCategory, checkOrdering } from '../../src/core/analyzer.js';
+import { analyzeHead, analyzeHeadWithOrdering, getWeightCategory, checkOrdering } from '../../src/analyzer.js';
 import { BrowserAdapter } from '../../src/adapters/browser.js';
 
 function createDocument(headContent) {
@@ -17,7 +17,7 @@ function createDocument(headContent) {
   };
 }
 
-describe('core/analyzer', () => {
+describe('analyzer', () => {
   const adapter = new BrowserAdapter();
 
   describe('analyzeHead', () => {
@@ -61,7 +61,7 @@ describe('core/analyzer', () => {
       const result = analyzeHead(head, adapter);
 
       assert.ok(result.validationWarnings.length > 0, 'Should have validation warnings');
-      const titleWarning = result.validationWarnings.find(w => 
+      const titleWarning = result.validationWarnings.find(w =>
         w.warning.includes('<title>')
       );
       assert.ok(titleWarning, 'Should warn about duplicate titles');
@@ -188,7 +188,7 @@ describe('core/analyzer', () => {
       const violations = checkOrdering(result.weights);
 
       assert.strictEqual(violations.length, 1, 'Should have 1 violation');
-      
+
       const violation = violations[0];
       assert.strictEqual(violation.index, 1, 'Should track index');
       assert.ok(violation.currentElement, 'Should include current element');
@@ -251,8 +251,8 @@ describe('core/analyzer', () => {
         <title>Second</title>
       `);
 
-      const result = analyzeHeadWithOrdering(head, adapter, { 
-        includeValidation: false 
+      const result = analyzeHeadWithOrdering(head, adapter, {
+        includeValidation: false
       });
 
       assert.strictEqual(result.validationWarnings.length, 0, 'Should respect options');
@@ -313,13 +313,13 @@ describe('core/analyzer', () => {
 
       assert.ok(result.validationWarnings.length > 0, 'Should have validation warnings');
       assert.ok(result.orderingViolations.length > 0, 'Should have ordering violations');
-      
+
       // Check specific issues
-      const titleWarning = result.validationWarnings.find(w => 
+      const titleWarning = result.validationWarnings.find(w =>
         w.warning.includes('title')
       );
       assert.ok(titleWarning, 'Should warn about duplicate titles');
-      
+
       // Custom validations may or may not include viewport warnings depending on implementation
       // The important thing is that we can analyze the head and return structured results
       assert.ok(Array.isArray(result.customValidations), 'Should return custom validations array');

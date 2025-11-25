@@ -53,7 +53,7 @@ describe('Package Exports', () => {
   });
 
   it('should support subpath exports - core', async () => {
-    const core = await import('../src/core/analyzer.js');
+    const core = await import('../src/analyzer.js');
     
     assert.ok(core.analyzeHead, 'Core export should work');
   });

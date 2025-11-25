@@ -2,7 +2,7 @@
  * Core DOM-agnostic analyzer for capo.js
  * Provides single-pass analysis of HTML <head> elements
  * 
- * @module core/analyzer
+ * @module analyzer
  */
 
 import * as rules from '../lib/rules.js';
@@ -67,7 +67,7 @@ export function analyzeHead(headNode, adapter, options = {}) {
   const weights = rules.getHeadWeights(headNode, adapter);
 
   // Pass 2: Get document-level validation warnings
-  const validationWarnings = includeValidation 
+  const validationWarnings = includeValidation
     ? getValidationWarnings(headNode, adapter)
     : [];
 
@@ -98,7 +98,7 @@ function getElementValidations(headNode, adapter) {
 
   for (const element of children) {
     const validation = getCustomValidations(element, adapter, headNode);
-    
+
     if (validation && validation.warnings && validation.warnings.length > 0) {
       customValidations.push({
         ruleId: validation.ruleId,

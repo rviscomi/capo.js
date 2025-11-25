@@ -63,7 +63,7 @@ Import only what you need for smaller bundle sizes:
 
 ```javascript
 // Import just the core analyzer
-import { analyzeHead, checkOrdering } from '@rviscomi/capo.js/core';
+import { analyzeHead, checkOrdering } from '@rviscomi/capo.js';
 
 // Import just adapters
 import { BrowserAdapter } from '@rviscomi/capo.js/adapters';

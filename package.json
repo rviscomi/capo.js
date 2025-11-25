@@ -16,7 +16,6 @@
   "main": "src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./core": "./src/core/analyzer.js",
     "./adapters": "./src/adapters/index.js",
     "./adapters/browser": "./src/adapters/browser.js",
     "./rules": "./src/lib/rules.js",

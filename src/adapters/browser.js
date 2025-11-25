@@ -17,7 +17,7 @@ import { AdapterInterface } from './adapter.js';
  * @implements {HTMLAdapter}
  * @example
  * import { BrowserAdapter } from './adapters/browser.js';
- * import { analyzeHead } from './core/analyzer.js';
+ * import { Analyzer } from '../analyzer.js';
  * 
  * const adapter = new BrowserAdapter();
  * const head = document.querySelector('head');
