@@ -11,15 +11,32 @@ export class VirtualConsole {
 
   renderLog(...args) {
     let output = [];
-    args.forEach((arg, i) => {
-      if (!arg) {
-        return;
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (arg === undefined || arg === null) {
+        continue;
       }
 
-      if (arg instanceof HTMLElement) {
+      if (typeof arg === 'number') {
+        output.push(`<span class="weight">${arg}</span>`);
+        continue;
+      }
+
+      if (typeof arg === 'string' && /^\d+$/.test(arg.trim())) {
+        output.push(`<span class="weight">${escapeHTML(arg)}</span>`);
+        continue;
+      }
+
+      if (typeof arg === 'object' && arg !== null) {
+        if (arg instanceof HTMLElement) {
         // Stringify element
-        output.push(escapeHTML(arg.outerHTML));
-        return;
+          let html = escapeHTML(arg.outerHTML);
+          output.push(html);
+          continue;
+        }
+        let json = `<pre>${escapeHTML(JSON.stringify(arg, null, 2))}</pre>`;
+        output.push(json);
+        continue;
       }
       
       if (typeof arg == 'string') {
@@ -27,25 +44,42 @@ export class VirtualConsole {
         const fragments = arg.split('%c');
         if (fragments.length == 1) {
           output.push(escapeHTML(arg));
-          return;
+          continue;
         }
+
+        let currentGroup = [];
+        let result = [];
+        result.push(nlToBr(escapeHTML(fragments[0])));
 
         for (let j = 1; j < fragments.length; j++) {
-          const fragment = escapeHTML(fragments[j]);
-          // The subsequent arg is the style for this fragment
-          fragments[j] = `<span style="${args[i + j]}">${fragment}</span>`;
+          const fragment = fragments[j];
+          const style = args[i + j];
+          const isColorBarSpan = style && (style.includes('background-color') || style.includes('background-image')) && (fragment === ' ' || fragment === '');
+          const span = `<span style="${style}">${nlToBr(escapeHTML(fragment))}</span>`;
+
+          if (isColorBarSpan) {
+            currentGroup.push(span);
+          } else {
+            if (currentGroup.length > 0) {
+              result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+              currentGroup = [];
+            }
+            result.push(span);
+          }
           delete args[i + j];
         }
+        if (currentGroup.length > 0) {
+          result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+        }
 
-        output.push(fragments.map(nlToBr).join(''));
+        output.push(result.join(''));
       }
-    });
+    }
 
     return output.join(' ');
   }
 
   logAtLevel(level, ...args) {
-    return;
     const div = document.createElement('div');
     div.classList.add(level);
     div.innerHTML = this.renderLog(...args);
@@ -73,16 +107,30 @@ export class VirtualConsole {
   }
 
   groupCollapsed(...args) {
-    /* this.group = document.createElement('details');
+    const details = document.createElement('details');
     const summary = document.createElement('summary');
     summary.innerHTML = this.renderLog(...args);
-    this.group.appendChild(summary); */
+    details.appendChild(summary);
+
+    if (this.group) {
+      this.group.appendChild(details);
+    } else {
+      this.rootElement.appendChild(details);
+    }
+    this.group = details;
     console.groupCollapsed(...args);
   }
 
   groupEnd(...args) {
-    /* this.rootElement.appendChild(this.group); */
-    this.group = null;
+    if (this.group) {
+      // Move up one level if possible, or back to root
+      const parent = this.group.parentElement;
+      if (parent && parent.tagName === 'DETAILS') {
+        this.group = parent;
+      } else {
+        this.group = null;
+      }
+    }
     console.groupEnd(...args);
   }
 
@@ -93,5 +141,10 @@ function nlToBr(str) {
 }
 
 function escapeHTML(str) {
-  return str.replace(/<([^>]*>)[^<]*(<.*)/g, '<span style="font-family: monospace;">&lt;$1&hellip;');
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
