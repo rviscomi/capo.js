@@ -5,8 +5,8 @@
  * @module analyzer
  */
 
-import * as rules from '../lib/rules.js';
-import { getValidationWarnings, getCustomValidations } from '../lib/validation.js';
+import * as rules from './lib/rules.js';
+import { getValidationWarnings, getCustomValidations } from './lib/validation.js';
 
 /**
  * @typedef {Object} AnalysisResult

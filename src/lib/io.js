@@ -121,6 +121,35 @@ export class IO {
     return element;
   }
 
+  logAnalysis(result) {
+    const headElement = this.getHead();
+    const headWeights = result.weights.map(w => {
+      const customValidation = result.customValidations.find(v => v.element === w.element);
+      return {
+        element: w.element,
+        weight: w.weight,
+        isValid: !customValidation,
+        customValidations: customValidation || {}
+      };
+    });
+
+    const sortedHeadWeights = [...headWeights].sort((a, b) => b.weight - a.weight);
+
+    this.logValidationWarnings(result.validationWarnings);
+
+    // Log custom validations (e.g. origin trials) at the top level
+    result.customValidations.forEach(v => {
+      if (v.warnings.length > 0) {
+        this.console.warn(`${this.options.loggingPrefix}${v.warnings[0]}`, v.element, v.payload || '');
+      }
+    });
+
+    this.visualizeHead("Actual", headElement, headWeights);
+    this.visualizeHead("Sorted", headElement, sortedHeadWeights);
+
+    return headWeights;
+  }
+
   logElementFromSelector({ weight, selector, innerHTML, isValid, customValidations = {} }) {
     weight = +weight;
     const viz = this.getElementVisualization(weight, isValid);

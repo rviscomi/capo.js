@@ -14,12 +14,20 @@
   "homepage": "https://rviscomi.github.io/capo.js/",
   "type": "module",
   "main": "src/index.js",
+  "alias": {
+    "@rviscomi/capo.js": "./src/index.js",
+    "@rviscomi/capo.js/adapters/browser": "./src/adapters/browser.js",
+    "@rviscomi/capo.js/lib/io": "./src/lib/io.js",
+    "@rviscomi/capo.js/lib/options": "./src/lib/options.js"
+  },
   "exports": {
     ".": "./src/index.js",
     "./adapters": "./src/adapters/index.js",
     "./adapters/browser": "./src/adapters/browser.js",
     "./rules": "./src/lib/rules.js",
     "./validation": "./src/lib/validation.js",
+    "./lib/io": "./src/lib/io.js",
+    "./lib/options": "./src/lib/options.js",
     "./adapters/test-suite": "./src/adapters/test-suite.js"
   },
   "directories": {

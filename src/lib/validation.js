@@ -349,12 +349,12 @@ function validateOriginTrial(element, adapter) {
   try {
     metadata.payload = decodeOriginTrialToken(token);
   } catch {
-    metadata.warnings.push("invalid token");
+    metadata.warnings.push("Invalid origin trial token: invalid token");
     return metadata;
   }
 
   if (metadata.payload.expiry < new Date()) {
-    metadata.warnings.push("expired");
+    metadata.warnings.push("Invalid origin trial token: expired");
   }
   
   // Origin validation only works in browser context with document.location
@@ -365,9 +365,9 @@ function validateOriginTrial(element, adapter) {
       //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
       //   2. The isThirdParty config is set
       if (subdomain && !metadata.payload.isSubdomain) {
-        metadata.warnings.push("invalid subdomain");
+        metadata.warnings.push("Invalid origin trial token: invalid subdomain");
       } else if (!subdomain && !metadata.payload.isThirdParty) {
-        metadata.warnings.push("invalid third-party origin");
+        metadata.warnings.push("Invalid origin trial token: invalid third-party origin");
       }
     }
   }

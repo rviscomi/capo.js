@@ -1,321 +1,17 @@
-function $parcel$export(e, n, v, s) {
-  Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
-}
-// Legacy exports for backward compatibility
-const $47602b39438c5a8c$var$Hues = {
-    PINK: 320,
-    BLUE: 200
-};
-function $47602b39438c5a8c$export$921514c0345db5eb(hue) {
-    return [
-        `oklch(5% .1 ${hue})`,
-        `oklch(13% .2 ${hue})`,
-        `oklch(25% .2 ${hue})`,
-        `oklch(35% .25 ${hue})`,
-        `oklch(50% .27 ${hue})`,
-        `oklch(67% .31 ${hue})`,
-        `oklch(72% .25 ${hue})`,
-        `oklch(80% .2 ${hue})`,
-        `oklch(90% .1 ${hue})`,
-        `oklch(99% .05 ${hue})`,
-        "#ccc"
-    ];
-}
-const $47602b39438c5a8c$export$e6952b12ade67489 = [
-    "#9e0142",
-    "#d53e4f",
-    "#f46d43",
-    "#fdae61",
-    "#fee08b",
-    "#e6f598",
-    "#abdda4",
-    "#66c2a5",
-    "#3288bd",
-    "#5e4fa2",
-    "#cccccc"
-];
-const $47602b39438c5a8c$export$d68d0fda4a10dbc2 = $47602b39438c5a8c$export$921514c0345db5eb($47602b39438c5a8c$var$Hues.PINK);
-const $47602b39438c5a8c$export$738c3b9a44c87ecc = $47602b39438c5a8c$export$921514c0345db5eb($47602b39438c5a8c$var$Hues.BLUE);
-const $47602b39438c5a8c$export$9a82c28ef488e918 = {
-    DEFAULT: $47602b39438c5a8c$export$e6952b12ade67489,
-    PINK: $47602b39438c5a8c$export$d68d0fda4a10dbc2,
-    BLUE: $47602b39438c5a8c$export$738c3b9a44c87ecc
-};
-function $47602b39438c5a8c$export$18c940335d915715(elementColor) {
-    let invalidColor = "#cccccc";
-    if (elementColor == invalidColor) invalidColor = "red";
-    return `repeating-linear-gradient(45deg, ${elementColor}, ${elementColor} 3px, ${invalidColor} 3px, ${invalidColor} 6px)`;
-}
-
-
-var $33f7359dc421be0c$exports = {};
-
-$parcel$export($33f7359dc421be0c$exports, "IO", () => $33f7359dc421be0c$export$8f8422ac5947a789);
-
-class $33f7359dc421be0c$export$8f8422ac5947a789 {
-    constructor(document1, options, output = window.console){
-        this.document = document1;
-        this.options = options;
-        this.console = output;
-        this.isStaticHead = false;
-        this.head = null;
-    }
-    async init() {
-        if (this.head) return;
-        if (this.options.prefersDynamicAssessment()) {
-            this.head = this.document.querySelector("head");
-            return;
-        }
-        try {
-            let html = await this.getStaticHTML();
-            html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
-            const staticDoc = this.document.implementation.createHTMLDocument("New Document");
-            staticDoc.documentElement.innerHTML = html;
-            this.head = staticDoc.querySelector("static-head");
-            if (this.head) this.isStaticHead = true;
-            else this.head = this.document.head;
-        } catch (e) {
-            this.console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
-            this.head = this.document.head;
-        }
-        if (!this.isStaticHead) this.console.warn(`${this.options.loggingPrefix}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, this.head);
-    }
-    async getStaticHTML() {
-        const url = this.document.location.href;
-        const response = await fetch(url);
-        return await response.text();
-    }
-    getHead() {
-        return this.head;
-    }
-    stringifyElement(element) {
-        return element.getAttributeNames().reduce((id, attr)=>{
-            return id += `[${CSS.escape(attr)}=${JSON.stringify(element.getAttribute(attr))}]`;
-        }, element.nodeName);
-    }
-    getLoggableElement(element) {
-        if (!this.isStaticHead) return element;
-        const selector = this.stringifyElement(element);
-        const candidates = Array.from(this.document.head.querySelectorAll(selector));
-        if (candidates.length == 0) return element;
-        if (candidates.length == 1) return candidates[0];
-        // The way the static elements are parsed makes their innerHTML different.
-        // Recreate the element in DOM and compare its innerHTML with those of the candidates.
-        // This ensures a consistent parsing and positive string matches.
-        const candidateWrapper = this.document.createElement("div");
-        const elementWrapper = this.document.createElement("div");
-        elementWrapper.innerHTML = element.innerHTML;
-        const candidate = candidates.find((c)=>{
-            candidateWrapper.innerHTML = c.innerHTML;
-            return candidateWrapper.innerHTML == elementWrapper.innerHTML;
-        });
-        if (candidate) return candidate;
-        return element;
-    }
-    // Note: AI-generated function.
-    createElementFromSelector(selector) {
-        // Extract the tag name from the selector
-        const tagName = selector.match(/^[A-Za-z]+/)[0];
-        if (!tagName) return;
-        // Create the new element
-        const element = document.createElement(tagName);
-        // Extract the attribute key-value pairs from the selector
-        const attributes = selector.match(/\[([A-Za-z-]+)="([^"]+)"\]/g) || [];
-        // Set the attributes on the new element
-        attributes.forEach((attribute)=>{
-            // Trim square brackets
-            attribute = attribute.slice(1, -1);
-            const delimeterPosition = attribute.indexOf("=");
-            // Everything before the =
-            const key = attribute.slice(0, delimeterPosition);
-            // Everything after the =, with quotes trimmed
-            const value = attribute.slice(delimeterPosition + 1).slice(1, -1);
-            element.setAttribute(key, value);
-        });
-        return element;
-    }
-    logElementFromSelector({ weight: weight, selector: selector, innerHTML: innerHTML, isValid: isValid, customValidations: customValidations = {} }) {
-        weight = +weight;
-        const viz = this.getElementVisualization(weight, isValid);
-        let element = this.createElementFromSelector(selector);
-        element.innerHTML = innerHTML;
-        element = this.getLoggableElement(element);
-        this.logElement({
-            viz: viz,
-            weight: weight,
-            element: element,
-            isValid: isValid,
-            customValidations: customValidations
-        });
-    }
-    logElement({ viz: viz, weight: weight, element: element, isValid: isValid, customValidations: customValidations = {}, omitPrefix: omitPrefix = false }) {
-        if (!omitPrefix) viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
-        let loggingLevel = "log";
-        const args = [
-            viz.visual,
-            viz.style,
-            weight + 1,
-            element
-        ];
-        if (!this.options.isValidationEnabled()) {
-            this.console[loggingLevel](...args);
-            return;
-        }
-        const { payload: payload, warnings: warnings } = customValidations;
-        if (payload) {
-            if (typeof payload.expiry == "string") // Deserialize origin trial expiration dates.
-            payload.expiry = new Date(payload.expiry);
-            args.push(payload);
-        }
-        if (warnings?.length) {
-            // Element-specific warnings.
-            loggingLevel = "warn";
-            args.push("\n" + warnings.map((warning)=>`  ❌ ${warning}`).join("\n"));
-        } else if (!isValid && (this.options.prefersDynamicAssessment() || this.isStaticHead)) {
-            // General warnings.
-            loggingLevel = "warn";
-            args.push(`\n  ❌ invalid element (${element.tagName})`);
-        }
-        this.console[loggingLevel](...args);
-    }
-    logValidationWarnings(warnings) {
-        if (!this.options.isValidationEnabled()) return;
-        warnings.forEach(({ warning: warning, elements: elements = [], element: element })=>{
-            elements = elements.map(this.getLoggableElement.bind(this));
-            this.console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element || "");
-        });
-    }
-    getColor(weight) {
-        return this.options.palette[10 - weight];
-    }
-    getHeadVisualization(elements) {
-        let visual = "";
-        const styles = [];
-        elements.forEach(({ weight: weight, isValid: isValid })=>{
-            visual += "%c ";
-            const color = this.getColor(weight);
-            let style = `padding: 5px; margin: 0 -1px; `;
-            if (isValid) style += `background-color: ${color};`;
-            else style += `background-image: ${(0, $47602b39438c5a8c$export$18c940335d915715)(color)}`;
-            styles.push(style);
-        });
-        return {
-            visual: visual,
-            styles: styles
-        };
-    }
-    getElementVisualization(weight, isValid = true) {
-        const visual = `%c${new Array(weight + 1).fill("█").join("")}`;
-        const color = this.getColor(weight);
-        let style = `color: ${color}`;
-        return {
-            visual: visual,
-            style: style
-        };
-    }
-    visualizeHead(groupName, headElement, headWeights) {
-        const headViz = this.getHeadVisualization(headWeights);
-        this.console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %chead%c order\n${headViz.visual}`, "font-family: monospace", "font-family: inherit", ...headViz.styles);
-        headWeights.forEach(({ weight: weight, element: element, isValid: isValid, customValidations: customValidations })=>{
-            const viz = this.getElementVisualization(weight, isValid);
-            this.logElement({
-                viz: viz,
-                weight: weight,
-                element: element,
-                isValid: isValid,
-                customValidations: customValidations,
-                omitPrefix: true
-            });
-        });
-        this.console.log(`${groupName} %chead%c element`, "font-family: monospace", "font-family: inherit", headElement);
-        this.console.groupEnd();
-    }
-}
-
-
-var $5daa40bf356478d7$exports = {};
-
-$parcel$export($5daa40bf356478d7$exports, "Options", () => $5daa40bf356478d7$export$c019608e5b5bb4cb);
-
-class $5daa40bf356478d7$export$c019608e5b5bb4cb {
-    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $47602b39438c5a8c$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " } = {}){
-        this.setPreferredAssessmentMode(preferredAssessmentMode);
-        this.setValidation(validation);
-        this.setPalette(palette);
-        this.setLoggingPrefix(loggingPrefix);
-    }
-    static get AssessmentMode() {
-        return {
-            STATIC: "static",
-            DYNAMIC: "dynamic"
-        };
-    }
-    static get Palettes() {
-        return $47602b39438c5a8c$export$9a82c28ef488e918;
-    }
-    prefersStaticAssessment() {
-        return this.preferredAssessmentMode === $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
-    }
-    prefersDynamicAssessment() {
-        return this.preferredAssessmentMode === $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
-    }
-    isValidationEnabled() {
-        return this.validation;
-    }
-    setPreferredAssessmentMode(preferredAssessmentMode) {
-        if (!this.isValidAssessmentMode(preferredAssessmentMode)) throw new Error(`Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`);
-        this.preferredAssessmentMode = preferredAssessmentMode;
-    }
-    setPreferredAssessmentModeToStatic(prefersStatic) {
-        let mode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
-        if (!prefersStatic) mode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
-        this.setPreferredAssessmentMode(mode);
-    }
-    setValidation(validation) {
-        if (!this.isValidValidation(validation)) throw new Error(`Invalid option: validation, expected boolean, got "${validation}".`);
-        this.validation = validation;
-    }
-    setPalette(palette) {
-        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected [${Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).join("|")}] or an array of colors, got "${palette}".`);
-        if (typeof palette === "string") {
-            this.palette = $47602b39438c5a8c$export$9a82c28ef488e918[palette];
-            return;
-        }
-        this.palette = palette;
-    }
-    setLoggingPrefix(loggingPrefix) {
-        if (!this.isValidLoggingPrefix(loggingPrefix)) throw new Error(`Invalid option: logging prefix, expected string, got "${loggingPrefix}".`);
-        this.loggingPrefix = loggingPrefix;
-    }
-    isValidAssessmentMode(assessmentMode) {
-        return Object.values($5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
-    }
-    isValidValidation(validation) {
-        return typeof validation === "boolean";
-    }
-    isValidPalette(palette) {
-        if (typeof palette === "string") return Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).includes(palette);
-        if (!Array.isArray(palette)) return false;
-        return palette.length === 11 && palette.every((color)=>typeof color === "string");
-    }
-    isValidLoggingPrefix(loggingPrefix) {
-        return typeof loggingPrefix === "string";
-    }
-    isPreferredPalette(palette) {
-        return JSON.stringify(this.palette) == JSON.stringify(palette);
-    }
-    valueOf() {
-        return {
-            preferredAssessmentMode: this.preferredAssessmentMode,
-            validation: this.validation,
-            palette: this.palette,
-            loggingPrefix: this.loggingPrefix
-        };
-    }
-}
-
-
-const $ee7e0c73e51ebfda$export$881088883fcab450 = {
+/**
+ * Capo.js v2.0 - DOM-agnostic HTML <head> analyzer
+ * 
+ * Main entry point for programmatic usage.
+ * Exports both the core analyzer API and adapter implementations.
+ * 
+ * @module capo
+ */ // Core Analysis API
+/**
+ * Core DOM-agnostic analyzer for capo.js
+ * Provides single-pass analysis of HTML <head> elements
+ * 
+ * @module analyzer
+ */ const $ee7e0c73e51ebfda$export$881088883fcab450 = {
     META: 10,
     TITLE: 9,
     PRECONNECT: 8,
@@ -691,10 +387,10 @@ function $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter) {
     try {
         metadata.payload = $c322f9a5057eaf5c$var$decodeOriginTrialToken(token);
     } catch  {
-        metadata.warnings.push("invalid token");
+        metadata.warnings.push("Invalid origin trial token: invalid token");
         return metadata;
     }
-    if (metadata.payload.expiry < new Date()) metadata.warnings.push("expired");
+    if (metadata.payload.expiry < new Date()) metadata.warnings.push("Invalid origin trial token: expired");
     // Origin validation only works in browser context with document.location
     if (typeof document !== "undefined" && document.location && document.location.href) {
         if (!$c322f9a5057eaf5c$var$isSameOrigin(metadata.payload.origin, document.location.href)) {
@@ -702,8 +398,8 @@ function $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter) {
             // Cross-origin OTs are only valid if:
             //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
             //   2. The isThirdParty config is set
-            if (subdomain && !metadata.payload.isSubdomain) metadata.warnings.push("invalid subdomain");
-            else if (!subdomain && !metadata.payload.isThirdParty) metadata.warnings.push("invalid third-party origin");
+            if (subdomain && !metadata.payload.isSubdomain) metadata.warnings.push("Invalid origin trial token: invalid subdomain");
+            else if (!subdomain && !metadata.payload.isThirdParty) metadata.warnings.push("Invalid origin trial token: invalid third-party origin");
         }
     }
     return metadata;
@@ -1173,29 +869,14 @@ function $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element, adapter, pare
 }
 
 
-/**
- * Capo.js v2.0 - DOM-agnostic HTML <head> analyzer
- * 
- * Main entry point for programmatic usage.
- * Exports both the core analyzer API and adapter implementations.
- * 
- * @module capo
- */ // Core Analysis API
-/**
- * Core DOM-agnostic analyzer for capo.js
- * Provides single-pass analysis of HTML <head> elements
- * 
- * @module core/analyzer
- */ 
-
-function $3a27d49fa01d98e6$export$66aa292af6e88fd9(headNode, adapter, options = {}) {
+function $4638c35e8aec1c56$export$66aa292af6e88fd9(headNode, adapter, options = {}) {
     const { includeValidation: includeValidation = true, includeCustomValidations: includeCustomValidations = true } = options;
     // Pass 1: Compute weights for all elements
     const weights = $ee7e0c73e51ebfda$export$5cc4a311ddbe699c(headNode, adapter);
     // Pass 2: Get document-level validation warnings
     const validationWarnings = includeValidation ? (0, $c322f9a5057eaf5c$export$b01ab94d0cd042a0)(headNode, adapter) : [];
     // Pass 3: Get element-level custom validations
-    const customValidations = includeCustomValidations ? $3a27d49fa01d98e6$var$getElementValidations(headNode, adapter) : [];
+    const customValidations = includeCustomValidations ? $4638c35e8aec1c56$var$getElementValidations(headNode, adapter) : [];
     return {
         weights: weights,
         validationWarnings: validationWarnings,
@@ -1210,7 +891,7 @@ function $3a27d49fa01d98e6$export$66aa292af6e88fd9(headNode, adapter, options = 
  * @param {Object} adapter - HTMLAdapter implementation
  * @returns {Array<CustomValidation>}
  * @private
- */ function $3a27d49fa01d98e6$var$getElementValidations(headNode, adapter) {
+ */ function $4638c35e8aec1c56$var$getElementValidations(headNode, adapter) {
     const customValidations = [];
     const children = adapter.getChildren(headNode);
     for (const element of children){
@@ -1224,21 +905,21 @@ function $3a27d49fa01d98e6$export$66aa292af6e88fd9(headNode, adapter, options = 
     }
     return customValidations;
 }
-function $3a27d49fa01d98e6$export$a824357f4ceaf2cf(weight) {
+function $4638c35e8aec1c56$export$a824357f4ceaf2cf(weight) {
     // Find the category that matches this weight
     for (const [category, value] of Object.entries($ee7e0c73e51ebfda$export$881088883fcab450)){
         if (value === weight) return category;
     }
     return "UNKNOWN";
 }
-function $3a27d49fa01d98e6$export$9d3d5cf01843f4a8(weights) {
+function $4638c35e8aec1c56$export$9d3d5cf01843f4a8(weights) {
     const violations = [];
     for(let i = 0; i < weights.length - 1; i++){
         const current = weights[i];
         const next = weights[i + 1];
         if (current.weight < next.weight) {
-            const currentCategory = $3a27d49fa01d98e6$export$a824357f4ceaf2cf(current.weight);
-            const nextCategory = $3a27d49fa01d98e6$export$a824357f4ceaf2cf(next.weight);
+            const currentCategory = $4638c35e8aec1c56$export$a824357f4ceaf2cf(current.weight);
+            const nextCategory = $4638c35e8aec1c56$export$a824357f4ceaf2cf(next.weight);
             violations.push({
                 index: i + 1,
                 currentElement: current.element,
@@ -1253,9 +934,9 @@ function $3a27d49fa01d98e6$export$9d3d5cf01843f4a8(weights) {
     }
     return violations;
 }
-function $3a27d49fa01d98e6$export$283ccd6e4ed2051d(headNode, adapter, options = {}) {
-    const result = $3a27d49fa01d98e6$export$66aa292af6e88fd9(headNode, adapter, options);
-    const orderingViolations = $3a27d49fa01d98e6$export$9d3d5cf01843f4a8(result.weights);
+function $4638c35e8aec1c56$export$283ccd6e4ed2051d(headNode, adapter, options = {}) {
+    const result = $4638c35e8aec1c56$export$66aa292af6e88fd9(headNode, adapter, options);
+    const orderingViolations = $4638c35e8aec1c56$export$9d3d5cf01843f4a8(result.weights);
     return {
         ...result,
         orderingViolations: orderingViolations
@@ -1272,19 +953,114 @@ function $3a27d49fa01d98e6$export$283ccd6e4ed2051d(headNode, adapter, options = 
  * This adapter is used in browser environments where capo.js operates
  * on actual DOM elements.
  */ /**
- * Browser DOM adapter
+ * @file Base adapter interface for HTML tree operations
  * 
- * Wraps native DOM Element APIs for use with capo.js core logic.
+ * This file defines the contract that all adapters must implement.
+ * Adapters abstract away environment-specific operations (browser DOM vs AST nodes)
+ * to make capo.js core logic reusable across different contexts.
  * 
- * @implements {HTMLAdapter}
- * @example
- * import { BrowserAdapter } from './adapters/browser.js';
- * import { analyzeHead } from './core/analyzer.js';
- * 
- * const adapter = new BrowserAdapter();
- * const head = document.querySelector('head');
- * const result = analyzeHead(head, adapter);
- */ class $6e48536853157d9f$export$e467cc3399500025 {
+ * @interface HTMLAdapter
+ */ const $7afc5bf68bcc75e1$var$REQUIRED_METHODS = [
+    "isElement",
+    "getTagName",
+    "getAttribute",
+    "hasAttribute",
+    "getAttributeNames",
+    "getTextContent",
+    "getChildren",
+    "getParent",
+    "getSiblings",
+    "stringify"
+];
+class $7afc5bf68bcc75e1$export$d1d100ae3c773a95 {
+    /**
+   * Check if node is an Element (not text, comment, etc.)
+   * @param {any} node - The node to check
+   * @returns {boolean}
+   */ isElement(node) {
+        throw new Error("isElement() not implemented");
+    }
+    /**
+   * Get the tag name of an element (lowercase)
+   * @param {any} node - Element node
+   * @returns {string} - Tag name like 'meta', 'link', 'script'
+   */ getTagName(node) {
+        throw new Error("getTagName() not implemented");
+    }
+    /**
+   * Get attribute value from element
+   * @param {any} node - Element node
+   * @param {string} attrName - Attribute name (case-insensitive)
+   * @returns {string | null} - Attribute value or null if not found
+   */ getAttribute(node, attrName) {
+        throw new Error("getAttribute() not implemented");
+    }
+    /**
+   * Check if element has a specific attribute
+   * @param {any} node - Element node
+   * @param {string} attrName - Attribute name (case-insensitive)
+   * @returns {boolean} - True if attribute exists
+   */ hasAttribute(node, attrName) {
+        throw new Error("hasAttribute() not implemented");
+    }
+    /**
+   * Get all attribute names for an element
+   * @param {any} node - Element node
+   * @returns {string[]} - Array of attribute names
+   */ getAttributeNames(node) {
+        throw new Error("getAttributeNames() not implemented");
+    }
+    /**
+   * Get text content of a node (for inline scripts/styles)
+   * @param {any} node - Element node
+   * @returns {string} - Text content
+   */ getTextContent(node) {
+        throw new Error("getTextContent() not implemented");
+    }
+    /**
+   * Get child elements of a node
+   * @param {any} node - Parent node
+   * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
+   */ getChildren(node) {
+        throw new Error("getChildren() not implemented");
+    }
+    /**
+   * Get parent element of a node
+   * @param {any} node - Child node
+   * @returns {any | null} - Parent element node, or null if no parent
+   */ getParent(node) {
+        throw new Error("getParent() not implemented");
+    }
+    /**
+   * Get sibling elements of a node
+   * @param {any} node - Element node
+   * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
+   */ getSiblings(node) {
+        throw new Error("getSiblings() not implemented");
+    }
+    /**
+   * Get source location for a node (optional, for linting)
+   * @param {any} node - Element node
+   * @returns {{ line: number, column: number, endLine?: number, endColumn?: number } | null}
+   */ getLocation(node) {
+        return null;
+    }
+    /**
+   * Stringify element for logging/debugging
+   * @param {any} node - Element node
+   * @returns {string} - String representation like "<meta charset='utf-8'>"
+   */ stringify(node) {
+        throw new Error("stringify() not implemented");
+    }
+}
+function $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b(adapter) {
+    for (const method of $7afc5bf68bcc75e1$var$REQUIRED_METHODS){
+        if (typeof adapter[method] !== "function") throw new Error(`Adapter missing required method: ${method}()`);
+    }
+}
+
+
+class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$export$d1d100ae3c773a95) {
     /**
    * Check if node is an Element (not text, comment, etc.)
    * @param {any} node - The node to check
@@ -1395,256 +1171,6 @@ function $3a27d49fa01d98e6$export$283ccd6e4ed2051d(headNode, adapter, options = 
 }
 
 
-/**
- * @file Adapter Factory
- * 
- * Provides a registry-based factory for creating adapters.
- * Supports both explicit adapter creation by name and auto-detection
- * from node structure.
- */ 
-/**
- * @file Base adapter interface for HTML tree operations
- * 
- * This file defines the contract that all adapters must implement.
- * Adapters abstract away environment-specific operations (browser DOM vs AST nodes)
- * to make capo.js core logic reusable across different contexts.
- * 
- * @interface HTMLAdapter
- */ /**
- * Base adapter interface (documentation only)
- * 
- * Actual adapters should implement all these methods.
- * This serves as both documentation and a reference implementation.
- * 
- * @example
- * import { BrowserAdapter } from './browser.js';
- * import { ParserAdapter } from './parser.js';
- * 
- * // For browser DOM:
- * const adapter = new BrowserAdapter();
- * 
- * // For ESLint HTML parser AST:
- * const adapter = new ParserAdapter();
- */ class $7afc5bf68bcc75e1$export$d1d100ae3c773a95 {
-    /**
-   * Check if node is an Element (not text, comment, etc.)
-   * @param {any} node - The node to check
-   * @returns {boolean}
-   */ isElement(node) {
-        throw new Error("isElement() not implemented");
-    }
-    /**
-   * Get the tag name of an element (lowercase)
-   * @param {any} node - Element node
-   * @returns {string} - Tag name like 'meta', 'link', 'script'
-   */ getTagName(node) {
-        throw new Error("getTagName() not implemented");
-    }
-    /**
-   * Get attribute value from element
-   * @param {any} node - Element node
-   * @param {string} attrName - Attribute name (case-insensitive)
-   * @returns {string | null} - Attribute value or null if not found
-   */ getAttribute(node, attrName) {
-        throw new Error("getAttribute() not implemented");
-    }
-    /**
-   * Check if element has a specific attribute
-   * @param {any} node - Element node
-   * @param {string} attrName - Attribute name (case-insensitive)
-   * @returns {boolean} - True if attribute exists
-   */ hasAttribute(node, attrName) {
-        throw new Error("hasAttribute() not implemented");
-    }
-    /**
-   * Get all attribute names for an element
-   * @param {any} node - Element node
-   * @returns {string[]} - Array of attribute names
-   */ getAttributeNames(node) {
-        throw new Error("getAttributeNames() not implemented");
-    }
-    /**
-   * Get text content of a node (for inline scripts/styles)
-   * @param {any} node - Element node
-   * @returns {string} - Text content
-   */ getTextContent(node) {
-        throw new Error("getTextContent() not implemented");
-    }
-    /**
-   * Get child elements of a node
-   * @param {any} node - Parent node
-   * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
-   */ getChildren(node) {
-        throw new Error("getChildren() not implemented");
-    }
-    /**
-   * Get parent element of a node
-   * @param {any} node - Child node
-   * @returns {any | null} - Parent element node, or null if no parent
-   */ getParent(node) {
-        throw new Error("getParent() not implemented");
-    }
-    /**
-   * Get sibling elements of a node
-   * @param {any} node - Element node
-   * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
-   */ getSiblings(node) {
-        throw new Error("getSiblings() not implemented");
-    }
-    /**
-   * Get source location for a node (optional, for linting)
-   * @param {any} node - Element node
-   * @returns {{ line: number, column: number, endLine?: number, endColumn?: number } | null}
-   */ getLocation(node) {
-        throw new Error("getLocation() not implemented");
-    }
-    /**
-   * Stringify element for logging/debugging
-   * @param {any} node - Element node
-   * @returns {string} - String representation like "<meta charset='utf-8'>"
-   */ stringify(node) {
-        throw new Error("stringify() not implemented");
-    }
-}
-function $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b(adapter) {
-    const requiredMethods = [
-        "isElement",
-        "getTagName",
-        "getAttribute",
-        "hasAttribute",
-        "getAttributeNames",
-        "getTextContent",
-        "getChildren",
-        "getParent",
-        "getSiblings",
-        "getLocation",
-        "stringify"
-    ];
-    for (const method of requiredMethods){
-        if (typeof adapter[method] !== "function") throw new Error(`Adapter missing required method: ${method}()`);
-    }
-}
-
-
-/**
- * Registry of available adapters
- * Maps adapter names to their constructor classes
- */ const $8c7d65d7a3625032$var$registry = new Map([
-    [
-        "browser",
-        (0, $6e48536853157d9f$export$e467cc3399500025)
-    ]
-]);
-class $8c7d65d7a3625032$export$4f24674036ad9ae3 {
-    /**
-   * Create an adapter by name or auto-detect from node
-   * 
-   * @param {string|any} nameOrNode - Adapter name string or node to detect from
-   * @returns {BrowserAdapter|IOAdapter|NodeAdapter|StringAdapter} Adapter instance
-   * @throws {Error} If adapter name is unknown or node type cannot be detected
-   */ static create(nameOrNode) {
-        // If string name provided, look up in registry
-        if (typeof nameOrNode === "string") return this.createByName(nameOrNode);
-        // Otherwise auto-detect from node structure
-        return this.detect(nameOrNode);
-    }
-    /**
-   * Create an adapter by registered name
-   * 
-   * @param {string} name - Adapter name ('browser', 'io', 'node', 'string', etc.)
-   * @returns {BrowserAdapter|IOAdapter|NodeAdapter|StringAdapter} Adapter instance
-   * @throws {Error} If adapter name is not registered
-   */ static createByName(name) {
-        const AdapterClass = $8c7d65d7a3625032$var$registry.get(name);
-        if (!AdapterClass) {
-            const available = Array.from($8c7d65d7a3625032$var$registry.keys()).join(", ");
-            throw new Error(`Unknown adapter: "${name}". Available adapters: ${available}`);
-        }
-        const adapter = new AdapterClass();
-        // Validate that adapter implements the interface correctly
-        try {
-            (0, $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b)(adapter);
-        } catch (error) {
-            throw new Error(`Adapter "${name}" failed validation: ${error.message}`);
-        }
-        return adapter;
-    }
-    /**
-   * Auto-detect adapter from node structure
-   * 
-   * Examines the node to determine which adapter should be used.
-   * 
-   * @param {any} element - Element to examine
-   * @returns {BrowserAdapter} Detected adapter
-   * @throws {Error} If node type cannot be detected
-   */ static detect(element) {
-        if (element === null || element === undefined) throw new Error("Cannot detect adapter: element is null or undefined");
-        // Browser DOM Element
-        // Check for nodeType property (standard DOM API)
-        if (typeof element.nodeType === "number" && element.nodeType === 1) return new (0, $6e48536853157d9f$export$e467cc3399500025)();
-        // Future: JSX AST node detection
-        // if (node.type === 'JSXElement') {
-        //   return new JsxAdapter();
-        // }
-        // Unknown node type
-        const elementInfo = element.nodeType ? `nodeType=${element.nodeType}` : element.type ? `type="${element.type}"` : `type=${typeof element}`;
-        throw new Error(`Cannot detect adapter for element with ${elementInfo}. ` + "Supported types: Browser DOM Element (nodeType=1)");
-    }
-    /**
-   * Register a new adapter
-   * 
-   * Allows external code to register custom adapters for new parser types.
-   * 
-   * @param {string} name - Name to register adapter under
-   * @param {Function} AdapterClass - Adapter constructor class
-   * @throws {Error} If AdapterClass is not a constructor
-   * 
-   * @example
-   * import { JsxAdapter } from './my-jsx-adapter.js';
-   * AdapterFactory.register('jsx', JsxAdapter);
-   * const adapter = AdapterFactory.create('jsx');
-   */ static register(name, AdapterClass) {
-        if (typeof AdapterClass !== "function") throw new Error(`Cannot register adapter "${name}": AdapterClass must be a constructor function`);
-        // Test that the adapter can be instantiated
-        try {
-            const testInstance = new AdapterClass();
-            (0, $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b)(testInstance);
-        } catch (error) {
-            throw new Error(`Cannot register adapter "${name}": ${error.message}`);
-        }
-        $8c7d65d7a3625032$var$registry.set(name, AdapterClass);
-    }
-    /**
-   * List all registered adapter names
-   * 
-   * @returns {string[]} Array of registered adapter names
-   */ static list() {
-        return Array.from($8c7d65d7a3625032$var$registry.keys());
-    }
-    /**
-   * Check if an adapter is registered
-   * 
-   * @param {string} name - Adapter name to check
-   * @returns {boolean} True if adapter is registered
-   */ static has(name) {
-        return $8c7d65d7a3625032$var$registry.has(name);
-    }
-    /**
-   * Unregister an adapter
-   * 
-   * Useful for testing or removing custom adapters.
-   * Cannot remove built-in adapters (browser).
-   * 
-   * @param {string} name - Adapter name to remove
-   * @returns {boolean} True if adapter was removed
-   */ static unregister(name) {
-        // Protect built-in adapters
-        if (name === "browser") throw new Error(`Cannot unregister built-in adapter: "${name}"`);
-        return $8c7d65d7a3625032$var$registry.delete(name);
-    }
-}
-
-
 
  // Test utilities for custom adapters
  // These are exported via package.json for node usage only
@@ -1652,18 +1178,349 @@ class $8c7d65d7a3625032$export$4f24674036ad9ae3 {
 
 
 
+const $47602b39438c5a8c$var$Hues = {
+    PINK: 320,
+    BLUE: 200
+};
+function $47602b39438c5a8c$export$921514c0345db5eb(hue) {
+    return [
+        `oklch(5% .1 ${hue})`,
+        `oklch(13% .2 ${hue})`,
+        `oklch(25% .2 ${hue})`,
+        `oklch(35% .25 ${hue})`,
+        `oklch(50% .27 ${hue})`,
+        `oklch(67% .31 ${hue})`,
+        `oklch(72% .25 ${hue})`,
+        `oklch(80% .2 ${hue})`,
+        `oklch(90% .1 ${hue})`,
+        `oklch(99% .05 ${hue})`,
+        "#ccc"
+    ];
+}
+const $47602b39438c5a8c$export$e6952b12ade67489 = [
+    "#9e0142",
+    "#d53e4f",
+    "#f46d43",
+    "#fdae61",
+    "#fee08b",
+    "#e6f598",
+    "#abdda4",
+    "#66c2a5",
+    "#3288bd",
+    "#5e4fa2",
+    "#cccccc"
+];
+const $47602b39438c5a8c$export$d68d0fda4a10dbc2 = $47602b39438c5a8c$export$921514c0345db5eb($47602b39438c5a8c$var$Hues.PINK);
+const $47602b39438c5a8c$export$738c3b9a44c87ecc = $47602b39438c5a8c$export$921514c0345db5eb($47602b39438c5a8c$var$Hues.BLUE);
+const $47602b39438c5a8c$export$9a82c28ef488e918 = {
+    DEFAULT: $47602b39438c5a8c$export$e6952b12ade67489,
+    PINK: $47602b39438c5a8c$export$d68d0fda4a10dbc2,
+    BLUE: $47602b39438c5a8c$export$738c3b9a44c87ecc
+};
+function $47602b39438c5a8c$export$18c940335d915715(elementColor) {
+    let invalidColor = "#cccccc";
+    if (elementColor == invalidColor) invalidColor = "red";
+    return `repeating-linear-gradient(45deg, ${elementColor}, ${elementColor} 3px, ${invalidColor} 3px, ${invalidColor} 6px)`;
+}
+
+
+class $33f7359dc421be0c$export$8f8422ac5947a789 {
+    constructor(document1, options, output = window.console){
+        this.document = document1;
+        this.options = options;
+        this.console = output;
+        this.isStaticHead = false;
+        this.head = null;
+    }
+    async init() {
+        if (this.head) return;
+        if (this.options.prefersDynamicAssessment()) {
+            this.head = this.document.querySelector("head");
+            return;
+        }
+        try {
+            let html = await this.getStaticHTML();
+            html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
+            const staticDoc = this.document.implementation.createHTMLDocument("New Document");
+            staticDoc.documentElement.innerHTML = html;
+            this.head = staticDoc.querySelector("static-head");
+            if (this.head) this.isStaticHead = true;
+            else this.head = this.document.head;
+        } catch (e) {
+            this.console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
+            this.head = this.document.head;
+        }
+        if (!this.isStaticHead) this.console.warn(`${this.options.loggingPrefix}Unable to parse the static (server-rendered) <head>. Falling back to document.head`, this.head);
+    }
+    async getStaticHTML() {
+        const url = this.document.location.href;
+        const response = await fetch(url);
+        return await response.text();
+    }
+    getHead() {
+        return this.head;
+    }
+    stringifyElement(element) {
+        return element.getAttributeNames().reduce((id, attr)=>{
+            return id += `[${CSS.escape(attr)}=${JSON.stringify(element.getAttribute(attr))}]`;
+        }, element.nodeName);
+    }
+    getLoggableElement(element) {
+        if (!this.isStaticHead) return element;
+        const selector = this.stringifyElement(element);
+        const candidates = Array.from(this.document.head.querySelectorAll(selector));
+        if (candidates.length == 0) return element;
+        if (candidates.length == 1) return candidates[0];
+        // The way the static elements are parsed makes their innerHTML different.
+        // Recreate the element in DOM and compare its innerHTML with those of the candidates.
+        // This ensures a consistent parsing and positive string matches.
+        const candidateWrapper = this.document.createElement("div");
+        const elementWrapper = this.document.createElement("div");
+        elementWrapper.innerHTML = element.innerHTML;
+        const candidate = candidates.find((c)=>{
+            candidateWrapper.innerHTML = c.innerHTML;
+            return candidateWrapper.innerHTML == elementWrapper.innerHTML;
+        });
+        if (candidate) return candidate;
+        return element;
+    }
+    // Note: AI-generated function.
+    createElementFromSelector(selector) {
+        // Extract the tag name from the selector
+        const tagName = selector.match(/^[A-Za-z]+/)[0];
+        if (!tagName) return;
+        // Create the new element
+        const element = document.createElement(tagName);
+        // Extract the attribute key-value pairs from the selector
+        const attributes = selector.match(/\[([A-Za-z-]+)="([^"]+)"\]/g) || [];
+        // Set the attributes on the new element
+        attributes.forEach((attribute)=>{
+            // Trim square brackets
+            attribute = attribute.slice(1, -1);
+            const delimeterPosition = attribute.indexOf("=");
+            // Everything before the =
+            const key = attribute.slice(0, delimeterPosition);
+            // Everything after the =, with quotes trimmed
+            const value = attribute.slice(delimeterPosition + 1).slice(1, -1);
+            element.setAttribute(key, value);
+        });
+        return element;
+    }
+    logAnalysis(result) {
+        const headElement = this.getHead();
+        const headWeights = result.weights.map((w)=>{
+            const customValidation = result.customValidations.find((v)=>v.element === w.element);
+            return {
+                element: w.element,
+                weight: w.weight,
+                isValid: !customValidation,
+                customValidations: customValidation || {}
+            };
+        });
+        const sortedHeadWeights = [
+            ...headWeights
+        ].sort((a, b)=>b.weight - a.weight);
+        this.logValidationWarnings(result.validationWarnings);
+        // Log custom validations (e.g. origin trials) at the top level
+        result.customValidations.forEach((v)=>{
+            if (v.warnings.length > 0) this.console.warn(`${this.options.loggingPrefix}${v.warnings[0]}`, v.element, v.payload || "");
+        });
+        this.visualizeHead("Actual", headElement, headWeights);
+        this.visualizeHead("Sorted", headElement, sortedHeadWeights);
+        return headWeights;
+    }
+    logElementFromSelector({ weight: weight, selector: selector, innerHTML: innerHTML, isValid: isValid, customValidations: customValidations = {} }) {
+        weight = +weight;
+        const viz = this.getElementVisualization(weight, isValid);
+        let element = this.createElementFromSelector(selector);
+        element.innerHTML = innerHTML;
+        element = this.getLoggableElement(element);
+        this.logElement({
+            viz: viz,
+            weight: weight,
+            element: element,
+            isValid: isValid,
+            customValidations: customValidations
+        });
+    }
+    logElement({ viz: viz, weight: weight, element: element, isValid: isValid, customValidations: customValidations = {}, omitPrefix: omitPrefix = false }) {
+        if (!omitPrefix) viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
+        let loggingLevel = "log";
+        const args = [
+            viz.visual,
+            viz.style,
+            weight + 1,
+            element
+        ];
+        if (!this.options.isValidationEnabled()) {
+            this.console[loggingLevel](...args);
+            return;
+        }
+        const { payload: payload, warnings: warnings } = customValidations;
+        if (payload) {
+            if (typeof payload.expiry == "string") // Deserialize origin trial expiration dates.
+            payload.expiry = new Date(payload.expiry);
+            args.push(payload);
+        }
+        if (warnings?.length) {
+            // Element-specific warnings.
+            loggingLevel = "warn";
+            args.push("\n" + warnings.map((warning)=>`  ❌ ${warning}`).join("\n"));
+        } else if (!isValid && (this.options.prefersDynamicAssessment() || this.isStaticHead)) {
+            // General warnings.
+            loggingLevel = "warn";
+            args.push(`\n  ❌ invalid element (${element.tagName})`);
+        }
+        this.console[loggingLevel](...args);
+    }
+    logValidationWarnings(warnings) {
+        if (!this.options.isValidationEnabled()) return;
+        warnings.forEach(({ warning: warning, elements: elements = [], element: element })=>{
+            elements = elements.map(this.getLoggableElement.bind(this));
+            this.console.warn(`${this.options.loggingPrefix}${warning}`, ...elements, element || "");
+        });
+    }
+    getColor(weight) {
+        return this.options.palette[10 - weight];
+    }
+    getHeadVisualization(elements) {
+        let visual = "";
+        const styles = [];
+        elements.forEach(({ weight: weight, isValid: isValid })=>{
+            visual += "%c ";
+            const color = this.getColor(weight);
+            let style = `padding: 5px; margin: 0 -1px; `;
+            if (isValid) style += `background-color: ${color};`;
+            else style += `background-image: ${(0, $47602b39438c5a8c$export$18c940335d915715)(color)}`;
+            styles.push(style);
+        });
+        return {
+            visual: visual,
+            styles: styles
+        };
+    }
+    getElementVisualization(weight, isValid = true) {
+        const visual = `%c${new Array(weight + 1).fill("█").join("")}`;
+        const color = this.getColor(weight);
+        let style = `color: ${color}`;
+        return {
+            visual: visual,
+            style: style
+        };
+    }
+    visualizeHead(groupName, headElement, headWeights) {
+        const headViz = this.getHeadVisualization(headWeights);
+        this.console.groupCollapsed(`${this.options.loggingPrefix}${groupName} %chead%c order\n${headViz.visual}`, "font-family: monospace", "font-family: inherit", ...headViz.styles);
+        headWeights.forEach(({ weight: weight, element: element, isValid: isValid, customValidations: customValidations })=>{
+            const viz = this.getElementVisualization(weight, isValid);
+            this.logElement({
+                viz: viz,
+                weight: weight,
+                element: element,
+                isValid: isValid,
+                customValidations: customValidations,
+                omitPrefix: true
+            });
+        });
+        this.console.log(`${groupName} %chead%c element`, "font-family: monospace", "font-family: inherit", headElement);
+        this.console.groupEnd();
+    }
+}
+
+
+
+class $5daa40bf356478d7$export$c019608e5b5bb4cb {
+    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $47602b39438c5a8c$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " } = {}){
+        this.setPreferredAssessmentMode(preferredAssessmentMode);
+        this.setValidation(validation);
+        this.setPalette(palette);
+        this.setLoggingPrefix(loggingPrefix);
+    }
+    static get AssessmentMode() {
+        return {
+            STATIC: "static",
+            DYNAMIC: "dynamic"
+        };
+    }
+    static get Palettes() {
+        return $47602b39438c5a8c$export$9a82c28ef488e918;
+    }
+    prefersStaticAssessment() {
+        return this.preferredAssessmentMode === $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
+    }
+    prefersDynamicAssessment() {
+        return this.preferredAssessmentMode === $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
+    }
+    isValidationEnabled() {
+        return this.validation;
+    }
+    setPreferredAssessmentMode(preferredAssessmentMode) {
+        if (!this.isValidAssessmentMode(preferredAssessmentMode)) throw new Error(`Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`);
+        this.preferredAssessmentMode = preferredAssessmentMode;
+    }
+    setPreferredAssessmentModeToStatic(prefersStatic) {
+        let mode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC;
+        if (!prefersStatic) mode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.DYNAMIC;
+        this.setPreferredAssessmentMode(mode);
+    }
+    setValidation(validation) {
+        if (!this.isValidValidation(validation)) throw new Error(`Invalid option: validation, expected boolean, got "${validation}".`);
+        this.validation = validation;
+    }
+    setPalette(palette) {
+        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected [${Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).join("|")}] or an array of colors, got "${palette}".`);
+        if (typeof palette === "string") {
+            this.palette = $47602b39438c5a8c$export$9a82c28ef488e918[palette];
+            return;
+        }
+        this.palette = palette;
+    }
+    setLoggingPrefix(loggingPrefix) {
+        if (!this.isValidLoggingPrefix(loggingPrefix)) throw new Error(`Invalid option: logging prefix, expected string, got "${loggingPrefix}".`);
+        this.loggingPrefix = loggingPrefix;
+    }
+    isValidAssessmentMode(assessmentMode) {
+        return Object.values($5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
+    }
+    isValidValidation(validation) {
+        return typeof validation === "boolean";
+    }
+    isValidPalette(palette) {
+        if (typeof palette === "string") return Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).includes(palette);
+        if (!Array.isArray(palette)) return false;
+        return palette.length === 11 && palette.every((color)=>typeof color === "string");
+    }
+    isValidLoggingPrefix(loggingPrefix) {
+        return typeof loggingPrefix === "string";
+    }
+    isPreferredPalette(palette) {
+        return JSON.stringify(this.palette) == JSON.stringify(palette);
+    }
+    valueOf() {
+        return {
+            preferredAssessmentMode: this.preferredAssessmentMode,
+            validation: this.validation,
+            palette: this.palette,
+            loggingPrefix: this.loggingPrefix
+        };
+    }
+}
+
 
 const $3536df9ffc9a62b8$var$FORCED_OPTIONS = {
-    preferredAssessmentMode: $5daa40bf356478d7$exports.Options.AssessmentMode.DYNAMIC
+    preferredAssessmentMode: (0, $5daa40bf356478d7$export$c019608e5b5bb4cb).AssessmentMode.DYNAMIC
 };
 function $3536df9ffc9a62b8$export$889ea624f2cb2c57(input, output, userOptions = {}) {
     userOptions = Object.assign(userOptions, $3536df9ffc9a62b8$var$FORCED_OPTIONS);
     const staticDoc = document.implementation.createHTMLDocument("New Document");
     staticDoc.documentElement.innerHTML = input;
-    const options = new $5daa40bf356478d7$exports.Options(userOptions);
-    const io = new $33f7359dc421be0c$exports.IO(staticDoc.documentElement, options, output);
+    const options = new (0, $5daa40bf356478d7$export$c019608e5b5bb4cb)(userOptions);
+    const io = new (0, $33f7359dc421be0c$export$8f8422ac5947a789)(staticDoc.documentElement, options, output);
     io.init();
-    logging.logAnalysis(io);
+    const headElement = io.getHead();
+    const adapter = new (0, $6e48536853157d9f$export$e467cc3399500025)();
+    const result = (0, $4638c35e8aec1c56$export$66aa292af6e88fd9)(headElement, adapter);
+    io.logAnalysis(result);
 }
 
 

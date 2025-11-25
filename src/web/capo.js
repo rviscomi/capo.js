@@ -1,8 +1,11 @@
-import * as capo from '../main.js';
+import { analyzeHead } from "@rviscomi/capo.js";
+import { BrowserAdapter } from "@rviscomi/capo.js/adapters/browser";
+import { IO } from "@rviscomi/capo.js/lib/io";
+import { Options } from "@rviscomi/capo.js/lib/options";
 
 
 const FORCED_OPTIONS = {
-  preferredAssessmentMode: capo.options.Options.AssessmentMode.DYNAMIC
+  preferredAssessmentMode: Options.AssessmentMode.DYNAMIC
 };
 
 /**
@@ -21,9 +24,13 @@ export function run(input, output, userOptions={}) {
   const staticDoc = document.implementation.createHTMLDocument('New Document');
   staticDoc.documentElement.innerHTML = input;
 
-  const options = new capo.options.Options(userOptions);
-  const io = new capo.io.IO(staticDoc.documentElement, options, output);
+  const options = new Options(userOptions);
+  const io = new IO(staticDoc.documentElement, options, output);
 
   io.init();
-  logging.logAnalysis(io);
-} 
+  const headElement = io.getHead();
+  const adapter = new BrowserAdapter();
+  const result = analyzeHead(headElement, adapter);
+
+  io.logAnalysis(result);
+}
