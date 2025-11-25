@@ -15,8 +15,8 @@ This script helps you identify which elements are out of order.
 
 ✨ _New: Install the [Capo Chrome extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb)_ ✨
 
-1. Install the [Chrome extension](https://chrome.google.com/webstore/detail/capo/ohkeehjepccojmgephomofandmjaafid)
-3. Explore the console logs
+1. Install the [Chrome extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb)
+2. Explore the console logs
 
 <img width="1552" alt="capo screenshot" src="https://github.com/rviscomi/capo.js/assets/1120896/b29672f9-1f05-4a05-a85e-df27acd153bd">
 
@@ -45,17 +45,7 @@ console.log(result.violations);    // Number of ordering violations
 console.log(result.warnings);      // Validation warnings
 ```
 
-### Using Adapters
-
-Capo.js uses adapters to work with different HTML representations:
-
-```javascript
-import { analyzeHead, BrowserAdapter } from '@rviscomi/capo.js';
-
-// For browser DOM (if using in browser context)
-const browserAdapter = new BrowserAdapter();
-const browserResult = analyzeHead(document.head, browserAdapter);
-```
+Learn more about building your own adapters in the [custom adapters docs](https://rviscomi.github.io/capo.js/developer/custom-adapters/).
 
 ### Subpath Exports
 
@@ -67,9 +57,6 @@ import { analyzeHead, checkOrdering } from '@rviscomi/capo.js';
 
 // Import just adapters
 import { BrowserAdapter } from '@rviscomi/capo.js/adapters';
-
-// Import specific adapters
-import { BrowserAdapter } from '@rviscomi/capo.js/adapters/browser';
 
 // Import rules API
 import { ElementWeights, getWeight } from '@rviscomi/capo.js/rules';
@@ -111,7 +98,7 @@ Plus individual detector functions: `isMeta()`, `isTitle()`, `isPreconnect()`, e
 
 ### Migration from v1.x
 
-See [MIGRATION.md](MIGRATION.md) for detailed migration guide.
+See the [migration guide](docs/src/content/docs/migration-v2.mdx) for detailed migration guide.
 
 **Key changes:**
 - All analysis functions now require an adapter parameter
@@ -122,7 +109,7 @@ See [MIGRATION.md](MIGRATION.md) for detailed migration guide.
 
 ![Capo.js Chrome extension](https://github.com/rviscomi/capo.js/assets/1120896/389bcec0-567d-448f-9897-eee5ca373e6b)
 
-WIP see [crx/](crx/)
+See the [extension docs](docs/src/content/docs/user/extension.mdx) for detailed usage instructions.
 
 
 ### Other
@@ -135,7 +122,7 @@ Another idea would be to use something like Cloudflare workers to inject the scr
 
 The script logs two info groups to the console: the actual order of the `<head>`, and the optimal order. In this collapsed view, you can see at a glance whether there are any high impact elements out of order.
 
-Each "weight" has a corresponding color, with red being the highest and blue/grey being the lowest. See [capo.js](https://github.com/rviscomi/capo.js/blob/main/capo.js#L1-L13) for the exact mapping.
+Each "weight" has a corresponding color, with red being the highest and blue/grey being the lowest. See [src/lib/rules.js](src/lib/rules.js) for the exact mapping.
 
 Here are a few examples.
 
