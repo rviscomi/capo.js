@@ -72,6 +72,7 @@ export default defineConfig({
               label: "Installing the extension locally",
               link: "/developer/crx-local/",
             },
+            { label: "Migration to v2", link: "/migration-v2/" },
           ],
         },
       ],

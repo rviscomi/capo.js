@@ -1,0 +1,58 @@
+---
+title: Migration to v2.0.0
+description: Guide for migrating from v1 to v2 of Capo.js
+---
+
+## Breaking changes
+
+### Programmatic API restructuring
+
+The library has been refactored to provide a more direct and modern API. The previous version exported modules as namespaces, whereas v2.0.0 exports functions and constants directly.
+
+**Before (v1):**
+
+```javascript
+import { rules, validation } from '@rviscomi/capo.js';
+
+const weight = rules.getWeight(element);
+const isValid = validation.isValidElement(element);
+```
+
+**After (v2):**
+
+```javascript
+import { getWeight, isValidElement, BrowserAdapter } from '@rviscomi/capo.js';
+
+const adapter = new BrowserAdapter();
+const weight = getWeight(element, adapter);
+const isValid = isValidElement(element, adapter);
+```
+
+### Removal of WebPageTest and BigQuery support
+
+Support for WebPageTest and BigQuery has been removed from the core library to reduce maintenance burden and focus on the core analysis engine. This includes the removal of the `webpagetest/` and `bigquery/` directories.
+
+### Removal of Capo.js snippet
+
+The standalone Capo.js snippet has been removed. Users are encouraged to use the Chrome extension or the programmatic API.
+
+## New features and improvements
+
+### New adapter system
+
+Capo.js now supports a flexible adapter system, allowing it to run on different DOM implementations.
+
+- **Built-in adapter**: The `BrowserAdapter` is provided for standard browser DOM environments.
+- **Custom adapters**: Consumers can implement their own adapters by extending the base `AdapterInterface` class. This enables Capo.js to work with different parsers (like JSDOM or ASTs), unlocking its use in static analysis tools.
+
+```javascript
+import { BrowserAdapter, analyzeHead } from '@rviscomi/capo.js';
+
+const adapter = new BrowserAdapter();
+const results = analyzeHead(document.head, adapter);
+```
+
+### New validation rules
+
+- **Font preload missing crossorigin**: Capo.js now validates that font preloads include the `crossorigin` attribute.
+

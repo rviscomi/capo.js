@@ -19,7 +19,6 @@
     "./core": "./src/core/analyzer.js",
     "./adapters": "./src/adapters/index.js",
     "./adapters/browser": "./src/adapters/browser.js",
-    "./adapters/factory": "./src/adapters/factory.js",
     "./rules": "./src/lib/rules.js",
     "./validation": "./src/lib/validation.js",
     "./adapters/test-suite": "./src/adapters/test-suite.js"
