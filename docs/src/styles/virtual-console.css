@@ -14,6 +14,7 @@ virtual-console {
     --vc-error-bg: #fee;
     --vc-error-color: #333;
     --vc-error-border: #f00;
+    --vc-weight-color: #0000ff;
   }
 
   .warn {
@@ -102,7 +103,7 @@ virtual-console {
   }
 
   .weight {
-    color: #a29bfe;
+    color: var(--vc-weight-color, #a29bfe);
     margin: 0 0.5rem;
   }
 
