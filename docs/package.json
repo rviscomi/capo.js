@@ -6,11 +6,16 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "vitest run tests"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.36.2",
     "astro": "^5.16.0",
     "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "jsdom": "^27.0.1",
+    "vitest": "^3.2.4"
   }
 }
