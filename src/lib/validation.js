@@ -1,4 +1,4 @@
-import { isMetaCSP, isOriginTrial } from "./rules";
+import { isMetaCSP, isOriginTrial } from './rules.js';
 
 export const VALID_HEAD_ELEMENTS = new Set([
   "base",
@@ -17,187 +17,283 @@ export const HTTP_EQUIV_SELECTOR = "meta[http-equiv]";
 
 export const PRELOAD_SELECTOR = 'link:is([rel="preload" i], [rel="modulepreload" i])';
 
-export function isValidElement(element) {
-  return VALID_HEAD_ELEMENTS.has(element.tagName.toLowerCase());
+export function isValidElement(element, adapter) {
+  const tagName = adapter.getTagName(element);
+  // Text nodes and comment nodes are valid (they don't have tag names)
+  if (!tagName || tagName === '') {
+    return true;
+  }
+  return VALID_HEAD_ELEMENTS.has(tagName.toLowerCase());
 }
 
-export function hasValidationWarning(element) {
+/**
+ * Check if element has any invalid child elements
+ * @param {any} element - Element to check
+ * @param {any} adapter - Adapter instance
+ * @returns {boolean}
+ */
+function hasInvalidChildren(element, adapter) {
+  const children = adapter.getChildren(element);
+  return children.some(child => !isValidElement(child, adapter));
+}
+
+/**
+ * Check if this is a duplicate title element (2nd+ occurrence)
+ * @param {any} element - Element to check
+ * @param {any} adapter - Adapter instance
+ * @returns {boolean}
+ */
+function isDuplicateTitle(element, adapter) {
+  if (adapter.getTagName(element) !== 'title') {
+    return false;
+  }
+  const parent = adapter.getParent(element);
+  if (!parent) {
+    return false;
+  }
+  // Check if this is the first title element
+  let foundFirst = false;
+  for (const child of adapter.getChildren(parent)) {
+    if (adapter.getTagName(child) === 'title') {
+      if (child === element) {
+        // This is the element we're checking - it's a duplicate if we already found a title
+        return foundFirst;
+      }
+      // Found a title element - mark that we've seen one
+      foundFirst = true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if this is a duplicate base element
+ * @param {any} element - Element to check  
+ * @param {any} adapter - Adapter instance
+ * @returns {boolean}
+ */
+function isDuplicateBase(element, adapter) {
+  if (adapter.getTagName(element) !== 'base') {
+    return false;
+  }
+  const siblings = adapter.getSiblings(element);
+  return siblings.some(sibling => adapter.getTagName(sibling) === 'base');
+}
+
+export function hasValidationWarning(element, adapter) {
   // Element itself is not valid.
-  if (!isValidElement(element)) {
+  if (!isValidElement(element, adapter)) {
     return true;
   }
 
   // Children are not valid.
-  if (element.matches(`:has(:not(${Array.from(VALID_HEAD_ELEMENTS).join(", ")}))`)) {
+  if (hasInvalidChildren(element, adapter)) {
     return true;
   }
 
   // <title> is not the first of its type.
-  if (element.matches("title:is(:nth-of-type(n+2))")) {
+  if (isDuplicateTitle(element, adapter)) {
     return true;
   }
 
   // <base> is not the first of its type.
-  if (element.matches("base:has(~ base), base ~ base")) {
+  if (isDuplicateBase(element, adapter)) {
     return true;
   }
 
   // CSP meta tag anywhere.
-  if (isMetaCSP(element)) {
+  if (isMetaCSP(element, adapter)) {
     return true;
   }
 
   // Invalid http-equiv.
-  if (isInvalidHttpEquiv(element)) {
+  if (isInvalidHttpEquiv(element, adapter)) {
     return true;
   }
 
   // Invalid meta viewport.
-  if (isInvalidMetaViewport(element)) {
+  if (isInvalidMetaViewport(element, adapter)) {
     return true;
   }
 
   // Invalid default-style.
-  if (isInvalidDefaultStyle(element)) {
+  if (isInvalidDefaultStyle(element, adapter)) {
     return true;
   }
 
   // Invalid character encoding.
-  if (isInvalidContentType(element)) {
+  if (isInvalidContentType(element, adapter)) {
     return true;
   }
 
   // Origin trial expired, or invalid origin.
-  if (isInvalidOriginTrial(element)) {
+  if (isInvalidOriginTrial(element, adapter)) {
     return true;
   }
 
   // Preload is unnecessary.
-  if (isUnnecessaryPreload(element)) {
+  if (isUnnecessaryPreload(element, adapter)) {
     return true;
   }
+
+  // Preload is missing crossorigin.
+  if (isInvalidFontPreload(element, adapter)) {
+    return true;
+  }
+
 
   return false;
 }
 
-export function getValidationWarnings(head) {
+export function getValidationWarnings(head, adapter) {
   const validationWarnings = [];
 
-  const titleElements = Array.from(head.querySelectorAll("title"));
+  // Get all children of head element
+  const children = adapter.getChildren(head);
+
+  // Check for title elements
+  const titleElements = children.filter(child => adapter.getTagName(child) === 'title');
   const titleElementCount = titleElements.length;
   if (titleElementCount != 1) {
     validationWarnings.push({
+      ruleId: titleElementCount === 0 ? 'require-title' : 'no-duplicate-title',
       warning: `Expected exactly 1 <title> element, found ${titleElementCount}`,
       elements: titleElements,
     });
   }
 
-  const metaViewport = head.querySelectorAll('meta[name="viewport" i]');
+  // Check for meta viewport
+  const metaViewport = children.filter(child => {
+    if (adapter.getTagName(child) !== 'meta') return false;
+    const name = adapter.getAttribute(child, 'name');
+    return name && name.toLowerCase() === 'viewport';
+  });
   if (metaViewport.length != 1) {
     validationWarnings.push({
+      ruleId: metaViewport.length === 0 ? 'require-meta-viewport' : 'valid-meta-viewport',
       warning: `Expected exactly 1 <meta name=viewport> element, found ${metaViewport.length}`,
+      elements: metaViewport,
     });
   }
 
-  const baseElements = Array.from(head.querySelectorAll("base"));
+  // Check for base elements
+  const baseElements = children.filter(child => adapter.getTagName(child) === 'base');
   const baseElementCount = baseElements.length;
   if (baseElementCount > 1) {
     validationWarnings.push({
+      ruleId: 'no-duplicate-base',
       warning: `Expected at most 1 <base> element, found ${baseElementCount}`,
       elements: baseElements,
     });
   }
 
-  const metaCSP = head.querySelector('meta[http-equiv="Content-Security-Policy" i]');
-  if (metaCSP) {
-    validationWarnings.push({
-      warning:
-        "CSP meta tags disable the preload scanner due to a bug in Chrome. Use the CSP header instead. Learn more: https://crbug.com/1458493",
-      element: metaCSP,
-    });
-  }
+  // Note: CSP meta tags are validated in customValidations, not here
+  // to avoid duplicate reporting
 
-  head.querySelectorAll("*").forEach((element) => {
-    if (isValidElement(element)) {
+  // Check for invalid elements
+  children.forEach((element) => {
+    if (isValidElement(element, adapter)) {
       return;
     }
 
-    let root = element;
-    while (root.parentElement != head) {
-      root = root.parentElement;
-    }
-
+    // For invalid elements, we just report the element itself
+    // (adapter doesn't have parentElement concept, so we can't find root)
     validationWarnings.push({
-      warning: `${element.tagName} elements are not allowed in the <head>`,
-      element: root,
+      ruleId: 'no-invalid-head-elements',
+      warning: `${adapter.getTagName(element)} elements are not allowed in the <head>`,
+      element: element,
     });
   });
 
-  const originTrials = Array.from(head.querySelectorAll('meta[http-equiv="Origin-Trial" i]'));
-  originTrials.forEach((element) => {
-    const metadata = validateOriginTrial(element);
-
-    if (metadata.warnings.length == 0) {
-      return;
-    }
-
-    validationWarnings.push({
-      warning: `Invalid origin trial token: ${metadata.warnings.join(", ")}`,
-      elements: [element],
-      element: metadata.payload,
-    });
-  });
+  // Note: Origin trials are validated in customValidations, not here
+  // to avoid duplicate reporting
 
   return validationWarnings;
 }
 
-export function getCustomValidations(element) {
-  if (isOriginTrial(element)) {
-    return validateOriginTrial(element);
+export function getCustomValidations(element, adapter, parentElement = null) {
+  const results = [];
+
+  if (isOriginTrial(element, adapter)) {
+    results.push(validateOriginTrial(element, adapter));
   }
 
-  if (isMetaCSP(element)) {
-    return validateCSP(element);
+  if (isMetaCSP(element, adapter)) {
+    results.push(validateCSP(element, adapter));
   }
 
-  if (isDefaultStyle(element)) {
-    return validateDefaultStyle(element);
+  if (isDefaultStyle(element, adapter)) {
+    results.push(validateDefaultStyle(element, adapter));
   }
 
-  if (isMetaViewport(element)) {
-    return validateMetaViewport(element);
+  if (isMetaViewport(element, adapter)) {
+    results.push(validateMetaViewport(element, adapter));
   }
 
-  if (isContentType(element)) {
-    return validateContentType(element);
+  if (isContentType(element, adapter)) {
+    results.push(validateContentType(element, adapter));
   }
 
-  if (isHttpEquiv(element)) {
-    return validateHttpEquiv(element);
+  if (isHttpEquiv(element, adapter)) {
+    results.push(validateHttpEquiv(element, adapter));
   }
 
-  if (isUnnecessaryPreload(element)) {
-    return validateUnnecessaryPreload(element);
+  if (isUnnecessaryPreload(element, adapter, parentElement)) {
+    results.push(validateUnnecessaryPreload(element, adapter, parentElement));
   }
 
-  return {};
+  if (isInvalidFontPreload(element, adapter)) {
+    results.push(validateInvalidFontPreload(element, adapter));
+  }
+
+
+  if (results.length === 0) {
+    return {};
+  }
+
+  if (results.length === 1) {
+    return results[0];
+  }
+
+  // Merge results
+  const combined = {
+    warnings: [],
+    payload: {},
+    ruleId: results[0].ruleId
+  };
+  results.forEach(result => {
+    if (result.warnings) {
+      combined.warnings.push(...result.warnings);
+    }
+    if (result.payload) {
+      Object.assign(combined.payload, result.payload);
+    }
+  });
+  return combined;
 }
 
-function validateCSP(element) {
+function validateCSP(element, adapter) {
   const warnings = [];
   let payload = null;
 
-  if (element.matches('meta[http-equiv="Content-Security-Policy-Report-Only" i]')) {
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  const httpEquivLower = httpEquiv?.toLowerCase();
+  
+  if (httpEquivLower === 'content-security-policy-report-only') {
     //https://w3c.github.io/webappsec-csp/#meta-element
     warnings.push("CSP Report-Only is forbidden in meta tags");
-    return warnings;
+    return {
+      ruleId: 'no-meta-csp',
+      warnings,
+      payload,
+    };
   }
 
-  if (element.matches('meta[http-equiv="Content-Security-Policy" i]')) {
+  if (httpEquivLower === 'content-security-policy') {
     warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
   }
 
-  const content = element.getAttribute("content");
+  const content = adapter.getAttribute(element, "content");
   if (!content) {
     warnings.push("Invalid CSP. The content attribute must be set.");
     return { warnings, payload };
@@ -227,46 +323,52 @@ function validateCSP(element) {
   }
 
   return {
+    ruleId: 'no-meta-csp',
     warnings,
     payload,
   };
 }
 
-function isInvalidOriginTrial(element) {
-  if (!isOriginTrial(element)) {
+function isInvalidOriginTrial(element, adapter) {
+  if (!isOriginTrial(element, adapter)) {
     return false;
   }
 
-  const { warnings } = validateOriginTrial(element);
+  const { warnings } = validateOriginTrial(element, adapter);
   return warnings.length > 0;
 }
 
-function validateOriginTrial(element) {
+function validateOriginTrial(element, adapter) {
   const metadata = {
+    ruleId: 'no-invalid-origin-trial',
     payload: null,
     warnings: [],
   };
 
-  const token = element.getAttribute("content");
+  const token = adapter.getAttribute(element, "content");
   try {
     metadata.payload = decodeOriginTrialToken(token);
   } catch {
-    metadata.warnings.push("invalid token");
+    metadata.warnings.push("Invalid origin trial token: invalid token");
     return metadata;
   }
 
   if (metadata.payload.expiry < new Date()) {
-    metadata.warnings.push("expired");
+    metadata.warnings.push("Invalid origin trial token: expired");
   }
-  if (!isSameOrigin(metadata.payload.origin, document.location.href)) {
-    const subdomain = isSubdomain(metadata.payload.origin, document.location.href);
-    // Cross-origin OTs are only valid if:
-    //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
-    //   2. The isThirdParty config is set
-    if (subdomain && !metadata.payload.isSubdomain) {
-      metadata.warnings.push("invalid subdomain");
-    } else if (!subdomain && !metadata.payload.isThirdParty) {
-      metadata.warnings.push("invalid third-party origin");
+  
+  // Origin validation only works in browser context with document.location
+  if (typeof document !== 'undefined' && document.location && document.location.href) {
+    if (!isSameOrigin(metadata.payload.origin, document.location.href)) {
+      const subdomain = isSubdomain(metadata.payload.origin, document.location.href);
+      // Cross-origin OTs are only valid if:
+      //   1. The document is a subdomain of the OT origin and the isSubdomain config is set
+      //   2. The isThirdParty config is set
+      if (subdomain && !metadata.payload.isSubdomain) {
+        metadata.warnings.push("Invalid origin trial token: invalid subdomain");
+      } else if (!subdomain && !metadata.payload.isThirdParty) {
+        metadata.warnings.push("Invalid origin trial token: invalid third-party origin");
+      }
     }
   }
 
@@ -295,152 +397,270 @@ function isSubdomain(a, b) {
   return b.host.endsWith(`.${a.host}`);
 }
 
-function isDefaultStyle(element) {
-  return element.matches('meta[http-equiv="default-style" i]');
+function isDefaultStyle(element, adapter) {
+  if (adapter.getTagName(element) !== 'meta') return false;
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  return httpEquiv?.toLowerCase() === 'default-style';
 }
 
-function isContentType(element) {
-  return element.matches(CONTENT_TYPE_SELECTOR);
+function isContentType(element, adapter) {
+  // Matches: meta[http-equiv="content-type" i], meta[charset]
+  if (adapter.getTagName(element) !== 'meta') return false;
+  if (adapter.hasAttribute(element, 'charset')) return true;
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  return httpEquiv?.toLowerCase() === 'content-type';
 }
 
-function isHttpEquiv(element) {
-  return element.matches(HTTP_EQUIV_SELECTOR);
+function isHttpEquiv(element, adapter) {
+  // Matches: meta[http-equiv]
+  if (adapter.getTagName(element) !== 'meta') return false;
+  return adapter.hasAttribute(element, 'http-equiv');
 }
 
-function isMetaViewport(element) {
-  return element.matches('meta[name="viewport" i]');
+function isMetaViewport(element, adapter) {
+  if (adapter.getTagName(element) !== 'meta') return false;
+  const name = adapter.getAttribute(element, 'name');
+  return name?.toLowerCase() === 'viewport';
 }
 
-function isInvalidDefaultStyle(element) {
-  if (!isDefaultStyle(element)) {
+function isInvalidDefaultStyle(element, adapter) {
+  if (!isDefaultStyle(element, adapter)) {
     return false;
   }
 
-  const { warnings } = validateDefaultStyle(element);
+  const { warnings } = validateDefaultStyle(element, adapter);
   return warnings.length > 0;
 }
 
-function isInvalidContentType(element) {
-  if (!isContentType(element)) {
+function isInvalidContentType(element, adapter) {
+  if (!isContentType(element, adapter)) {
     return false;
   }
 
-  const { warnings } = validateContentType(element);
+  const { warnings } = validateContentType(element, adapter);
   return warnings.length > 0;
 }
 
-function isInvalidHttpEquiv(element) {
-  if (!isHttpEquiv(element)) {
+function isInvalidHttpEquiv(element, adapter) {
+  if (!isHttpEquiv(element, adapter)) {
     return false;
   }
 
-  const { warnings } = validateHttpEquiv(element);
+  const { warnings } = validateHttpEquiv(element, adapter);
   return warnings.length > 0;
 }
 
-function isInvalidMetaViewport(element) {
-  if (!isMetaViewport(element)) {
+function isInvalidMetaViewport(element, adapter) {
+  if (!isMetaViewport(element, adapter)) {
     return false;
   }
 
-  const { warnings } = validateMetaViewport(element);
+  const { warnings } = validateMetaViewport(element, adapter);
   return warnings.length > 0;
 }
 
-function isUnnecessaryPreload(element) {
-  if (!element.matches(PRELOAD_SELECTOR)) {
+function isUnnecessaryPreload(element, adapter, parentElement = null) {
+  // Matches: link:is([rel="preload" i], [rel="modulepreload" i])
+  const tagName = adapter.getTagName(element);
+  if (tagName !== 'link') {
     return false;
   }
-
-  const href = element.getAttribute("href");
+  const rel = adapter.getAttribute(element, 'rel');
+  const relLower = rel?.toLowerCase();
+  if (relLower !== 'preload' && relLower !== 'modulepreload') {
+    return false;
+  }
+  const href = adapter.getAttribute(element, "href");
   if (!href) {
     return false;
   }
-
-  const preloadedUrl = absolutifyUrl(href);
-
-  return findElementWithSource(element.parentElement, preloadedUrl) != null;
+  const parent = parentElement || adapter.getParent(element);
+  if (!parent) {
+    return false;
+  }
+  const found = findElementWithSource(parent, href, element, adapter);
+  return found != null;
 }
 
-function findElementWithSource(root, sourceUrl) {
-  const linksAndScripts = Array.from(root.querySelectorAll(`link:not(${PRELOAD_SELECTOR}), script`));
+function isInvalidFontPreload(element, adapter) {
+  const tagName = adapter.getTagName(element);
+  if (tagName !== 'link') {
+    return false;
+  }
+  const rel = adapter.getAttribute(element, 'rel');
+  if (rel?.toLowerCase() !== 'preload') {
+    return false;
+  }
+  const as = adapter.getAttribute(element, 'as');
+  if (as?.toLowerCase() !== 'font') {
+    return false;
+  }
+  // crossorigin must be present (even if empty, which means anonymous)
+  return !adapter.hasAttribute(element, 'crossorigin');
+}
 
-  return linksAndScripts.find((e) => {
-    const src = e.getAttribute("href") || e.getAttribute("src");
-    if (!src) {
-      return false;
+
+function validateInvalidFontPreload(element, adapter) {
+  const warnings = ["Font preloads must have the crossorigin attribute set, even for same-origin fonts."];
+  return {
+    ruleId: 'valid-font-preload',
+    warnings,
+    payload: null
+  };
+}
+
+/**
+ * Find an element with matching source using adapter (non-browser)
+ * @param {*} parent - Parent element to search within
+ * @param {string} sourceUrl - URL to match
+ * @param {*} excludeElement - Element to exclude from search (the preload itself)
+ * @param {*} adapter - Adapter instance
+ * @returns {*|null} - Matching element or null
+ */
+function findElementWithSource(parent, sourceUrl, excludeElement, adapter) {
+  const children = adapter.getChildren(parent);
+
+  for (const child of children) {
+    // Skip the preload element itself
+    if (child === excludeElement) {
+      continue;
     }
 
-    return sourceUrl == absolutifyUrl(src);
-  });
+    const tagName = adapter.getTagName(child);
+
+    // Check link elements (but not preload/modulepreload)
+    if (tagName === 'link') {
+      const rel = adapter.getAttribute(child, 'rel');
+      if (rel && /\b(preload|modulepreload)\b/i.test(rel)) {
+        continue; // Skip other preloads
+      }
+
+      const childHref = adapter.getAttribute(child, 'href');
+      if (childHref === sourceUrl) {
+        return child;
+      }
+    }
+
+    // Check script elements
+    if (tagName === 'script') {
+      const src = adapter.getAttribute(child, 'src');
+      if (src === sourceUrl) {
+        return child;
+      }
+    }
+  }
+
+  return null;
 }
 
 function absolutifyUrl(href) {
+  // Browser-only function
+  if (typeof document === 'undefined' || !document.baseURI) {
+    // In non-browser context, return href as-is
+    return href;
+  }
   return new URL(href, document.baseURI).href;
 }
 
-function validateDefaultStyle(element) {
+function validateDefaultStyle(element, adapter) {
   const warnings = [];
   let payload = null;
 
   // Check if the value points to an alternate stylesheet with that title
-  const title = element.getAttribute("content");
-  const stylesheet = element.parentElement.querySelector(
-    `link[rel~="alternate" i][rel~="stylesheet" i][title="${title}"]`
-  );
+  const title = adapter.getAttribute(element, "content");
+  
+  // Browser-only validation
+  if (element.parentElement && element.parentElement.querySelector) {
+    const stylesheet = element.parentElement.querySelector(
+      `link[rel~="alternate" i][rel~="stylesheet" i][title="${title}"]`
+    );
 
-  if (!title) {
+    if (!title) {
+      warnings.push("This has no effect. The content attribute must be set to a valid stylesheet title.");
+    } else if (!stylesheet) {
+      payload = {
+        alternateStylesheets: Array.from(
+          element.parentElement.querySelectorAll('link[rel~="alternate" i][rel~="stylesheet" i]')
+        ),
+      };
+      warnings.push(`This has no effect. No alternate stylesheet found having title="${title}".`);
+    }
+  } else if (!title) {
+    // In non-browser context, we can still check for missing title
     warnings.push("This has no effect. The content attribute must be set to a valid stylesheet title.");
-  } else if (!stylesheet) {
-    payload = {
-      alternateStylesheets: Array.from(
-        element.parentElement.querySelectorAll('link[rel~="alternate" i][rel~="stylesheet" i]')
-      ),
-    };
-    warnings.push(`This has no effect. No alternate stylesheet found having title="${title}".`);
   }
 
   warnings.push(
     "Even when used correctly, the default-style method of setting a preferred stylesheet results in a flash of unstyled content. Use modern CSS features like @media rules instead."
   );
 
-  return { warnings, payload };
+  return { ruleId: 'no-default-style', warnings, payload };
 }
 
-function validateContentType(element) {
+function validateContentType(element, adapter) {
   const warnings = [];
   let payload = null;
   // https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration
   // Check if there exists both meta[http-equiv] and meta[chartset] variations
-  if (
-    element.matches(':is(meta[charset] ~ meta[http-equiv="content-type" i])') ||
-    element.matches(":has(~ meta[charset])")
-  ) {
-    const encodingDeclaration = element.parentElement.querySelector("meta[charset]");
-    payload = payload ?? {};
-    payload.encodingDeclaration = encodingDeclaration;
-    warnings.push(
-      `There can only be one meta-based character encoding declaration per document. Already found \`${encodingDeclaration.outerHTML}\`.`
-    );
+  
+  // Check if this is a charset or content-type meta
+  const isCharset = adapter.hasAttribute(element, 'charset');
+  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+  const isContentTypeMeta = httpEquiv?.toLowerCase() === 'content-type';
+  
+  if (isCharset || isContentTypeMeta) {
+    // Check for duplicate charset declarations among siblings
+    const siblings = adapter.getSiblings(element);
+    const hasDuplicateCharset = siblings.some(sibling => {
+      if (adapter.getTagName(sibling) !== 'meta') return false;
+      // Check if sibling is also a charset declaration
+      if (adapter.hasAttribute(sibling, 'charset')) return true;
+      const siblingHttpEquiv = adapter.getAttribute(sibling, 'http-equiv');
+      return siblingHttpEquiv?.toLowerCase() === 'content-type';
+    });
+    
+    if (hasDuplicateCharset) {
+      const parent = adapter.getParent(element);
+      if (parent) {
+        const charsetElements = adapter.getChildren(parent).filter(child => {
+          if (adapter.getTagName(child) !== 'meta') return false;
+          if (adapter.hasAttribute(child, 'charset')) return true;
+          const childHttpEquiv = adapter.getAttribute(child, 'http-equiv');
+          return childHttpEquiv?.toLowerCase() === 'content-type';
+        });
+        // Find the first one (not this element)
+        const encodingDeclaration = charsetElements.find(el => el !== element);
+        if (encodingDeclaration) {
+          payload = payload ?? {};
+          payload.encodingDeclaration = encodingDeclaration;
+          warnings.push(
+            `There can only be one meta-based character encoding declaration per document. Already found \`${adapter.stringify(encodingDeclaration)}\`.`
+          );
+        }
+      }
+    }
   }
 
-  // Check if it compeltely exists in the first 1024 bytes
-  const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML) + element.outerHTML.length;
-  if (charPos > 1024) {
-    payload = payload ?? {};
-    payload.characterPosition = charPos;
-    warnings.push(
-      `The element containing the character encoding declaration must be serialized completely within the first 1024 bytes of the document. Found at byte ${charPos}.`
-    );
+  // Check if it completely exists in the first 1024 bytes
+  // This check only works in browser context with ownerDocument
+  if (element.ownerDocument?.documentElement?.outerHTML && element.outerHTML) {
+    const charPos = element.ownerDocument.documentElement.outerHTML.indexOf(element.outerHTML) + element.outerHTML.length;
+    if (charPos > 1024) {
+      payload = payload ?? {};
+      payload.characterPosition = charPos;
+      warnings.push(
+        `The element containing the character encoding declaration must be serialized completely within the first 1024 bytes of the document. Found at byte ${charPos}.`
+      );
+    }
   }
 
   // Check that the character encoding is UTF-8
   let charset = null;
-  if (element.matches("meta[charset]")) {
-    charset = element.getAttribute("charset");
+  if (isCharset) {
+    charset = adapter.getAttribute(element, "charset");
   } else {
     const charsetPattern = /text\/html;\s*charset=(.*)/i;
-    charset = element.getAttribute("content")?.match(charsetPattern)?.[1]?.trim();
+    charset = adapter.getAttribute(element, "content")?.match(charsetPattern)?.[1]?.trim();
   }
 
   if (charset?.toLowerCase() != "utf-8") {
@@ -455,13 +675,13 @@ function validateContentType(element) {
       "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
   }
 
-  return { warnings, payload };
+  return { ruleId: 'valid-charset', warnings, payload };
 }
 
-function validateHttpEquiv(element) {
+function validateHttpEquiv(element, adapter) {
   const warnings = [];
-  const type = element.getAttribute("http-equiv").toLowerCase();
-  const content = element.getAttribute("content")?.toLowerCase();
+  const type = adapter.getAttribute(element, "http-equiv").toLowerCase();
+  const content = adapter.getAttribute(element, "content")?.toLowerCase();
 
   switch (type) {
     case "content-security-policy":
@@ -572,26 +792,46 @@ function validateHttpEquiv(element) {
   }
 
   return {
+    ruleId: 'no-invalid-http-equiv',
     warnings,
   };
 }
 
-function validateMetaViewport(element) {
+function validateMetaViewport(element, adapter) {
   const warnings = [];
   let payload = null;
 
   // Redundant meta viewport validation.
-  if (element.matches('meta[name="viewport" i] ~ meta[name="viewport" i]')) {
-    const firstMetaViewport = element.parentElement.querySelector('meta[name="viewport" i]');
-    payload = { firstMetaViewport };
-    warnings.push(
-      "Another meta viewport element has already been declared. Having multiple viewport settings can lead to unexpected behavior."
-    );
-    return { warnings, payload };
+  // Check if there are other viewport meta elements among siblings
+  const siblings = adapter.getSiblings(element);
+  const hasDuplicateViewport = siblings.some(sibling => {
+    if (adapter.getTagName(sibling) !== 'meta') return false;
+    const name = adapter.getAttribute(sibling, 'name');
+    return name?.toLowerCase() === 'viewport';
+  });
+  
+  if (hasDuplicateViewport) {
+    const parent = adapter.getParent(element);
+    if (parent) {
+      const viewportElements = adapter.getChildren(parent).filter(child => {
+        if (adapter.getTagName(child) !== 'meta') return false;
+        const name = adapter.getAttribute(child, 'name');
+        return name?.toLowerCase() === 'viewport';
+      });
+      // Find the first one (not this element)
+      const firstMetaViewport = viewportElements.find(el => el !== element);
+      if (firstMetaViewport) {
+        payload = { firstMetaViewport };
+        warnings.push(
+          "Another meta viewport element has already been declared. Having multiple viewport settings can lead to unexpected behavior."
+        );
+        return { warnings, payload };
+      }
+    }
   }
 
   // Additional validation performed only on the first meta viewport.
-  const content = element.getAttribute("content")?.toLowerCase();
+  const content = adapter.getAttribute(element, "content")?.toLowerCase();
   if (!content) {
     warnings.push("Invalid viewport. The content attribute must be set.");
     return { warnings, payload };
@@ -712,7 +952,6 @@ function validateMetaViewport(element) {
       if (directive == "viewport-fit") {
         // viewport-fit is non-standard, but widely supported.
         // https://github.com/rviscomi/capo.js/issues/110
-        return false;
       }
       return true;
     })
@@ -720,21 +959,26 @@ function validateMetaViewport(element) {
       warnings.push(`Invalid viewport directive "${directive}".`);
     });
 
-  return { warnings, payload };
+  return { ruleId: 'valid-meta-viewport', warnings, payload };
 }
 
-function validateUnnecessaryPreload(element) {
-  const href = element.getAttribute("href");
-  const preloadedUrl = absolutifyUrl(href);
-  const preloadedElement = findElementWithSource(element.parentElement, preloadedUrl);
-
-  if (!preloadedElement) {
-    throw new Error("Expected an invalid preload, but none found.");
+function validateUnnecessaryPreload(element, adapter, parentElement = null) {
+  const href = adapter.getAttribute(element, "href");
+  if (!href) {
+    return { ruleId: 'no-unnecessary-preload', warnings: [] };
   }
-
+  const parent = parentElement || adapter.getParent(element);
+  if (!parent) {
+    return { ruleId: 'no-unnecessary-preload', warnings: [] };
+  }
+  const preloadedElement = findElementWithSource(parent, href, element, adapter);
+  if (!preloadedElement) {
+    return { ruleId: 'no-unnecessary-preload', warnings: [] };
+  }
   return {
+    ruleId: 'no-unnecessary-preload',
     warnings: [
-      `This preload has little to no effect. ${href} is already discoverable by another ${preloadedElement.tagName} element.`,
+      `This preload has little to no effect. ${href} is already discoverable by another ${adapter.getTagName(preloadedElement)} element.`,
     ],
   };
 }

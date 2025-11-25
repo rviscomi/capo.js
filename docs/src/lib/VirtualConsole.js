@@ -1,51 +1,126 @@
-export class VirtualConsole {
-
-  constructor(rootElement) {
-    this.rootElement = rootElement;
+export class VirtualConsole extends HTMLElement {
+  constructor() {
+    super();
     this.group = null;
   }
 
   clear() {
-    this.rootElement.innerHTML = '';
+    this.innerHTML = '';
+  }
+
+  highlightHTML(html) {
+    return html.replace(/&lt;(\/?)([\w-]+)(.*?)&gt;/g, (match, slash, tag, attrs) => {
+      const highlightedAttrs = attrs.replace(/ ([\w-]+)=(&quot;.*?&quot;)/g, ' <span class="attr">$1</span>=<span class="val">$2</span>');
+      return `&lt;${slash}<span class="tag">${tag}</span>${highlightedAttrs}&gt;`;
+    });
+  }
+
+  highlightJSON(json) {
+    return json.replace(/(&quot;.*?&quot;(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+      let cls = 'number';
+      if (/^&quot;/.test(match)) {
+        if (/:$/.test(match)) {
+          cls = 'key';
+        } else {
+          cls = 'string';
+        }
+      } else if (/true|false/.test(match)) {
+        cls = 'boolean';
+      } else if (/null/.test(match)) {
+        cls = 'null';
+      }
+      return `<span class="${cls}">${match}</span>`;
+    });
   }
 
   renderLog(...args) {
     let output = [];
-    args.forEach((arg, i) => {
-      if (!arg) {
-        return;
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (arg === undefined || arg === null) {
+        continue;
       }
 
-      if (arg instanceof HTMLElement) {
-        // Stringify element
-        output.push(escapeHTML(arg.outerHTML));
-        return;
+      if (typeof arg === 'number' || (typeof arg === 'string' && /^\d+$/.test(arg.trim()))) {
+        output.push(this.renderNumber(arg));
+        continue;
+      }
+
+      if (typeof arg === 'object' && arg !== null) {
+        if (arg instanceof HTMLElement) {
+          output.push(this.renderElement(arg));
+        } else {
+          output.push(this.renderObject(arg));
+        }
+        continue;
       }
       
       if (typeof arg == 'string') {
-        // Handle console styles
-        const fragments = arg.split('%c');
-        if (fragments.length == 1) {
-          output.push(escapeHTML(arg));
-          return;
-        }
-
-        for (let j = 1; j < fragments.length; j++) {
-          const fragment = escapeHTML(fragments[j]);
-          // The subsequent arg is the style for this fragment
-          fragments[j] = `<span style="${args[i + j]}">${fragment}</span>`;
-          delete args[i + j];
-        }
-
-        output.push(fragments.map(nlToBr).join(''));
+        const { html, skipArgs } = this.renderConsoleStyle(arg, args, i);
+        output.push(html);
+        i += skipArgs;
       }
-    });
+    }
 
     return output.join(' ');
   }
 
+  renderNumber(arg) {
+    return `<span class="weight">${escapeHTML(String(arg))}</span>`;
+  }
+
+  renderElement(arg) {
+    let html = escapeHTML(arg.outerHTML);
+    return this.highlightHTML(html);
+  }
+
+  renderObject(arg) {
+    let json = escapeHTML(JSON.stringify(arg, null, 2));
+    return `<pre>${this.highlightJSON(json)}</pre>`;
+  }
+
+  renderConsoleStyle(arg, args, index) {
+    const fragments = arg.split('%c');
+    if (fragments.length == 1) {
+      return { html: escapeHTML(arg), skipArgs: 0 };
+    }
+
+    let currentGroup = [];
+    let result = [];
+    result.push(nlToBr(escapeHTML(fragments[0])));
+
+    let skipArgs = 0;
+    for (let j = 1; j < fragments.length; j++) {
+      const fragment = fragments[j];
+      const styleArg = args[index + j];
+      if (!styleArg) {
+        continue;
+      }
+      const style = styleArg.split(';').find(s => {
+        return s.split(':')[0].trim() == 'background-color' || s.split(':')[0].trim() == 'background-image';
+      }) || styleArg;
+      const isColorBarSpan = style && (style.includes('background-color') || style.includes('background-image')) && (fragment === ' ' || fragment === '');
+      const span = `<span class="color-bar-item" style="${style}">${nlToBr(escapeHTML(fragment))}</span>`;
+
+      if (isColorBarSpan) {
+        currentGroup.push(span);
+      } else {
+        if (currentGroup.length > 0) {
+          result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+          currentGroup = [];
+        }
+        result.push(span);
+      }
+      skipArgs++;
+    }
+    if (currentGroup.length > 0) {
+      result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+    }
+
+    return { html: result.join(''), skipArgs };
+  }
+
   logAtLevel(level, ...args) {
-    return;
     const div = document.createElement('div');
     div.classList.add(level);
     div.innerHTML = this.renderLog(...args);
@@ -53,7 +128,7 @@ export class VirtualConsole {
     if (this.group) {
       this.group.appendChild(div);
     } else {
-      this.rootElement.appendChild(div);
+      this.appendChild(div);
     }
   }
 
@@ -73,25 +148,43 @@ export class VirtualConsole {
   }
 
   groupCollapsed(...args) {
-    /* this.group = document.createElement('details');
+    const details = document.createElement('details');
     const summary = document.createElement('summary');
     summary.innerHTML = this.renderLog(...args);
-    this.group.appendChild(summary); */
+    details.appendChild(summary);
+
+    if (this.group) {
+      this.group.appendChild(details);
+    } else {
+      this.appendChild(details);
+    }
+    this.group = details;
     console.groupCollapsed(...args);
   }
 
   groupEnd(...args) {
-    /* this.rootElement.appendChild(this.group); */
-    this.group = null;
+    if (this.group) {
+      // Move up one level if possible, or back to root
+      const parent = this.group.parentElement;
+      if (parent && parent.tagName === 'DETAILS') {
+        this.group = parent;
+      } else {
+        this.group = null;
+      }
+    }
     console.groupEnd(...args);
   }
-
 }
 
-function nlToBr(str) {
+export function nlToBr(str) {
   return str.replace(/\n/g, '<br>');
 }
 
-function escapeHTML(str) {
-  return str.replace(/<([^>]*>)[^<]*(<.*)/g, '<span style="font-family: monospace;">&lt;$1&hellip;');
+export function escapeHTML(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }

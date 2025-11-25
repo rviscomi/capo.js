@@ -3,4 +3,27 @@ title: Static vs dynamic assessment modes
 description: Learn about and when to use static versus dynamic assessment modes
 ---
 
-Coming soon
+Capo.js supports two modes of assessment: **static** and **dynamic**. Understanding the difference between these modes is crucial for interpreting the results and choosing the right tool for the job.
+
+## Static Mode
+
+In static mode, Capo.js analyzes the server-rendered HTML of the page. This is achieved by fetching the page's URL and parsing the returned HTML.
+
+1.  Capo.js fetches the current page's URL.
+2.  It parses the response body to extract the `<head>` element.
+3.  It analyzes the elements within this static `<head>`.
+
+Static mode is ideal when you want to see how the page is delivered from the server, before any client-side JavaScript has modified the DOM. This is useful for identifying issues with the initial HTML structure.
+
+Static mode is the default mode in the Capo.js Chrome Extension.
+
+## Dynamic Mode
+
+In dynamic mode, Capo.js analyzes the current state of the DOM in the browser.
+
+1.  Capo.js accesses the `document.head` element directly.
+2.  It analyzes the elements currently present in the `<head>`.
+
+Dynamic mode is useful when you want to see the final state of the `<head>` after client-side scripts have run. This can help identify elements added or modified dynamically, which might affect performance or behavior.
+
+Dynamic mode is the default mode when using the CLI, and can be enabled in the Chrome Extension options.

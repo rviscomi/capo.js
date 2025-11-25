@@ -1,0 +1,11 @@
+---
+import '../styles/virtual-console.css';
+---
+
+<virtual-console id="virtual-console"></virtual-console>
+
+<script>
+  import { VirtualConsole } from '../lib/VirtualConsole.js';
+
+  customElements.define('virtual-console', VirtualConsole);
+</script>

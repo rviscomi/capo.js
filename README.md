@@ -15,13 +15,108 @@ This script helps you identify which elements are out of order.
 
 ✨ _New: Install the [Capo Chrome extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb)_ ✨
 
-1. Copy [capo.js](https://raw.githubusercontent.com/rviscomi/capo.js/main/snippet/capo.js)
-2. Run it in a new [DevTools snippet](https://developer.chrome.com/docs/devtools/javascript/snippets/), or use a [bookmarklet](https://caiorss.github.io/bookmarklet-maker/) generator
+1. Install the [Chrome extension](https://chrome.google.com/webstore/detail/capo/ohkeehjepccojmgephomofandmjaafid)
 3. Explore the console logs
 
 <img width="1552" alt="capo screenshot" src="https://github.com/rviscomi/capo.js/assets/1120896/b29672f9-1f05-4a05-a85e-df27acd153bd">
 
 For applications that add lots of dynamic content to the `<head>` on the client, it'd be more accurate to look at the server-rendered `<head>` instead.
+
+## Programmatic API (v2.0)
+
+You can also use capo.js programmatically to analyze HTML `<head>` elements in Node.js or other JavaScript environments.
+
+### Installation
+
+```bash
+npm install @rviscomi/capo.js
+```
+
+### Basic Usage
+
+```javascript
+// Analyze a head element
+const head = /* your head element */;
+const adapter = new BrowserAdapter(); // Or other adapter
+const result = analyzeHead(head, adapter);
+
+console.log(result.elements);      // Array of head elements with weights
+console.log(result.violations);    // Number of ordering violations
+console.log(result.warnings);      // Validation warnings
+```
+
+### Using Adapters
+
+Capo.js uses adapters to work with different HTML representations:
+
+```javascript
+import { analyzeHead, BrowserAdapter } from '@rviscomi/capo.js';
+
+// For browser DOM (if using in browser context)
+const browserAdapter = new BrowserAdapter();
+const browserResult = analyzeHead(document.head, browserAdapter);
+```
+
+### Subpath Exports
+
+Import only what you need for smaller bundle sizes:
+
+```javascript
+// Import just the core analyzer
+import { analyzeHead, checkOrdering } from '@rviscomi/capo.js';
+
+// Import just adapters
+import { BrowserAdapter } from '@rviscomi/capo.js/adapters';
+
+// Import specific adapters
+import { BrowserAdapter } from '@rviscomi/capo.js/adapters/browser';
+
+// Import rules API
+import { ElementWeights, getWeight } from '@rviscomi/capo.js/rules';
+
+// Import validation API
+import { isValidElement, getValidationWarnings } from '@rviscomi/capo.js/validation';
+```
+
+### API Reference
+
+#### Core Functions
+
+- `analyzeHead(head, adapter)` - Analyzes a head element and returns detailed results
+- `analyzeHeadWithOrdering(head, adapter)` - Analyzes with ordering violations
+- `checkOrdering(elements)` - Checks for ordering violations in element array
+- `getWeightCategory(weight)` - Gets the category name for a weight value
+
+#### Rules API
+
+- `ElementWeights` - Constant object mapping element types to weight values
+- `getWeight(element, adapter)` - Gets the weight for a specific element
+- `getHeadWeights(head, adapter)` - Gets weights for all elements in head
+
+Plus individual detector functions: `isMeta()`, `isTitle()`, `isPreconnect()`, etc.
+
+#### Validation API
+
+- `VALID_HEAD_ELEMENTS` - Array of valid head element names
+- `isValidElement(element, adapter)` - Checks if an element is valid in head
+- `hasValidationWarning(element, adapter)` - Checks if element has warnings
+- `getValidationWarnings(head, adapter)` - Gets all validation warnings
+- `getCustomValidations(element, adapter)` - Gets custom validation rules
+
+#### Adapters
+
+- `BrowserAdapter` - For working with browser DOM elements
+- `AdapterInterface` - Base interface for custom adapters
+- `validateAdapter(adapter)` - Validates an adapter implementation
+
+### Migration from v1.x
+
+See [MIGRATION.md](MIGRATION.md) for detailed migration guide.
+
+**Key changes:**
+- All analysis functions now require an adapter parameter
+- New subpath exports for granular imports
+- Enhanced TypeScript support via JSDoc
 
 ### Chrome extension
 
@@ -29,13 +124,6 @@ For applications that add lots of dynamic content to the `<head>` on the client,
 
 WIP see [crx/](crx/)
 
-### WebPageTest
-
-You can use the [`capo` WebPageTest custom metric](webpagetest/) to evaluate only the server-rendered HTML `<head>`. Note that because this approach doesn't output to the console, we lose the visualization.
-
-### BigQuery
-
-You can also use the [`httparchive.fn.CAPO`](bigquery/) function on BigQuery to process HTML response bodies in the HTTP Archive dataset. Similar to the WebPageTest approach, the output is very basic.
 
 ### Other
 

@@ -1,0 +1,131 @@
+virtual-console {
+  display: block;
+  --vc-warn-bg: rgba(255, 159, 67, 0.2);
+  --vc-warn-color: #ffe0b2;
+  --vc-warn-border: #ff9f43;
+  --vc-error-bg: rgba(255, 99, 132, 0.2);
+  --vc-error-color: #ff6384;
+  --vc-error-border: #ff6384;
+
+  :root[data-theme='light'] & {
+    --vc-warn-bg: #fffbe5;
+    --vc-warn-color: #333;
+    --vc-warn-border: #ee9c6d;
+    --vc-error-bg: #fee;
+    --vc-error-color: #333;
+    --vc-error-border: #f00;
+    --vc-weight-color: #0000ff;
+  }
+
+  .warn {
+    background-color: var(--vc-warn-bg);
+    color: var(--vc-warn-color);
+    border-left: 4px solid var(--vc-warn-border);
+  }
+
+  .error {
+    background-color: var(--vc-error-bg);
+    color: var(--vc-error-color);
+    border-left: 4px solid var(--vc-error-border);
+  }
+
+  & > {
+    .log, .warn, .error {
+      margin-top: 1rem;
+      width: 100%;
+    }
+  }
+
+  details {
+    &[open] > summary::before {
+      transform: rotate(90deg);
+    }
+
+    .log, .warn, .error {
+      margin-top: 0;
+      margin-left: -4px;
+    }
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: bold;
+    list-style: none;
+    padding: 0.25rem 0.5rem;
+    font-family: monospace;
+    width: 600px;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::before {
+      content: '▶';
+      display: inline-block;
+      margin-right: 0.5rem;
+      transition: transform 0.2s;
+    }
+  }
+
+  div {
+    padding: 0.25rem 0.5rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    font-family: monospace;
+    white-space: pre-wrap;
+    width: 600px;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+
+  --vc-token-tag: #ff79c6;
+  --vc-token-attr: #50fa7b;
+  --vc-token-val: #f1fa8c;
+  --vc-token-string: #f1fa8c;
+  --vc-token-number: #bd93f9;
+  --vc-token-boolean: #bd93f9;
+  --vc-token-null: #bd93f9;
+  --vc-token-key: #8be9fd;
+
+  /* Starlight light mode support */
+  :root[data-theme='light'] & {
+    --vc-token-tag: #881280;
+    --vc-token-attr: #994500;
+    --vc-token-val: #1a1aa6;
+    --vc-token-string: #1a1aa6;
+    --vc-token-number: #1a1aa6;
+    --vc-token-boolean: #1a1aa6;
+    --vc-token-null: #1a1aa6;
+    --vc-token-key: #202124;
+  }
+
+  .weight {
+    color: var(--vc-weight-color, #a29bfe);
+    margin: 0 0.5rem;
+  }
+
+  .tag { color: var(--vc-token-tag); }
+  .attr { color: var(--vc-token-attr); }
+  .val { color: var(--vc-token-val); }
+  .string { color: var(--vc-token-string); }
+  .number { color: var(--vc-token-number); }
+  .boolean { color: var(--vc-token-boolean); }
+  .null { color: var(--vc-token-null); }
+  .key { color: var(--vc-token-key); }
+
+  .color-bar {
+    display: flex;
+    align-content: stretch;
+    padding: 0; /* Remove padding for styled logs to allow full width */
+    width: 100%;
+    box-sizing: border-box;
+
+    .color-bar-item {
+      flex: 1 0 0;
+      height: 1.5rem; /* Give it some height */
+    }
+  }
+}

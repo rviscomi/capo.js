@@ -1,6 +1,6 @@
 {
   "name": "@rviscomi/capo.js",
-  "version": "1.5.3",
+  "version": "2.0.0",
   "description": "Get your ﹤𝚑𝚎𝚊𝚍﹥ in order",
   "author": "Rick Viscomi",
   "license": "Apache-2.0",
@@ -13,17 +13,27 @@
   },
   "homepage": "https://rviscomi.github.io/capo.js/",
   "type": "module",
-  "main": "src/main.js",
+  "main": "src/index.js",
+  "alias": {
+    "@rviscomi/capo.js": "./src/index.js",
+    "@rviscomi/capo.js/adapters/browser": "./src/adapters/browser.js",
+    "@rviscomi/capo.js/lib/io": "./src/lib/io.js",
+    "@rviscomi/capo.js/lib/options": "./src/lib/options.js"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./adapters": "./src/adapters/index.js",
+    "./adapters/browser": "./src/adapters/browser.js",
+    "./rules": "./src/lib/rules.js",
+    "./validation": "./src/lib/validation.js",
+    "./lib/io": "./src/lib/io.js",
+    "./lib/options": "./src/lib/options.js",
+    "./adapters/test-suite": "./src/adapters/test-suite.js"
+  },
   "directories": {
     "doc": "docs"
   },
   "targets": {
-    "snippet": {
-      "source": "src/snippet/capo.js",
-      "distDir": "snippet",
-      "sourceMap": false,
-      "optimize": false
-    },
     "crx": {
       "source": "src/crx/capo.js",
       "distDir": "crx",
@@ -44,9 +54,18 @@
   },
   "scripts": {
     "watch": "parcel watch",
-    "build": "parcel build"
+    "build": "parcel build",
+    "test": "node --test tests/**/*.test.js",
+    "test:watch": "node --test --watch tests/**/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage tests/**/*.test.js",
+    "test:rules": "node --test tests/lib/rules.test.js",
+    "test:validation": "node --test tests/lib/validation.test.js",
+    "test:integration": "node --test tests/integration/*.test.js",
+    "test:snapshots": "node --test tests/snapshots/*.test.js"
   },
   "devDependencies": {
+    "dedent": "^1.7.0",
+    "jsdom": "^27.0.1",
     "parcel": "latest"
   }
 }

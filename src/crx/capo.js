@@ -1,10 +1,15 @@
-import * as capo from "../main.js";
-import * as logging from "../snippet/logging.js";
+import { analyzeHead } from "@rviscomi/capo.js";
+import { BrowserAdapter } from "@rviscomi/capo.js/adapters/browser";
+import { IO } from "@rviscomi/capo.js/lib/io";
+import { Options } from "@rviscomi/capo.js/lib/options";
 
 async function run(io) {
   await io.init();
-  logging.validateHead(io, capo.validation);
-  const headWeights = logging.logWeights(io, capo.validation, capo.rules);
+  const headElement = io.getHead();
+  const adapter = new BrowserAdapter();
+  const result = analyzeHead(headElement, adapter);
+
+  const headWeights = io.logAnalysis(result);
 
   return {
     actual: headWeights.map(
@@ -29,12 +34,12 @@ async function run(io) {
 
 async function initOptions() {
   const { options } = await chrome.storage.sync.get("options");
-  return new capo.options.Options(options);
+  return new Options(options);
 }
 
 async function init() {
   const options = await initOptions();
-  const io = new capo.io.IO(document, options);
+  const io = new IO(document, options);
 
   // This file is executed by the extension in two scenarios:
   //

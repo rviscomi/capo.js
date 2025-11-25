@@ -1,0 +1,239 @@
+---
+title: Custom Adapters
+description: Learn how to create and test custom adapters for capo.js.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide explains how to create custom adapters for capo.js and validate them using the built-in test utilities.
+
+## Why Custom Adapters?
+
+Custom adapters allow you to use capo.js with different HTML parsers or AST formats, such as:
+- JSX/React elements
+- Vue template AST
+- Svelte component AST  
+- Custom XML parsers
+- Server-side rendering frameworks
+
+## Creating a Custom Adapter
+
+### Step 1: Extend the AdapterInterface
+
+```javascript
+import { AdapterInterface } from '@rviscomi/capo.js/adapters';
+
+export class MyCustomAdapter extends AdapterInterface {
+  // Implement all 11 required methods
+  
+  isElement(node) {
+    return node && node.type === 'YourElementType';
+  }
+  
+  getTagName(node) {
+    return node.tagName?.toLowerCase() || '';
+  }
+  
+  getAttribute(node, name) {
+    // ...
+  }
+
+  // Implement other required methods:
+  // hasAttribute, getAttributeNames, getTextContent,
+  // getChildren, getParent, getSiblings, stringify
+}
+```
+
+### Step 2: Use Your Adapter
+
+```javascript
+import { MyCustomAdapter } from './my-custom-adapter.js';
+import { analyzeHead } from '@rviscomi/capo.js';
+
+const adapter = new MyCustomAdapter();
+const results = analyzeHead(headNode, adapter);
+```
+
+## Validating Your Adapter
+
+capo.js provides **three levels of validation** for custom adapters:
+
+The simplest validation is to ensure your adapter implements the required interface:
+
+```javascript
+import { validateAdapter } from '@rviscomi/capo.js/adapters';
+import { MyCustomAdapter } from './my-custom-adapter.js';
+
+const adapter = new MyCustomAdapter();
+validateAdapter(adapter); // Throws if invalid
+```
+
+**What it checks:**
+- Adapter class is a valid constructor
+- Adapter can be instantiated
+- All 11 required methods are implemented
+
+**When to use:** Quick validation during development.
+
+### Level 2: Programmatic Validation
+
+Use the `validateAdapter()` function for explicit validation:
+
+```javascript
+import { validateAdapter } from '@rviscomi/capo.js/adapters';
+import { MyCustomAdapter } from './my-custom-adapter.js';
+
+const adapter = new MyCustomAdapter();
+
+try {
+  validateAdapter(adapter);
+  console.log('✅ Adapter is valid!');
+} catch (error) {
+  console.error('❌ Adapter validation failed:', error.message);
+}
+```
+
+**What it checks:**
+- All 11 required methods exist
+- Each method is a function
+
+**When to use:** Integration tests, CI/CD pipelines.
+
+### Level 3: Full Test Suite
+
+Run the comprehensive test suite to validate behavior:
+
+```javascript
+import { describe } from 'node:test';
+import { runAdapterTestSuite, testAdapterCompliance } from '@rviscomi/capo.js/adapters/test-suite';
+import { MyCustomAdapter } from './my-custom-adapter.js';
+import { parseHtml } from './my-parser.js';  // Your parser
+
+describe('MyCustomAdapter', () => {
+  // Full test suite - tests all methods with edge cases
+  runAdapterTestSuite(MyCustomAdapter, {
+    createElement: (htmlString) => {
+      // Your logic to create a node from HTML
+      return parseHtml(htmlString);
+    },
+    supportsLocation: true  // true if getLocation() works
+  });
+  
+  // OR: Quick compliance check only
+  testAdapterCompliance(MyCustomAdapter);
+});
+```
+
+### Note on Parent Pointers
+
+Some adapters, like those for ESLint, require parent pointers on nodes to support `getParent()` and `getSiblings()`. If your parser doesn't provide these pointers by default (like `@html-eslint/parser`), you must shim them in your test setup.
+
+For ESLint adapters, it's recommended to use ESLint's `RuleTester` in your tests to provide a realistic environment where parent pointers are automatically injected:
+
+```javascript
+import { RuleTester } from 'eslint';
+import * as htmlParser from 'your-html-parser'; // e.g., @html-eslint/parser
+
+const ruleTester = new RuleTester({
+  languageOptions: { parser: htmlParser }
+});
+
+runAdapterTestSuite(MyAdapter, {
+  createElement: (html) => {
+    let capturedNode = null;
+    ruleTester.run('capture', {
+      create: () => ({
+        Tag: (node) => { if (!capturedNode) capturedNode = node; }
+      })
+    }, {
+      valid: [html]
+    });
+    return capturedNode;
+  }
+});
+```
+
+**What it tests:**
+- All 11 methods with various inputs
+- Edge cases (null, undefined, empty strings)
+- Expected return types
+- Case-insensitivity
+- 39 individual test cases
+
+**When to use:** Comprehensive validation before release.
+
+
+## Best Practices
+
+1. **Extend `AdapterInterface`** to get base implementation.
+2. **Handle null/undefined** inputs in all methods.
+3. **Expect lowercase attribute names** as inputs.
+4. **Shim parent pointers** if needed for `getParent`/`getSiblings`.
+5. **Run the test suite** to verify compliance.
+
+## API Reference
+
+### runAdapterTestSuite(AdapterClass, options)
+
+Runs comprehensive tests on a custom adapter.
+
+**Parameters:**
+- `AdapterClass` (Function) - The adapter constructor to test
+- `options` (Object)
+  - `createElement` (Function) - Function that creates test nodes from HTML strings
+  - `supportsLocation` (boolean, optional) - Whether adapter supports `getLocation()`. Default: `false`
+
+**Example:**
+```javascript
+runAdapterTestSuite(MyAdapter, {
+  createElement: (html) => parseHtml(html),
+  supportsLocation: true
+});
+```
+
+### testAdapterCompliance(AdapterClass)
+
+Quick compliance check that verifies all required methods exist.
+
+**Parameters:**
+- `AdapterClass` (Function) - The adapter constructor to test
+
+**Example:**
+```javascript
+testAdapterCompliance(MyAdapter);
+```
+
+### validateAdapter(adapter)
+
+Programmatically validates an adapter instance.
+
+**Parameters:**
+- `adapter` (Object) - Adapter instance to validate
+
+**Throws:** Error if validation fails
+
+**Example:**
+```javascript
+const adapter = new MyAdapter();
+validateAdapter(adapter);  // throws if invalid
+```
+
+## Troubleshooting
+
+**"Adapter missing required method: X"**
+- Ensure your adapter implements all 11 required methods
+- Check for typos in method names
+- Verify methods are functions, not properties
+
+**"Cannot detect adapter for node"**
+- Capo.js no longer uses auto-detection. You must explicitly provide the adapter instance to analysis functions.
+
+**Tests failing with "createElement is required"**
+- You must provide a `createElement` function in test options
+- This function should convert HTML strings to your parser's node format
+
+## Support
+
+For questions or issues with custom adapters:
+- [GitHub Issues](https://github.com/rviscomi/capo.js/issues)
+- [Discussions](https://github.com/rviscomi/capo.js/discussions)

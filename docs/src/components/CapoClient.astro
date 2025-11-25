@@ -1,26 +1,23 @@
 ---
 import { Icon } from '@astrojs/starlight/components';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+import VirtualConsole from './VirtualConsole.astro';
 ---
 
 <script>
   import { run } from '../lib/capo.js';
-  import { VirtualConsole } from '../lib/VirtualConsole.js';
 
   document.addEventListener('DOMContentLoaded', init);
 
-  let markup, input, output, reminder, virtualConsole, url;
+  let markup, input, virtualConsole, url;
 
   function init() {
-    virtualConsole = new VirtualConsole(output);
     input = document.querySelector('#input');
-    output = document.querySelector('#output');
-    reminder = document.querySelector('#reminder');
+    virtualConsole = document.querySelector('#virtual-console');
     markup = document.querySelector('#markup');
     url = document.querySelector('#url');
     
     initUrl();
-    virtualConsole = new VirtualConsole(output);
 
     input.addEventListener('submit', e => {
       handleSubmit();
@@ -36,7 +33,10 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
       return;
     }
     url.value = urlParam;
-    document.querySelector('a[role=tab]:not([aria-selected])').click();
+    const urlTab = Array.from(document.querySelectorAll('a[role=tab]')).find(tab => tab.innerText === 'URL');
+    if (urlTab) {
+      urlTab.click();
+    }
     try {
       await handleSubmit();
     } catch (e) {
@@ -51,11 +51,9 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   }
 
   async function handleSubmit() {
-    reminder.classList.remove('highlight');
     const html = await getHtml(virtualConsole);
     virtualConsole.clear();
     run(html, virtualConsole);
-    reminder.classList.add('highlight');
   }
 
   async function getHtml() {
@@ -136,59 +134,32 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   input:invalid {
     border-color: #9e0142;
   }
-
-  #output .warn {
-    background-color: rgba(255, 159, 67, 0.1);
-    color: orange;
-  }
-
-  #output .error {
-    background-color: rgba(255, 99, 132, 0.1);
-    color: red;
-  }
-
-  #reminder {
-    transition: background-color 0.5s;
-  }
-
-  #reminder.highlight {
-    animation: highlight 1s ease-in-out;
-  }
-
-  @keyframes highlight {
-    0% {
-      background-color: transparent;
-    }
-    10% {
-      background-color: rgba(255, 255, 0, 0.4);
-    }
-    end {
-      background-color: transparent;
-    }
-  }
 </style>
+
 
 <p>To see capo.js in action, enter HTML or a URL in the form field below and click <strong>Run</strong>.</p>
 
-<p><strong id="reminder">Results are logged to the DevTools console.</strong></p>
 
-<form id="input">
-  <Tabs>
-    <TabItem label="HTML">
-      <textarea id="markup" placeholder="Enter HTML">
+
+<div id="capo-client">
+  <form id="input">
+    <Tabs>
+      <TabItem label="HTML">
+        <textarea id="markup" placeholder="Enter HTML">
 <title>test</title>
 <meta charset="utf-8">
 <meta name="description" content="Try capo.js">
 <style></style>
 <meta http-equiv="origin-trial" content="AuNyVoVDAnYrBa2cL89WmgDSi1Os1UAt4SmcY1vXSJKDlIlBNfD4SEpIfg3LNDexEWv6N2kHnJ17MT4cVmRhQgIAAABueyJvcmlnaW4iOiJodHRwczovL3J2aXNjb21pLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiQmFja0ZvcndhcmRDYWNoZU5vdFJlc3RvcmVkUmVhc29ucyIsImV4cGlyeSI6MTY5MTUzOTE5OX0=">
 <script></script>
-      </textarea>
-    </TabItem>
-    <TabItem label="URL">
-      <input id="url" type="url" value="https://www.example.com/" placeholder="https://www.example.com/">
-    </TabItem>
-  </Tabs>
-  <button>Run <Icon name="rocket" color="inherit" size="1.5rem" /></button>
-</form>
+        </textarea>
+      </TabItem>
+      <TabItem label="URL">
+        <input id="url" type="url" value="https://www.example.com/" placeholder="https://www.example.com/">
+      </TabItem>
+    </Tabs>
+    <button>Run <Icon name="rocket" color="inherit" size="1.5rem" /></button>
+  </form>
 
-<div id="output"></div>
+  <VirtualConsole />
+</div>
