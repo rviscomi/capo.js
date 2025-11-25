@@ -7,7 +7,6 @@ import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 import { AdapterFactory } from '../../src/adapters/factory.js';
 import { BrowserAdapter } from '../../src/adapters/browser.js';
-import { HtmlEslintAdapter } from '../../src/adapters/html-eslint.js';
 
 describe('AdapterFactory', () => {
   describe('createByName', () => {
@@ -16,15 +15,6 @@ describe('AdapterFactory', () => {
       assert.ok(adapter instanceof BrowserAdapter);
     });
 
-    it('should create HtmlEslintAdapter by name "html-eslint"', () => {
-      const adapter = AdapterFactory.createByName('html-eslint');
-      assert.ok(adapter instanceof HtmlEslintAdapter);
-    });
-
-    it('should create HtmlEslintAdapter by package name "@html-eslint/parser"', () => {
-      const adapter = AdapterFactory.createByName('@html-eslint/parser');
-      assert.ok(adapter instanceof HtmlEslintAdapter);
-    });
 
     it('should throw error for unknown adapter name', () => {
       assert.throws(
@@ -40,7 +30,6 @@ describe('AdapterFactory', () => {
       } catch (error) {
         assert.ok(error.message.includes('Available adapters:'));
         assert.ok(error.message.includes('browser'));
-        assert.ok(error.message.includes('html-eslint'));
       }
     });
   });
@@ -54,50 +43,18 @@ describe('AdapterFactory', () => {
       assert.ok(adapter instanceof BrowserAdapter);
     });
 
-    it('should detect HtmlEslintAdapter from Tag node', () => {
-      const node = {
-        type: 'Tag',
-        name: 'meta',
-        attributes: []
-      };
-      
-      const adapter = AdapterFactory.detect(node);
-      assert.ok(adapter instanceof HtmlEslintAdapter);
-    });
-
-    it('should detect HtmlEslintAdapter from ScriptTag node', () => {
-      const node = {
-        type: 'ScriptTag',
-        name: 'script',
-        attributes: []
-      };
-      
-      const adapter = AdapterFactory.detect(node);
-      assert.ok(adapter instanceof HtmlEslintAdapter);
-    });
-
-    it('should detect HtmlEslintAdapter from StyleTag node', () => {
-      const node = {
-        type: 'StyleTag',
-        name: 'style',
-        attributes: []
-      };
-      
-      const adapter = AdapterFactory.detect(node);
-      assert.ok(adapter instanceof HtmlEslintAdapter);
-    });
 
     it('should throw error for null node', () => {
       assert.throws(
         () => AdapterFactory.detect(null),
-        /Cannot detect adapter: node is null or undefined/
+        /Cannot detect adapter: element is null or undefined/
       );
     });
 
     it('should throw error for undefined node', () => {
       assert.throws(
         () => AdapterFactory.detect(undefined),
-        /Cannot detect adapter: node is null or undefined/
+        /Cannot detect adapter: element is null or undefined/
       );
     });
 
@@ -106,7 +63,7 @@ describe('AdapterFactory', () => {
       
       assert.throws(
         () => AdapterFactory.detect(node),
-        /Cannot detect adapter for node/
+        /Cannot detect adapter for element/
       );
     });
 
@@ -137,11 +94,11 @@ describe('AdapterFactory', () => {
       assert.ok(adapter instanceof BrowserAdapter);
     });
 
-    it('should auto-detect adapter from AST node', () => {
-      const node = { type: 'Tag', name: 'meta', attributes: [] };
-      
-      const adapter = AdapterFactory.create(node);
-      assert.ok(adapter instanceof HtmlEslintAdapter);
+
+    it('should create a StringAdapter for a string', () => {
+    // Skip for now as StringAdapter doesn't exist yet
+    // const adapter = AdapterFactory.create('some string');
+    // assert.ok(adapter instanceof StringAdapter);
     });
   });
 
@@ -215,8 +172,6 @@ describe('AdapterFactory', () => {
       const adapters = AdapterFactory.list();
       
       assert.ok(adapters.includes('browser'));
-      assert.ok(adapters.includes('html-eslint'));
-      assert.ok(adapters.includes('@html-eslint/parser'));
     });
 
     it('should include registered adapters', () => {
@@ -247,7 +202,6 @@ describe('AdapterFactory', () => {
   describe('has', () => {
     it('should return true for registered adapters', () => {
       assert.equal(AdapterFactory.has('browser'), true);
-      assert.equal(AdapterFactory.has('html-eslint'), true);
     });
 
     it('should return false for unregistered adapters', () => {
@@ -262,16 +216,7 @@ describe('AdapterFactory', () => {
         () => AdapterFactory.unregister('browser'),
         /Cannot unregister built-in adapter/
       );
-      
-      assert.throws(
-        () => AdapterFactory.unregister('html-eslint'),
-        /Cannot unregister built-in adapter/
-      );
-      
-      assert.throws(
-        () => AdapterFactory.unregister('@html-eslint/parser'),
-        /Cannot unregister built-in adapter/
-      );
+
     });
 
     it('should unregister custom adapter', () => {

@@ -35,11 +35,9 @@ npm install @rviscomi/capo.js
 ### Basic Usage
 
 ```javascript
-import { analyzeHead, HtmlEslintAdapter } from '@rviscomi/capo.js';
-
 // Analyze a head element
 const head = /* your head element */;
-const adapter = new HtmlEslintAdapter();
+const adapter = new BrowserAdapter(); // Or other adapter
 const result = analyzeHead(head, adapter);
 
 console.log(result.elements);      // Array of head elements with weights
@@ -52,15 +50,11 @@ console.log(result.warnings);      // Validation warnings
 Capo.js uses adapters to work with different HTML representations:
 
 ```javascript
-import { analyzeHead, BrowserAdapter, HtmlEslintAdapter } from '@rviscomi/capo.js';
+import { analyzeHead, BrowserAdapter } from '@rviscomi/capo.js';
 
 // For browser DOM (if using in browser context)
 const browserAdapter = new BrowserAdapter();
 const browserResult = analyzeHead(document.head, browserAdapter);
-
-// For @html-eslint (in ESLint plugins)
-const eslintAdapter = new HtmlEslintAdapter();
-const eslintResult = analyzeHead(headNode, eslintAdapter);
 ```
 
 ### Subpath Exports
@@ -72,7 +66,7 @@ Import only what you need for smaller bundle sizes:
 import { analyzeHead, checkOrdering } from '@rviscomi/capo.js/core';
 
 // Import just adapters
-import { BrowserAdapter, HtmlEslintAdapter } from '@rviscomi/capo.js/adapters';
+import { BrowserAdapter } from '@rviscomi/capo.js/adapters';
 
 // Import specific adapters
 import { BrowserAdapter } from '@rviscomi/capo.js/adapters/browser';
@@ -112,7 +106,6 @@ Plus individual detector functions: `isMeta()`, `isTitle()`, `isPreconnect()`, e
 #### Adapters
 
 - `BrowserAdapter` - For working with browser DOM elements
-- `HtmlEslintAdapter` - For working with @html-eslint AST nodes
 - `AdapterFactory` - Factory for creating adapters from strings
 - `AdapterInterface` - Base interface for custom adapters
 - `validateAdapter(adapter)` - Validates an adapter implementation

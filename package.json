@@ -19,7 +19,6 @@
     "./core": "./src/core/analyzer.js",
     "./adapters": "./src/adapters/index.js",
     "./adapters/browser": "./src/adapters/browser.js",
-    "./adapters/html-eslint": "./src/adapters/html-eslint.js",
     "./adapters/factory": "./src/adapters/factory.js",
     "./rules": "./src/lib/rules.js",
     "./validation": "./src/lib/validation.js",
@@ -59,7 +58,6 @@
     "test:snapshots": "node --test tests/snapshots/*.test.js"
   },
   "devDependencies": {
-    "@html-eslint/parser": "^0.47.0",
     "dedent": "^1.7.0",
     "jsdom": "^27.0.1",
     "parcel": "latest"

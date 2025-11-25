@@ -49,10 +49,6 @@ export {
 } from './adapters/browser.js';
 
 export {
-  HtmlEslintAdapter
-} from './adapters/html-eslint.js';
-
-export {
   AdapterFactory
 } from './adapters/factory.js';
 

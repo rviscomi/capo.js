@@ -6,11 +6,14 @@
  * on actual DOM elements.
  */
 
+import { AdapterInterface } from './adapter.js';
+
 /**
  * Browser DOM adapter
  * 
  * Wraps native DOM Element APIs for use with capo.js core logic.
  * 
+ * @extends AdapterInterface
  * @implements {HTMLAdapter}
  * @example
  * import { BrowserAdapter } from './adapters/browser.js';
@@ -20,7 +23,7 @@
  * const head = document.querySelector('head');
  * const result = analyzeHead(head, adapter);
  */
-export class BrowserAdapter {
+export class BrowserAdapter extends AdapterInterface {
   /**
    * Check if node is an Element (not text, comment, etc.)
    * @param {any} node - The node to check

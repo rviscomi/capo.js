@@ -1396,167 +1396,12 @@ function $3a27d49fa01d98e6$export$283ccd6e4ed2051d(headNode, adapter, options = 
 
 
 /**
- * @file HTML ESLint Parser adapter for @html-eslint/parser AST nodes
- * 
- * This adapter works with AST nodes from @html-eslint/parser,
- * which is used by eslint-plugin-capo and other HTML linting tools.
- */ /**
- * HTML ESLint Parser adapter for @html-eslint/parser AST nodes
- * 
- * Compatible with eslint-plugin-capo's node structure.
- * 
- * @implements {HTMLAdapter}
- * @example
- * import { HtmlEslintAdapter } from './adapters/html-eslint.js';
- * import { analyzeHead } from './core/analyzer.js';
- * 
- * const adapter = new HtmlEslintAdapter();
- * const headNode = context.getSourceCode().ast; // ESLint context
- * const result = analyzeHead(headNode, adapter);
- */ class $b98fb2b7457a95a0$export$c4babe4201bf7f14 {
-    /**
-   * Check if node is an Element (not text, comment, etc.)
-   * @param {any} node - The node to check
-   * @returns {boolean}
-   */ isElement(node) {
-        if (!node) return false;
-        return node.type === "Tag" || node.type === "ScriptTag" || node.type === "StyleTag";
-    }
-    /**
-   * Get the tag name of an element (lowercase)
-   * @param {any} element - Element node
-   * @returns {string} - Tag name like 'meta', 'link', 'script'
-   */ getTagName(node) {
-        if (!node) return "";
-        // Special handling for ScriptTag and StyleTag which don't have a name property
-        if (node.type === "ScriptTag") return "script";
-        if (node.type === "StyleTag") return "style";
-        // Regular Tag nodes have a name property
-        // Ensure it's lowercase as per the JSDoc
-        return node.name ? node.name.toLowerCase() : "";
-    }
-    /**
-   * Get attribute value from element
-   * @param {any} node - Element node
-   * @param {string} attrName - Attribute name (case-insensitive)
-   * @returns {string | null} - Attribute value or null if not found
-   */ getAttribute(node, attrName) {
-        if (!node || !node.attributes) return null;
-        const normalizedAttrName = attrName.toLowerCase();
-        const attr = node.attributes.find((a)=>{
-            const keyName = a.key?.value;
-            return keyName?.toLowerCase() === normalizedAttrName;
-        });
-        if (!attr || !attr.value) return null;
-        // Handle different value types
-        if (attr.value.type === "AttributeValue") return attr.value.value;
-        // For quoted values
-        if (typeof attr.value.value === "string") return attr.value.value;
-        return null;
-    }
-    /**
-   * Check if element has a specific attribute
-   * @param {any} node - Element node
-   * @param {string} attrName - Attribute name (case-insensitive)
-   * @returns {boolean} - True if attribute exists
-   */ hasAttribute(node, attrName) {
-        if (!node || !node.attributes) return false;
-        const normalizedAttrName = attrName.toLowerCase();
-        return node.attributes.some((a)=>{
-            const keyName = a.key?.value;
-            return keyName?.toLowerCase() === normalizedAttrName;
-        });
-    }
-    /**
-   * Get all attribute names for an element
-   * @param {any} node - Element node
-   * @returns {string[]} - Array of attribute names
-   */ getAttributeNames(node) {
-        if (!node || !node.attributes) return [];
-        return node.attributes.map((a)=>a.key?.value).filter(Boolean);
-    }
-    /**
-   * Get the direct children of an element
-   * @param {any} node - Element node
-   * @returns {any[]} - Array of child element nodes (excluding text nodes)
-   */ getChildren(node) {
-        if (!node || !node.children) return [];
-        // Return only element children, exclude text nodes and comments
-        return node.children.filter((child)=>this.isElement(child));
-    }
-    /**
-   * Get the text content of an element
-   * @param {any} node - Element node
-   * @returns {string} - Text content
-   */ getTextContent(node) {
-        if (!node) return "";
-        // Special handling for StyleTag and ScriptTag which have a value property
-        if ((node.type === "StyleTag" || node.type === "ScriptTag") && node.value) return node.value.value || "";
-        if (!node.children || node.children.length === 0) return "";
-        // Concatenate all text nodes (both Text and VText types)
-        return node.children.filter((child)=>child.type === "Text" || child.type === "VText").map((child)=>child.value).join("");
-    }
-    /**
-   * Get parent element of a node
-   * @param {any} node - Child node
-   * @returns {any | null} - Parent element node, or null if no parent
-   */ getParent(node) {
-        if (!node || !node.parent) return null;
-        // Return parent if it's an element, otherwise null
-        return this.isElement(node.parent) ? node.parent : null;
-    }
-    /**
-   * Get sibling elements of a node
-   * @param {any} node - Element node
-   * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
-   */ getSiblings(node) {
-        if (!node) return [];
-        const parent = this.getParent(node);
-        if (!parent) return [];
-        return this.getChildren(parent).filter((child)=>child !== node);
-    }
-    /**
-   * Get source location for a node (for linting)
-   * @param {any} node - Element node
-   * @returns {{ line: number, column: number, endLine?: number, endColumn?: number } | null}
-   */ getLocation(node) {
-        if (!node || !node.loc) return null;
-        return {
-            line: node.loc.start.line,
-            column: node.loc.start.column,
-            endLine: node.loc.end?.line,
-            endColumn: node.loc.end?.column
-        };
-    }
-    /**
-   * Stringify element for logging/debugging
-   * @param {any} node - Element node
-   * @returns {string} - String representation like "<meta charset='utf-8'>"
-   */ stringify(node) {
-        if (!node) return "[invalid node]";
-        const tagName = this.getTagName(node);
-        const attrNames = this.getAttributeNames(node);
-        if (attrNames.length === 0) return `<${tagName}>`;
-        const attrs = attrNames.map((name)=>{
-            const value = this.getAttribute(node, name);
-            if (value === null) // Boolean attribute without value (e.g., async)
-            return name;
-            const escapedValue = value.replace(/"/g, '\\"');
-            return `${name}="${escapedValue}"`;
-        }).join(" ");
-        return `<${tagName} ${attrs}>`;
-    }
-}
-
-
-/**
  * @file Adapter Factory
  * 
  * Provides a registry-based factory for creating adapters.
  * Supports both explicit adapter creation by name and auto-detection
  * from node structure.
  */ 
-
 /**
  * @file Base adapter interface for HTML tree operations
  * 
@@ -1580,87 +1425,87 @@ function $3a27d49fa01d98e6$export$283ccd6e4ed2051d(headNode, adapter, options = 
  * 
  * // For ESLint HTML parser AST:
  * const adapter = new ParserAdapter();
- */ const $7afc5bf68bcc75e1$export$d1d100ae3c773a95 = {
+ */ class $7afc5bf68bcc75e1$export$d1d100ae3c773a95 {
     /**
    * Check if node is an Element (not text, comment, etc.)
    * @param {any} node - The node to check
    * @returns {boolean}
-   */ isElement (node) {
+   */ isElement(node) {
         throw new Error("isElement() not implemented");
-    },
+    }
     /**
    * Get the tag name of an element (lowercase)
    * @param {any} node - Element node
    * @returns {string} - Tag name like 'meta', 'link', 'script'
-   */ getTagName (node) {
+   */ getTagName(node) {
         throw new Error("getTagName() not implemented");
-    },
+    }
     /**
    * Get attribute value from element
    * @param {any} node - Element node
    * @param {string} attrName - Attribute name (case-insensitive)
    * @returns {string | null} - Attribute value or null if not found
-   */ getAttribute (node, attrName) {
+   */ getAttribute(node, attrName) {
         throw new Error("getAttribute() not implemented");
-    },
+    }
     /**
    * Check if element has a specific attribute
    * @param {any} node - Element node
    * @param {string} attrName - Attribute name (case-insensitive)
    * @returns {boolean} - True if attribute exists
-   */ hasAttribute (node, attrName) {
+   */ hasAttribute(node, attrName) {
         throw new Error("hasAttribute() not implemented");
-    },
+    }
     /**
    * Get all attribute names for an element
    * @param {any} node - Element node
    * @returns {string[]} - Array of attribute names
-   */ getAttributeNames (node) {
+   */ getAttributeNames(node) {
         throw new Error("getAttributeNames() not implemented");
-    },
+    }
     /**
    * Get text content of a node (for inline scripts/styles)
    * @param {any} node - Element node
    * @returns {string} - Text content
-   */ getTextContent (node) {
+   */ getTextContent(node) {
         throw new Error("getTextContent() not implemented");
-    },
+    }
     /**
    * Get child elements of a node
    * @param {any} node - Parent node
    * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
-   */ getChildren (node) {
+   */ getChildren(node) {
         throw new Error("getChildren() not implemented");
-    },
+    }
     /**
    * Get parent element of a node
    * @param {any} node - Child node
    * @returns {any | null} - Parent element node, or null if no parent
-   */ getParent (node) {
+   */ getParent(node) {
         throw new Error("getParent() not implemented");
-    },
+    }
     /**
    * Get sibling elements of a node
    * @param {any} node - Element node
    * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
-   */ getSiblings (node) {
+   */ getSiblings(node) {
         throw new Error("getSiblings() not implemented");
-    },
+    }
     /**
    * Get source location for a node (optional, for linting)
    * @param {any} node - Element node
    * @returns {{ line: number, column: number, endLine?: number, endColumn?: number } | null}
-   */ getLocation (node) {
+   */ getLocation(node) {
         throw new Error("getLocation() not implemented");
-    },
+    }
     /**
    * Stringify element for logging/debugging
    * @param {any} node - Element node
    * @returns {string} - String representation like "<meta charset='utf-8'>"
-   */ stringify (node) {
+   */ stringify(node) {
         throw new Error("stringify() not implemented");
     }
-};
+}
 function $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b(adapter) {
     const requiredMethods = [
         "isElement",
@@ -1688,14 +1533,6 @@ function $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b(adapter) {
     [
         "browser",
         (0, $6e48536853157d9f$export$e467cc3399500025)
-    ],
-    [
-        "html-eslint",
-        (0, $b98fb2b7457a95a0$export$c4babe4201bf7f14)
-    ],
-    [
-        "@html-eslint/parser",
-        (0, $b98fb2b7457a95a0$export$c4babe4201bf7f14)
     ]
 ]);
 class $8c7d65d7a3625032$export$4f24674036ad9ae3 {
@@ -1703,7 +1540,7 @@ class $8c7d65d7a3625032$export$4f24674036ad9ae3 {
    * Create an adapter by name or auto-detect from node
    * 
    * @param {string|any} nameOrNode - Adapter name string or node to detect from
-   * @returns {BrowserAdapter|HtmlEslintAdapter} Adapter instance
+   * @returns {BrowserAdapter|IOAdapter|NodeAdapter|StringAdapter} Adapter instance
    * @throws {Error} If adapter name is unknown or node type cannot be detected
    */ static create(nameOrNode) {
         // If string name provided, look up in registry
@@ -1714,8 +1551,8 @@ class $8c7d65d7a3625032$export$4f24674036ad9ae3 {
     /**
    * Create an adapter by registered name
    * 
-   * @param {string} name - Adapter name ('browser', 'html-eslint', etc.)
-   * @returns {BrowserAdapter|HtmlEslintAdapter} Adapter instance
+   * @param {string} name - Adapter name ('browser', 'io', 'node', 'string', etc.)
+   * @returns {BrowserAdapter|IOAdapter|NodeAdapter|StringAdapter} Adapter instance
    * @throws {Error} If adapter name is not registered
    */ static createByName(name) {
         const AdapterClass = $8c7d65d7a3625032$var$registry.get(name);
@@ -1737,24 +1574,21 @@ class $8c7d65d7a3625032$export$4f24674036ad9ae3 {
    * 
    * Examines the node to determine which adapter should be used.
    * 
-   * @param {any} node - Node to examine
-   * @returns {BrowserAdapter|HtmlEslintAdapter} Detected adapter
+   * @param {any} element - Element to examine
+   * @returns {BrowserAdapter} Detected adapter
    * @throws {Error} If node type cannot be detected
-   */ static detect(node) {
-        if (!node) throw new Error("Cannot detect adapter: node is null or undefined");
+   */ static detect(element) {
+        if (element === null || element === undefined) throw new Error("Cannot detect adapter: element is null or undefined");
         // Browser DOM Element
         // Check for nodeType property (standard DOM API)
-        if (typeof node.nodeType === "number" && node.nodeType === 1) return new (0, $6e48536853157d9f$export$e467cc3399500025)();
-        // @html-eslint/parser AST node
-        // Check for type property with Tag/ScriptTag/StyleTag values
-        if (node.type === "Tag" || node.type === "ScriptTag" || node.type === "StyleTag") return new (0, $b98fb2b7457a95a0$export$c4babe4201bf7f14)();
+        if (typeof element.nodeType === "number" && element.nodeType === 1) return new (0, $6e48536853157d9f$export$e467cc3399500025)();
         // Future: JSX AST node detection
         // if (node.type === 'JSXElement') {
         //   return new JsxAdapter();
         // }
         // Unknown node type
-        const nodeInfo = node.type ? `type="${node.type}"` : `nodeType=${node.nodeType}`;
-        throw new Error(`Cannot detect adapter for node with ${nodeInfo}. ` + "Supported types: Browser DOM Element (nodeType=1), " + '@html-eslint/parser AST (type="Tag"|"ScriptTag"|"StyleTag")');
+        const elementInfo = element.nodeType ? `nodeType=${element.nodeType}` : element.type ? `type="${element.type}"` : `type=${typeof element}`;
+        throw new Error(`Cannot detect adapter for element with ${elementInfo}. ` + "Supported types: Browser DOM Element (nodeType=1)");
     }
     /**
    * Register a new adapter
@@ -1799,13 +1633,13 @@ class $8c7d65d7a3625032$export$4f24674036ad9ae3 {
    * Unregister an adapter
    * 
    * Useful for testing or removing custom adapters.
-   * Cannot remove built-in adapters (browser, html-eslint).
+   * Cannot remove built-in adapters (browser).
    * 
    * @param {string} name - Adapter name to remove
    * @returns {boolean} True if adapter was removed
    */ static unregister(name) {
         // Protect built-in adapters
-        if (name === "browser" || name === "html-eslint" || name === "@html-eslint/parser") throw new Error(`Cannot unregister built-in adapter: "${name}"`);
+        if (name === "browser") throw new Error(`Cannot unregister built-in adapter: "${name}"`);
         return $8c7d65d7a3625032$var$registry.delete(name);
     }
 }
@@ -1819,51 +1653,6 @@ class $8c7d65d7a3625032$export$4f24674036ad9ae3 {
 
 
 
-
-function $b9ac488c89f25519$export$de6367c57cc1a573(io) {
-    const adapter = new (0, $6e48536853157d9f$export$e467cc3399500025)();
-    const headElement = io.getHead();
-    const { weights: weights, validationWarnings: validationWarnings, orderingViolations: orderingViolations, customValidations: customValidations } = (0, $3a27d49fa01d98e6$export$283ccd6e4ed2051d)(headElement, adapter);
-    // Log validation warnings
-    const originTrialWarnings = customValidations.filter((cv)=>cv.ruleId === "no-invalid-origin-trial").map((cv)=>({
-            warning: `Invalid origin trial token: ${cv.warnings[0]}`,
-            elements: [
-                cv.element
-            ],
-            element: cv.payload
-        }));
-    io.logValidationWarnings([
-        ...validationWarnings,
-        ...originTrialWarnings
-    ]);
-    const customValidationsMap = new Map(customValidations.map((cv)=>[
-            cv.element,
-            cv
-        ]));
-    // Prepare weights for visualization
-    const headWeights = weights.map(({ element: element, weight: weight })=>{
-        const cv = customValidationsMap.get(element);
-        return {
-            weight: weight,
-            element: io.getLoggableElement(element),
-            isValid: !(0, $c322f9a5057eaf5c$export$eeefd08c3a6f8db7)(element, adapter),
-            customValidations: cv ? {
-                warnings: cv.warnings,
-                ruleId: cv.ruleId
-            } : {}
-        };
-    });
-    io.visualizeHead("Actual", headElement, headWeights);
-    const sortedWeights = Array.from(headWeights).sort((a, b)=>b.weight - a.weight);
-    const sortedHead = document.createElement("head");
-    sortedWeights.forEach(({ element: element })=>{
-        sortedHead.appendChild(element.cloneNode(true));
-    });
-    io.visualizeHead("Sorted", sortedHead, sortedWeights);
-    return headWeights;
-}
-
-
 const $3536df9ffc9a62b8$var$FORCED_OPTIONS = {
     preferredAssessmentMode: $5daa40bf356478d7$exports.Options.AssessmentMode.DYNAMIC
 };
@@ -1874,7 +1663,7 @@ function $3536df9ffc9a62b8$export$889ea624f2cb2c57(input, output, userOptions = 
     const options = new $5daa40bf356478d7$exports.Options(userOptions);
     const io = new $33f7359dc421be0c$exports.IO(staticDoc.documentElement, options, output);
     io.init();
-    $b9ac488c89f25519$export$de6367c57cc1a573(io);
+    logging.logAnalysis(io);
 }
 
 

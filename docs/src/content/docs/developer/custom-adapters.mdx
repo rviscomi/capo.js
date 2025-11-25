@@ -24,7 +24,7 @@ Custom adapters allow you to use capo.js with different HTML parsers or AST form
 import { AdapterInterface } from '@rviscomi/capo.js/adapters';
 
 export class MyCustomAdapter extends AdapterInterface {
-  // Implement all 10 required methods
+  // Implement all 11 required methods
   
   isElement(node) {
     // Return true if node is a valid element for your parser
@@ -65,12 +65,14 @@ export class MyCustomAdapter extends AdapterInterface {
     return node.children.filter(child => this.isElement(child));
   }
   
-  matches(node, selector) {
-    // Implement CSS selector matching
-    // You can use a library like css-select or implement simple matching
-    if (!node) return false;
-    // ... selector matching logic
-    return false;
+  getParent(node) {
+    return node && node.parent;
+  }
+  
+  getSiblings(node) {
+    const parent = this.getParent(node);
+    if (!parent) return [];
+    return this.getChildren(parent).filter(c => c !== node);
   }
   
   getLocation(node) {
@@ -122,13 +124,13 @@ import { MyCustomAdapter } from './my-custom-adapter.js';
 
 // This will throw an error if your adapter is invalid
 AdapterFactory.register('my-parser', MyCustomAdapter);
-// ✅ Validates that all 10 required methods exist
+// ✅ Validates that all 11 required methods exist
 ```
 
 **What it checks:**
 - Adapter class is a valid constructor
 - Adapter can be instantiated
-- All 10 required methods are implemented
+- All 11 required methods are implemented
 
 **When to use:** Quick validation during development.
 
@@ -151,7 +153,7 @@ try {
 ```
 
 **What it checks:**
-- All 10 required methods exist
+- All 11 required methods exist
 - Each method is a function
 
 **When to use:** Integration tests, CI/CD pipelines.
@@ -189,7 +191,7 @@ For ESLint adapters, it's recommended to use ESLint's `RuleTester` in your tests
 
 ```javascript
 import { RuleTester } from 'eslint';
-import * as htmlParser from '@html-eslint/parser';
+import * as htmlParser from 'your-html-parser'; // e.g., @html-eslint/parser
 
 const ruleTester = new RuleTester({
   languageOptions: { parser: htmlParser }
@@ -211,7 +213,7 @@ runAdapterTestSuite(MyAdapter, {
 ```
 
 **What it tests:**
-- All 10 methods with various inputs
+- All 11 methods with various inputs
 - Edge cases (null, undefined, empty strings)
 - Expected return types
 - Case-insensitivity
@@ -280,30 +282,6 @@ export class JsxAdapter extends AdapterInterface {
   getChildren(node) {
     if (!this.isElement(node)) return [];
     return node.children.filter(c => c.type === 'JSXElement');
-  }
-  
-  matches(node, selector) {
-    if (!this.isElement(node)) return false;
-    
-    // Simple selector matching
-    const tagMatch = selector.match(/^([a-z0-9-]+)/i);
-    if (tagMatch && tagMatch[1] !== this.getTagName(node)) {
-      return false;
-    }
-    
-    // Attribute selectors [attr] or [attr="value"]
-    const attrMatches = selector.matchAll(/\[([a-z-]+)(?:="([^"]+)")?\]/gi);
-    for (const match of attrMatches) {
-      const attrName = match[1];
-      const attrValue = match[2];
-      
-      if (!this.hasAttribute(node, attrName)) return false;
-      if (attrValue && this.getAttribute(node, attrName) !== attrValue) {
-        return false;
-      }
-    }
-    
-    return true;
   }
   
   getLocation(node) {
@@ -460,7 +438,7 @@ validateAdapter(adapter);  // throws if invalid
 ## Troubleshooting
 
 **"Adapter missing required method: X"**
-- Ensure your adapter implements all 10 required methods
+- Ensure your adapter implements all 11 required methods
 - Check for typos in method names
 - Verify methods are functions, not properties
 

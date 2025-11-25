@@ -7,7 +7,6 @@
  */
 
 import { BrowserAdapter } from './browser.js';
-import { HtmlEslintAdapter } from './html-eslint.js';
 import { validateAdapter } from './adapter.js';
 
 /**
@@ -16,8 +15,6 @@ import { validateAdapter } from './adapter.js';
  */
 const registry = new Map([
   ['browser', BrowserAdapter],
-  ['html-eslint', HtmlEslintAdapter],
-  ['@html-eslint/parser', HtmlEslintAdapter], // Alias for package name
 ]);
 
 /**
@@ -28,7 +25,6 @@ const registry = new Map([
  * @example
  * // Create by name
  * const adapter = AdapterFactory.create('browser');
- * const adapter = AdapterFactory.create('html-eslint');
  * 
  * // Auto-detect from node
  * const adapter = AdapterFactory.create(document.querySelector('head'));
@@ -42,7 +38,7 @@ export class AdapterFactory {
    * Create an adapter by name or auto-detect from node
    * 
    * @param {string|any} nameOrNode - Adapter name string or node to detect from
-   * @returns {BrowserAdapter|HtmlEslintAdapter} Adapter instance
+   * @returns {BrowserAdapter} Adapter instance
    * @throws {Error} If adapter name is unknown or node type cannot be detected
    */
   static create(nameOrNode) {
@@ -58,8 +54,8 @@ export class AdapterFactory {
   /**
    * Create an adapter by registered name
    * 
-   * @param {string} name - Adapter name ('browser', 'html-eslint', etc.)
-   * @returns {BrowserAdapter|HtmlEslintAdapter} Adapter instance
+   * @param {string} name - Adapter name ('browser', etc.)
+   * @returns {BrowserAdapter} Adapter instance
    * @throws {Error} If adapter name is not registered
    */
   static createByName(name) {
@@ -91,27 +87,19 @@ export class AdapterFactory {
    * 
    * Examines the node to determine which adapter should be used.
    * 
-   * @param {any} node - Node to examine
-   * @returns {BrowserAdapter|HtmlEslintAdapter} Detected adapter
+   * @param {any} element - Element to examine
+   * @returns {BrowserAdapter} Detected adapter
    * @throws {Error} If node type cannot be detected
    */
-  static detect(node) {
-    if (!node) {
-      throw new Error('Cannot detect adapter: node is null or undefined');
+  static detect(element) {
+    if (element === null || element === undefined) {
+      throw new Error('Cannot detect adapter: element is null or undefined');
     }
 
     // Browser DOM Element
     // Check for nodeType property (standard DOM API)
-    if (typeof node.nodeType === 'number' && node.nodeType === 1) {
+    if (typeof element.nodeType === 'number' && element.nodeType === 1) {
       return new BrowserAdapter();
-    }
-
-    // @html-eslint/parser AST node
-    // Check for type property with Tag/ScriptTag/StyleTag values
-    if (node.type === 'Tag' || 
-        node.type === 'ScriptTag' || 
-        node.type === 'StyleTag') {
-      return new HtmlEslintAdapter();
     }
 
     // Future: JSX AST node detection
@@ -120,14 +108,13 @@ export class AdapterFactory {
     // }
 
     // Unknown node type
-    const nodeInfo = node.type 
-      ? `type="${node.type}"` 
-      : `nodeType=${node.nodeType}`;
+    const elementInfo = element.nodeType
+      ? `nodeType=${element.nodeType}`
+      : (element.type ? `type="${element.type}"` : `type=${typeof element}`);
     
     throw new Error(
-      `Cannot detect adapter for node with ${nodeInfo}. ` +
-      'Supported types: Browser DOM Element (nodeType=1), ' +
-      '@html-eslint/parser AST (type="Tag"|"ScriptTag"|"StyleTag")'
+      `Cannot detect adapter for element with ${elementInfo}. ` +
+      'Supported types: Browser DOM Element (nodeType=1)'
     );
   }
 
@@ -188,14 +175,14 @@ export class AdapterFactory {
    * Unregister an adapter
    * 
    * Useful for testing or removing custom adapters.
-   * Cannot remove built-in adapters (browser, html-eslint).
+   * Cannot remove built-in adapters (browser).
    * 
    * @param {string} name - Adapter name to remove
    * @returns {boolean} True if adapter was removed
    */
   static unregister(name) {
     // Protect built-in adapters
-    if (name === 'browser' || name === 'html-eslint' || name === '@html-eslint/parser') {
+    if (name === 'browser') {
       throw new Error(`Cannot unregister built-in adapter: "${name}"`);
     }
     
