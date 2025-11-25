@@ -1,0 +1,26 @@
+name: test
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    - name: Install root dependencies
+      run: npm ci
+    - name: Run root tests
+      run: npm test
+    - name: Install docs dependencies
+      run: npm ci
+      working-directory: ./docs
+    - name: Run docs tests
+      run: npm test
+      working-directory: ./docs
