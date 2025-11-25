@@ -6,4 +6,3 @@
 
 export { AdapterInterface, validateAdapter } from './adapter.js';
 export { BrowserAdapter } from './browser.js';
-export { AdapterFactory } from './factory.js';

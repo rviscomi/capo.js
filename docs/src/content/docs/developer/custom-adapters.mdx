@@ -27,104 +27,45 @@ export class MyCustomAdapter extends AdapterInterface {
   // Implement all 11 required methods
   
   isElement(node) {
-    // Return true if node is a valid element for your parser
     return node && node.type === 'YourElementType';
   }
   
   getTagName(node) {
-    // Return lowercase tag name
-    if (!node) return '';
     return node.tagName?.toLowerCase() || '';
   }
   
   getAttribute(node, name) {
-    // Get attribute value (case-insensitive)
-    if (!node || !node.attributes) return null;
-    const attr = node.attributes.find(a => 
-      a.name.toLowerCase() === name.toLowerCase()
-    );
-    return attr ? attr.value : null;
+    // ...
   }
-  
-  hasAttribute(node, name) {
-    return this.getAttribute(node, name) !== null;
-  }
-  
-  getAttributeNames(node) {
-    if (!node || !node.attributes) return [];
-    return node.attributes.map(a => a.name);
-  }
-  
-  getTextContent(node) {
-    if (!node) return '';
-    return node.textContent || '';
-  }
-  
-  getChildren(node) {
-    if (!node || !node.children) return [];
-    return node.children.filter(child => this.isElement(child));
-  }
-  
-  getParent(node) {
-    return node && node.parent;
-  }
-  
-  getSiblings(node) {
-    const parent = this.getParent(node);
-    if (!parent) return [];
-    return this.getChildren(parent).filter(c => c !== node);
-  }
-  
-  getLocation(node) {
-    // Return source location if available, otherwise null
-    if (!node || !node.loc) return null;
-    return {
-      start: { line: node.loc.start.line, column: node.loc.start.column },
-      end: { line: node.loc.end.line, column: node.loc.end.column }
-    };
-  }
-  
-  stringify(node) {
-    // Return string representation of the element
-    if (!node) return '';
-    const attrs = this.getAttributeNames(node)
-      .map(name => `${name}="${this.getAttribute(node, name)}"`)
-      .join(' ');
-    return `<${this.getTagName(node)}${attrs ? ' ' + attrs : ''}>`;
-  }
+
+  // Implement other required methods:
+  // hasAttribute, getAttributeNames, getTextContent,
+  // getChildren, getParent, getSiblings, stringify
 }
 ```
 
-### Step 2: Register Your Adapter
+### Step 2: Use Your Adapter
 
 ```javascript
-import { AdapterFactory } from '@rviscomi/capo.js/adapters';
 import { MyCustomAdapter } from './my-custom-adapter.js';
+import { analyzeHead } from '@rviscomi/capo.js';
 
-// Register the adapter
-AdapterFactory.register('my-parser', MyCustomAdapter);
-
-// Now you can use it
-const adapter = AdapterFactory.create('my-parser');
-
-// Or let the factory auto-detect it by updating the detect() method
+const adapter = new MyCustomAdapter();
+const results = analyzeHead(headNode, adapter);
 ```
 
 ## Validating Your Adapter
 
 capo.js provides **three levels of validation** for custom adapters:
 
-### Level 1: Automatic Validation (Registration Time)
-
-The simplest validation happens automatically when you register your adapter:
+The simplest validation is to ensure your adapter implements the required interface:
 
 ```javascript
-import { AdapterFactory } from '@rviscomi/capo.js/adapters';
+import { validateAdapter } from '@rviscomi/capo.js/adapters';
 import { MyCustomAdapter } from './my-custom-adapter.js';
 
-// This will throw an error if your adapter is invalid
-AdapterFactory.register('my-parser', MyCustomAdapter);
-// ✅ Validates that all 11 required methods exist
+const adapter = new MyCustomAdapter();
+validateAdapter(adapter); // Throws if invalid
 ```
 
 **What it checks:**
@@ -221,172 +162,14 @@ runAdapterTestSuite(MyAdapter, {
 
 **When to use:** Comprehensive validation before release.
 
-## Full Example: JSX Adapter
-
-<Tabs>
-  <TabItem label="Adapter">
-```javascript
-// jsx-adapter.js
-import { AdapterInterface } from '@rviscomi/capo.js/adapters';
-
-export class JsxAdapter extends AdapterInterface {
-  isElement(node) {
-    return node && node.type === 'JSXElement';
-  }
-  
-  getTagName(node) {
-    if (!this.isElement(node)) return '';
-    return node.openingElement.name.name.toLowerCase();
-  }
-  
-  getAttribute(node, name) {
-    if (!this.isElement(node)) return null;
-    const nameLower = name.toLowerCase();
-    const attr = node.openingElement.attributes.find(a => 
-      a.name && a.name.name.toLowerCase() === nameLower
-    );
-    if (!attr || !attr.value) return null;
-    return attr.value.value || null;
-  }
-  
-  hasAttribute(node, name) {
-    return this.getAttribute(node, name) !== null;
-  }
-  
-  getAttributeNames(node) {
-    if (!this.isElement(node)) return [];
-    return node.openingElement.attributes
-      .filter(a => a.name)
-      .map(a => a.name.name);
-  }
-  
-  getTextContent(node) {
-    if (!this.isElement(node)) return '';
-    // JSX text is in children, but can also be in expressions (e.g. for style/script)
-    return node.children
-      .map(c => {
-        if (c.type === 'JSXText') return c.value;
-        if (c.type === 'JSXExpressionContainer') {
-          if (c.expression.type === 'TemplateLiteral') {
-            return c.expression.quasis[0].value.cooked;
-          }
-          if (c.expression.type === 'StringLiteral') {
-            return c.expression.value;
-          }
-        }
-        return '';
-      })
-      .join('');
-  }
-  
-  getChildren(node) {
-    if (!this.isElement(node)) return [];
-    return node.children.filter(c => c.type === 'JSXElement');
-  }
-  
-  getLocation(node) {
-    if (!this.isElement(node) || !node.loc) return null;
-    return {
-      start: { line: node.loc.start.line, column: node.loc.start.column },
-      end: { line: node.loc.end.line, column: node.loc.end.column }
-    };
-  }
-  
-  getParent(node) {
-    return (node && node.parent) || null;
-  }
-
-  getSiblings(node) {
-    const parent = this.getParent(node);
-    if (!parent) return [];
-    return this.getChildren(parent).filter(c => c !== node);
-  }
-  
-  stringify(node) {
-    if (!this.isElement(node)) return '';
-    const tag = this.getTagName(node);
-    const attrs = this.getAttributeNames(node)
-      .map(name => `${name}="${this.getAttribute(node, name)}"`)
-      .join(' ');
-    return `<${tag}${attrs ? ' ' + attrs : ''}>`;
-  }
-}
-```
-  </TabItem>
-  <TabItem label="Test">
-```javascript
-// jsx-adapter.test.js
-import { describe } from 'node:test';
-import { runAdapterTestSuite } from '@rviscomi/capo.js/adapters/test-suite';
-import { JsxAdapter } from './jsx-adapter.js';
-import { parse } from '@babel/parser';
-
-describe('JsxAdapter', () => {
-  runAdapterTestSuite(JsxAdapter, {
-    createElement: (htmlString) => {
-      // Convert HTML to JSX by closing self-closing tags
-      const selfClosingTags = ['meta', 'link', 'base', 'br', 'img', 'input', 'hr'];
-      let jsxString = htmlString;
-      selfClosingTags.forEach(tag => {
-        const regex = new RegExp(`<(${tag}(?:\\s+[^>]*)?)>`, 'gi');
-        jsxString = jsxString.replace(regex, '<$1 />');
-      });
-
-      // Handle style/script content by wrapping in template literals
-      jsxString = jsxString.replace(/<(style|script)([^>]*)>([\s\S]*?)<\/\1>/gi, '<$1$2>{`$3`}</$1>');
-
-      const code = `const el = (<>${jsxString}</>);`;
-      const ast = parse(code, {
-        plugins: ['jsx'],
-        sourceType: 'module'
-      });
-      
-      // Extract JSX element from AST (inside fragment)
-      const root = ast.program.body[0].declarations[0].init.children[0];
-
-      // Add parent pointers for tests that need them
-      const traverse = (node, parent = null) => {
-        if (!node) return;
-        node.parent = parent;
-        if (node.children) {
-          node.children.forEach(child => traverse(child, node));
-        }
-      };
-      traverse(root);
-      return root;
-    },
-    supportsLocation: true
-  });
-});
-```
-  </TabItem>
-  <TabItem label="Usage">
-```javascript
-// Usage
-import { AdapterFactory } from '@rviscomi/capo.js/adapters';
-import { JsxAdapter } from './jsx-adapter.js';
-
-// Register the adapter
-AdapterFactory.register('jsx', JsxAdapter);
-
-// Use it with capo.js
-import { getHeadWeights } from '@rviscomi/capo.js';
-
-const adapter = AdapterFactory.create('jsx');
-const weights = getHeadWeights(jsxHeadElement, adapter);
-```
-  </TabItem>
-</Tabs>
 
 ## Best Practices
 
-1. **Always extend AdapterInterface** - Don't implement from scratch
-2. **Test thoroughly** - Run the full test suite before releasing
-3. **Handle null gracefully** - All methods should handle null/undefined inputs
-4. **Return consistent types** - Follow the exact return types in the interface
-5. **Be case-insensitive** - Attribute names should be case-insensitive
-6. **Handle Parent Pointers** - If your parser doesn't provide `node.parent`, you may need to shim it or use a traversal helper, especially for tests.
-7. **Document your adapter** - Explain what parser/format it supports
+1. **Extend `AdapterInterface`** to get base implementation.
+2. **Handle null/undefined** inputs in all methods.
+3. **Expect lowercase attribute names** as inputs.
+4. **Shim parent pointers** if needed for `getParent`/`getSiblings`.
+5. **Run the test suite** to verify compliance.
 
 ## API Reference
 
@@ -443,9 +226,7 @@ validateAdapter(adapter);  // throws if invalid
 - Verify methods are functions, not properties
 
 **"Cannot detect adapter for node"**
-- Your node type isn't recognized by the factory
-- Register your adapter explicitly: `AdapterFactory.create('your-name')`
-- Or update `AdapterFactory.detect()` to recognize your node type
+- Capo.js no longer uses auto-detection. You must explicitly provide the adapter instance to analysis functions.
 
 **Tests failing with "createElement is required"**
 - You must provide a `createElement` function in test options

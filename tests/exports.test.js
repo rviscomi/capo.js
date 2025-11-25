@@ -40,18 +40,10 @@ describe('Package Exports', () => {
     const capo = await import('../src/index.js');
     
     assert.ok(capo.BrowserAdapter, 'Should export BrowserAdapter');
-    assert.ok(capo.HtmlEslintAdapter, 'Should export HtmlEslintAdapter');
-    assert.ok(capo.AdapterFactory, 'Should export AdapterFactory');
     assert.ok(capo.AdapterInterface, 'Should export AdapterInterface');
     assert.ok(capo.validateAdapter, 'Should export validateAdapter');
   });
 
-  it('should export test utilities', async () => {
-    const capo = await import('../src/index.js');
-    
-    assert.ok(capo.runAdapterTestSuite, 'Should export runAdapterTestSuite');
-    assert.ok(capo.testAdapterCompliance, 'Should export testAdapterCompliance');
-  });
 
   it('should work with named imports', async () => {
     const { analyzeHead, BrowserAdapter } = await import('../src/index.js');

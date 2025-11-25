@@ -22,6 +22,7 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { validateAdapter } from './adapter.js';
 
 /**
  * Run the standard adapter test suite
@@ -326,7 +327,9 @@ export function runAdapterTestSuite(AdapterClass, options) {
 
     it('should handle null node gracefully', () => {
       setup();
-      assert.equal(adapter.getLocation(null), null);
+      if (typeof adapter.getLocation === 'function') {
+        assert.equal(adapter.getLocation(null), null);
+      }
     });
   });
 
@@ -376,26 +379,7 @@ export function testAdapterCompliance(AdapterClass) {
   describe('Adapter Compliance', () => {
     it('should implement all required methods', () => {
       const adapter = new AdapterClass();
-      const requiredMethods = [
-        'isElement',
-        'getTagName',
-        'getAttribute',
-        'hasAttribute',
-        'getAttributeNames',
-        'getTextContent',
-        'getChildren',
-        'matches',
-        'getLocation',
-        'stringify'
-      ];
-
-      for (const method of requiredMethods) {
-        assert.equal(
-          typeof adapter[method],
-          'function',
-          `Adapter must implement ${method}() method`
-        );
-      }
+      assert.doesNotThrow(() => validateAdapter(adapter));
     });
 
     it('should be instantiable without errors', () => {

@@ -48,9 +48,6 @@ export {
   BrowserAdapter
 } from './adapters/browser.js';
 
-export {
-  AdapterFactory
-} from './adapters/factory.js';
 
 export {
   AdapterInterface,

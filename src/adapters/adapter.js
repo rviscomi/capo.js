@@ -8,6 +8,19 @@
  * @interface HTMLAdapter
  */
 
+const REQUIRED_METHODS = [
+  'isElement',
+  'getTagName',
+  'getAttribute',
+  'hasAttribute',
+  'getAttributeNames',
+  'getTextContent',
+  'getChildren',
+  'getParent',
+  'getSiblings',
+  'stringify',
+];
+
 /**
  * Base adapter interface (documentation only)
  * 
@@ -114,7 +127,7 @@ export class AdapterInterface {
    * @returns {{ line: number, column: number, endLine?: number, endColumn?: number } | null}
    */
   getLocation(node) {
-    throw new Error('getLocation() not implemented');
+    return null;
   }
 
   /**
@@ -133,21 +146,7 @@ export class AdapterInterface {
  * @throws {Error} If adapter is missing required methods
  */
 export function validateAdapter(adapter) {
-  const requiredMethods = [
-    'isElement',
-    'getTagName',
-    'getAttribute',
-    'hasAttribute',
-    'getAttributeNames',
-    'getTextContent',
-    'getChildren',
-    'getParent',
-    'getSiblings',
-    'getLocation',
-    'stringify',
-  ];
-
-  for (const method of requiredMethods) {
+  for (const method of REQUIRED_METHODS) {
     if (typeof adapter[method] !== 'function') {
       throw new Error(`Adapter missing required method: ${method}()`);
     }

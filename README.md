@@ -106,7 +106,6 @@ Plus individual detector functions: `isMeta()`, `isTitle()`, `isPreconnect()`, e
 #### Adapters
 
 - `BrowserAdapter` - For working with browser DOM elements
-- `AdapterFactory` - Factory for creating adapters from strings
 - `AdapterInterface` - Base interface for custom adapters
 - `validateAdapter(adapter)` - Validates an adapter implementation
 
