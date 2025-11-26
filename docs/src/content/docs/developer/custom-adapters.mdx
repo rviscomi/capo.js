@@ -7,7 +7,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 This guide explains how to create custom adapters for capo.js and validate them using the built-in test utilities.
 
-## Why Custom Adapters?
+## Why custom adapters?
 
 Custom adapters allow you to use capo.js with different HTML parsers or AST formats, such as:
 - JSX/React elements
@@ -16,7 +16,7 @@ Custom adapters allow you to use capo.js with different HTML parsers or AST form
 - Custom XML parsers
 - Server-side rendering frameworks
 
-## Creating a Custom Adapter
+## Creating a custom adapter
 
 ### Step 1: Extend the AdapterInterface
 
@@ -44,7 +44,7 @@ export class MyCustomAdapter extends AdapterInterface {
 }
 ```
 
-### Step 2: Use Your Adapter
+### Step 2: Use your adapter
 
 ```javascript
 import { MyCustomAdapter } from './my-custom-adapter.js';
@@ -54,7 +54,41 @@ const adapter = new MyCustomAdapter();
 const results = analyzeHead(headNode, adapter);
 ```
 
-## Validating Your Adapter
+## Node.js usage
+
+While capo.js is designed for the browser, you can use it in Node.js by pairing it with a DOM simulation library like [jsdom](https://github.com/jsdom/jsdom).
+
+Since jsdom provides a standard DOM API, you can reuse the built-in `BrowserAdapter` instead of writing a custom one:
+
+```javascript
+import { JSDOM } from 'jsdom';
+import { analyzeHead, BrowserAdapter } from '@rviscomi/capo.js';
+
+const html = `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>My Page</title>
+      <meta charset="utf-8">
+    </head>
+    <body></body>
+  </html>
+`;
+
+// 1. Create a JSDOM instance
+const dom = new JSDOM(html);
+const head = dom.window.document.querySelector('head');
+
+// 2. Use the built-in BrowserAdapter
+const adapter = new BrowserAdapter();
+
+// 3. Analyze
+const results = analyzeHead(head, adapter);
+
+console.log(results.weights);
+```
+
+## Validating your adapter
 
 capo.js provides **three levels of validation** for custom adapters:
 
@@ -75,7 +109,7 @@ validateAdapter(adapter); // Throws if invalid
 
 **When to use:** Quick validation during development.
 
-### Level 2: Programmatic Validation
+### Level 2: Programmatic validation
 
 Use the `validateAdapter()` function for explicit validation:
 
@@ -99,7 +133,7 @@ try {
 
 **When to use:** Integration tests, CI/CD pipelines.
 
-### Level 3: Full Test Suite
+### Level 3: Full test suite
 
 Run the comprehensive test suite to validate behavior:
 
@@ -124,7 +158,7 @@ describe('MyCustomAdapter', () => {
 });
 ```
 
-### Note on Parent Pointers
+### Note on parent pointers
 
 Some adapters, like those for ESLint, require parent pointers on nodes to support `getParent()` and `getSiblings()`. If your parser doesn't provide these pointers by default (like `@html-eslint/parser`), you must shim them in your test setup.
 
@@ -163,7 +197,7 @@ runAdapterTestSuite(MyAdapter, {
 **When to use:** Comprehensive validation before release.
 
 
-## Best Practices
+## Best practices
 
 1. **Extend `AdapterInterface`** to get base implementation.
 2. **Handle null/undefined** inputs in all methods.
@@ -171,7 +205,7 @@ runAdapterTestSuite(MyAdapter, {
 4. **Shim parent pointers** if needed for `getParent`/`getSiblings`.
 5. **Run the test suite** to verify compliance.
 
-## API Reference
+## API reference
 
 ### runAdapterTestSuite(AdapterClass, options)
 
