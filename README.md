@@ -22,7 +22,7 @@ This script helps you identify which elements are out of order.
 
 For applications that add lots of dynamic content to the `<head>` on the client, it'd be more accurate to look at the server-rendered `<head>` instead.
 
-## Programmatic API (v2.0)
+## Programmatic API (v2)
 
 You can also use capo.js programmatically to analyze HTML `<head>` elements in Node.js or other JavaScript environments.
 
@@ -32,17 +32,26 @@ You can also use capo.js programmatically to analyze HTML `<head>` elements in N
 npm install @rviscomi/capo.js
 ```
 
-### Basic Usage
+### Usage
+
+#### ES Modules
 
 ```javascript
-// Analyze a head element
-const head = /* your head element */;
-const adapter = new BrowserAdapter(); // Or other adapter
-const result = analyzeHead(head, adapter);
+import { analyzeHead } from '@rviscomi/capo.js';
+import { BrowserAdapter } from '@rviscomi/capo.js/adapters';
 
-console.log(result.elements);      // Array of head elements with weights
-console.log(result.violations);    // Number of ordering violations
-console.log(result.warnings);      // Validation warnings
+const head = /* your head element */;
+const result = analyzeHead(head, new BrowserAdapter());
+```
+
+#### CommonJS
+
+```javascript
+const { analyzeHead } = require('@rviscomi/capo.js');
+const { BrowserAdapter } = require('@rviscomi/capo.js/adapters');
+
+const head = /* your head element */;
+const result = analyzeHead(head, new BrowserAdapter());
 ```
 
 Learn more about building your own adapters in the [custom adapters docs](https://rviscomi.github.io/capo.js/developer/custom-adapters/).
