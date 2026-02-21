@@ -1,5 +1,5 @@
 /**
- * Capo.js v2.0 - DOM-agnostic HTML <head> analyzer
+ * Capo.js v2 - DOM-agnostic HTML <head> analyzer
  * 
  * Main entry point for programmatic usage.
  * Exports both the core analyzer API and adapter implementations.

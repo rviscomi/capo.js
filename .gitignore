@@ -401,3 +401,4 @@ FodyWeavers.xsd
 crx.zip
 .DS_STORE
 .parcel-cache
+dist/

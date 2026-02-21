@@ -1,6 +1,6 @@
 {
   "name": "@rviscomi/capo.js",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Get your ﹤𝚑𝚎𝚊𝚍﹥ in order",
   "author": "Rick Viscomi",
   "license": "Apache-2.0",
@@ -12,8 +12,15 @@
     "url": "https://github.com/rviscomi/capo.js/issues"
   },
   "homepage": "https://rviscomi.github.io/capo.js/",
+  "files": [
+    "src",
+    "dist",
+    "crx",
+    "docs"
+  ],
   "type": "module",
-  "main": "src/index.js",
+  "main": "dist/index.cjs",
+  "module": "src/index.js",
   "alias": {
     "@rviscomi/capo.js": "./src/index.js",
     "@rviscomi/capo.js/adapters/browser": "./src/adapters/browser.js",
@@ -21,19 +28,44 @@
     "@rviscomi/capo.js/lib/options": "./src/lib/options.js"
   },
   "exports": {
-    ".": "./src/index.js",
-    "./adapters": "./src/adapters/index.js",
-    "./adapters/browser": "./src/adapters/browser.js",
-    "./rules": "./src/lib/rules.js",
-    "./validation": "./src/lib/validation.js",
-    "./lib/io": "./src/lib/io.js",
-    "./lib/options": "./src/lib/options.js",
-    "./adapters/test-suite": "./src/adapters/test-suite.js"
+    ".": {
+      "import": "./src/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./adapters": {
+      "import": "./src/adapters/index.js",
+      "require": "./dist/adapters/index.cjs"
+    },
+    "./adapters/browser": {
+      "import": "./src/adapters/browser.js",
+      "require": "./dist/adapters/browser.cjs"
+    },
+    "./rules": {
+      "import": "./src/lib/rules.js",
+      "require": "./dist/lib/rules.cjs"
+    },
+    "./validation": {
+      "import": "./src/lib/validation.js",
+      "require": "./dist/lib/validation.cjs"
+    },
+    "./lib/io": {
+      "import": "./src/lib/io.js",
+      "require": "./dist/lib/io.cjs"
+    },
+    "./lib/options": {
+      "import": "./src/lib/options.js",
+      "require": "./dist/lib/options.cjs"
+    },
+    "./adapters/test-suite": {
+      "import": "./src/adapters/test-suite.js",
+      "require": "./dist/adapters/test-suite.cjs"
+    }
   },
   "directories": {
     "doc": "docs"
   },
   "targets": {
+
     "crx": {
       "source": "src/crx/capo.js",
       "distDir": "crx",
@@ -54,7 +86,8 @@
   },
   "scripts": {
     "watch": "parcel watch",
-    "build": "parcel build",
+    "build": "npm run build:cjs && parcel build",
+    "build:cjs": "esbuild src/index.js src/analyzer.js src/adapters/adapter.js src/adapters/index.js src/adapters/browser.js src/lib/rules.js src/lib/validation.js src/lib/io.js src/lib/options.js src/lib/colors.js src/adapters/test-suite.js --bundle --platform=node --format=cjs --outdir=dist --out-extension:.js=.cjs",
     "test": "node --test tests/**/*.test.js",
     "test:watch": "node --test --watch tests/**/*.test.js",
     "test:coverage": "node --test --experimental-test-coverage tests/**/*.test.js",
@@ -63,7 +96,9 @@
     "test:integration": "node --test tests/integration/*.test.js"
   },
   "devDependencies": {
+    "@parcel/cache": "^2.16.4",
     "dedent": "^1.7.0",
+    "esbuild": "^0.27.3",
     "jsdom": "^27.0.1",
     "parcel": "latest"
   }
