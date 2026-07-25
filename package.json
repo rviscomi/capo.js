@@ -1,6 +1,6 @@
 {
   "name": "@rviscomi/capo.js",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Get your ﹤𝚑𝚎𝚊𝚍﹥ in order",
   "author": "Rick Viscomi",
   "license": "Apache-2.0",
@@ -65,7 +65,6 @@
     "doc": "docs"
   },
   "targets": {
-
     "crx": {
       "source": "src/crx/capo.js",
       "distDir": "crx",
@@ -100,6 +99,6 @@
     "dedent": "^1.7.2",
     "esbuild": "^0.28.1",
     "jsdom": "^29.1.1",
-    "parcel": "latest"
+    "parcel": "^2.16.4"
   }
 }

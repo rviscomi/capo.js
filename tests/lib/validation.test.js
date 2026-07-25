@@ -398,9 +398,7 @@ describe('validation.js', () => {
     it('should accept valid viewport-fit value', () => {
       const element = createElement('<meta name="viewport" content="width=device-width, viewport-fit=cover">');
       const { warnings = [] } = getCustomValidations(element, adapter);
-      // Should not warn about viewport-fit with valid value
-      const hasViewportFitWarning = warnings.some(w => w.includes('viewport-fit') && w.includes('Unsupported'));
-      assert.strictEqual(hasViewportFitWarning, false);
+      assert.strictEqual(warnings.length, 0);
     });
   });
 

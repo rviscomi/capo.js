@@ -1,5 +1,5 @@
 /**
- * Capo.js v2.0 - DOM-agnostic HTML <head> analyzer
+ * Capo.js v2 - DOM-agnostic HTML <head> analyzer
  * 
  * Main entry point for programmatic usage.
  * Exports both the core analyzer API and adapter implementations.
@@ -37,27 +37,27 @@ const $ee7e0c73e51ebfda$export$6ade8bb3620eb74b = {
     PREFETCH_PRERENDER: $ee7e0c73e51ebfda$export$4d2ed086e1fec499
 };
 const $ee7e0c73e51ebfda$export$b7417cf4a2235f73 = [
-    "accept-ch",
-    "content-security-policy",
-    "content-type",
-    "default-style",
-    "delegate-ch",
-    "origin-trial",
-    "x-dns-prefetch-control"
+    'accept-ch',
+    'content-security-policy',
+    'content-type',
+    'default-style',
+    'delegate-ch',
+    'origin-trial',
+    'x-dns-prefetch-control'
 ];
 function $ee7e0c73e51ebfda$export$daeb0db0c224decd(element, adapter) {
     const tagName = adapter.getTagName(element);
     // Check if it's a base element
-    if (tagName === "base") return true;
+    if (tagName === 'base') return true;
     // Check if it's a meta element with charset, viewport, or critical http-equiv
-    if (tagName !== "meta") return false;
+    if (tagName !== 'meta') return false;
     // Check for charset attribute
-    if (adapter.hasAttribute(element, "charset")) return true;
+    if (adapter.hasAttribute(element, 'charset')) return true;
     // Check for viewport meta
-    const name = adapter.getAttribute(element, "name");
-    if (name && name.toLowerCase() === "viewport") return true;
+    const name = adapter.getAttribute(element, 'name');
+    if (name && name.toLowerCase() === 'viewport') return true;
     // Check for critical http-equiv values
-    const httpEquiv = adapter.getAttribute(element, "http-equiv");
+    const httpEquiv = adapter.getAttribute(element, 'http-equiv');
     if (httpEquiv) {
         const normalizedValue = httpEquiv.toLowerCase();
         return $ee7e0c73e51ebfda$export$b7417cf4a2235f73.includes(normalizedValue);
@@ -65,19 +65,19 @@ function $ee7e0c73e51ebfda$export$daeb0db0c224decd(element, adapter) {
     return false;
 }
 function $ee7e0c73e51ebfda$export$e55aad21605f020a(element, adapter) {
-    return adapter.getTagName(element) === "title";
+    return adapter.getTagName(element) === 'title';
 }
 function $ee7e0c73e51ebfda$export$a3316bd0a640eb8b(element, adapter) {
-    if (adapter.getTagName(element) !== "link") return false;
-    const rel = adapter.getAttribute(element, "rel");
-    return rel?.toLowerCase() === "preconnect";
+    if (adapter.getTagName(element) !== 'link') return false;
+    const rel = adapter.getAttribute(element, 'rel');
+    return rel?.toLowerCase() === 'preconnect';
 }
 function $ee7e0c73e51ebfda$export$20e2051ffd813ee3(element, adapter) {
-    return adapter.getTagName(element) === "script" && adapter.hasAttribute(element, "src") && adapter.hasAttribute(element, "async");
+    return adapter.getTagName(element) === 'script' && adapter.hasAttribute(element, 'src') && adapter.hasAttribute(element, 'async');
 }
 function $ee7e0c73e51ebfda$export$be443fc6335656f0(element, adapter) {
     const importRe = /@import/;
-    if (adapter.getTagName(element) === "style") return importRe.test(adapter.getTextContent(element));
+    if (adapter.getTagName(element) === 'style') return importRe.test(adapter.getTextContent(element));
     /* TODO: Support external stylesheets.
   if (adapter.getTagName(element) === 'link' && 
       adapter.getAttribute(element, 'rel')?.toLowerCase() === 'stylesheet' &&
@@ -89,69 +89,69 @@ function $ee7e0c73e51ebfda$export$be443fc6335656f0(element, adapter) {
 }
 function $ee7e0c73e51ebfda$export$65983fc0a5543400(element, adapter) {
     // Must be a script element
-    if (adapter.getTagName(element) !== "script") return false;
+    if (adapter.getTagName(element) !== 'script') return false;
     // Original selector: script:not([src][defer],[src][type=module],[src][async],[type*=json])
     // This excludes scripts that match ANY of these compound conditions:
     // Exclude: scripts with src AND defer
-    if (adapter.hasAttribute(element, "src") && adapter.hasAttribute(element, "defer")) return false;
+    if (adapter.hasAttribute(element, 'src') && adapter.hasAttribute(element, 'defer')) return false;
     // Exclude: scripts with src AND type=module
-    if (adapter.hasAttribute(element, "src")) {
-        const type = adapter.getAttribute(element, "type");
-        if (type && type.toLowerCase() === "module") return false;
+    if (adapter.hasAttribute(element, 'src')) {
+        const type = adapter.getAttribute(element, 'type');
+        if (type && type.toLowerCase() === 'module') return false;
     }
     // Exclude: scripts with src AND async
-    if (adapter.hasAttribute(element, "src") && adapter.hasAttribute(element, "async")) return false;
+    if (adapter.hasAttribute(element, 'src') && adapter.hasAttribute(element, 'async')) return false;
     // Exclude: scripts with type containing "json"
-    const type = adapter.getAttribute(element, "type");
-    if (type && type.toLowerCase().includes("json")) return false;
+    const type = adapter.getAttribute(element, 'type');
+    if (type && type.toLowerCase().includes('json')) return false;
     return true;
 }
 function $ee7e0c73e51ebfda$export$9d6cdbffb13bee21(element, adapter) {
     const tagName = adapter.getTagName(element);
     // Check if it's a style element
-    if (tagName === "style") return true;
+    if (tagName === 'style') return true;
     // Check if it's a stylesheet link
-    if (tagName === "link") {
-        const rel = adapter.getAttribute(element, "rel");
-        return rel?.toLowerCase() === "stylesheet";
+    if (tagName === 'link') {
+        const rel = adapter.getAttribute(element, 'rel');
+        return rel?.toLowerCase() === 'stylesheet';
     }
     return false;
 }
 function $ee7e0c73e51ebfda$export$226ad5ba23be83f0(element, adapter) {
-    if (adapter.getTagName(element) !== "link") return false;
-    const rel = adapter.getAttribute(element, "rel");
+    if (adapter.getTagName(element) !== 'link') return false;
+    const rel = adapter.getAttribute(element, 'rel');
     if (!rel) return false;
     const relLower = rel.toLowerCase();
-    return relLower === "preload" || relLower === "modulepreload";
+    return relLower === 'preload' || relLower === 'modulepreload';
 }
 function $ee7e0c73e51ebfda$export$3d269f86e8bd1d24(element, adapter) {
-    if (adapter.getTagName(element) !== "script") return false;
-    if (!adapter.hasAttribute(element, "src")) return false;
+    if (adapter.getTagName(element) !== 'script') return false;
+    if (!adapter.hasAttribute(element, 'src')) return false;
     // Script with defer attribute
-    if (adapter.hasAttribute(element, "defer")) return true;
+    if (adapter.hasAttribute(element, 'defer')) return true;
     // Module scripts are defer by default, unless they have async
-    const type = adapter.getAttribute(element, "type");
-    if (type && type.toLowerCase() === "module") return !adapter.hasAttribute(element, "async");
+    const type = adapter.getAttribute(element, 'type');
+    if (type && type.toLowerCase() === 'module') return !adapter.hasAttribute(element, 'async');
     return false;
 }
 function $ee7e0c73e51ebfda$export$4d2ed086e1fec499(element, adapter) {
-    if (adapter.getTagName(element) !== "link") return false;
-    const rel = adapter.getAttribute(element, "rel");
+    if (adapter.getTagName(element) !== 'link') return false;
+    const rel = adapter.getAttribute(element, 'rel');
     if (!rel) return false;
     const relLower = rel.toLowerCase();
-    return relLower === "prefetch" || relLower === "dns-prefetch" || relLower === "prerender";
+    return relLower === 'prefetch' || relLower === 'dns-prefetch' || relLower === 'prerender';
 }
 function $ee7e0c73e51ebfda$export$38a04d482ec50f88(element, adapter) {
-    if (adapter.getTagName(element) !== "meta") return false;
-    const httpEquiv = adapter.getAttribute(element, "http-equiv");
-    return httpEquiv?.toLowerCase() === "origin-trial";
+    if (adapter.getTagName(element) !== 'meta') return false;
+    const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+    return httpEquiv?.toLowerCase() === 'origin-trial';
 }
 function $ee7e0c73e51ebfda$export$14b1a2f64a600585(element, adapter) {
-    if (adapter.getTagName(element) !== "meta") return false;
-    const httpEquiv = adapter.getAttribute(element, "http-equiv");
+    if (adapter.getTagName(element) !== 'meta') return false;
+    const httpEquiv = adapter.getAttribute(element, 'http-equiv');
     if (!httpEquiv) return false;
     const httpEquivLower = httpEquiv.toLowerCase();
-    return httpEquivLower === "content-security-policy" || httpEquivLower === "content-security-policy-report-only";
+    return httpEquivLower === 'content-security-policy' || httpEquivLower === 'content-security-policy-report-only';
 }
 function $ee7e0c73e51ebfda$export$de32fe5d64aee40c(element, adapter) {
     for (let [id, detector] of Object.entries($ee7e0c73e51ebfda$export$6ade8bb3620eb74b)){
@@ -164,7 +164,7 @@ function $ee7e0c73e51ebfda$export$5cc4a311ddbe699c(head, adapter) {
     return headChildren.filter((element)=>{
         // Filter out text nodes and comments - only include actual elements
         const tagName = adapter.getTagName(element);
-        return tagName && tagName !== "";
+        return tagName && tagName !== '';
     }).map((element)=>{
         return {
             element: element,
@@ -191,7 +191,7 @@ const $c322f9a5057eaf5c$export$5540ac2a18901364 = 'link:is([rel="preload" i], [r
 function $c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter) {
     const tagName = adapter.getTagName(element);
     // Text nodes and comment nodes are valid (they don't have tag names)
-    if (!tagName || tagName === "") return true;
+    if (!tagName || tagName === '') return true;
     return $c322f9a5057eaf5c$export$79e124b7caef7aa9.has(tagName.toLowerCase());
 }
 /**
@@ -209,12 +209,12 @@ function $c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter) {
  * @param {any} adapter - Adapter instance
  * @returns {boolean}
  */ function $c322f9a5057eaf5c$var$isDuplicateTitle(element, adapter) {
-    if (adapter.getTagName(element) !== "title") return false;
+    if (adapter.getTagName(element) !== 'title') return false;
     const parent = adapter.getParent(element);
     if (!parent) return false;
     // Check if this is the first title element
     let foundFirst = false;
-    for (const child of adapter.getChildren(parent))if (adapter.getTagName(child) === "title") {
+    for (const child of adapter.getChildren(parent))if (adapter.getTagName(child) === 'title') {
         if (child === element) // This is the element we're checking - it's a duplicate if we already found a title
         return foundFirst;
         // Found a title element - mark that we've seen one
@@ -228,9 +228,9 @@ function $c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter) {
  * @param {any} adapter - Adapter instance
  * @returns {boolean}
  */ function $c322f9a5057eaf5c$var$isDuplicateBase(element, adapter) {
-    if (adapter.getTagName(element) !== "base") return false;
+    if (adapter.getTagName(element) !== 'base') return false;
     const siblings = adapter.getSiblings(element);
-    return siblings.some((sibling)=>adapter.getTagName(sibling) === "base");
+    return siblings.some((sibling)=>adapter.getTagName(sibling) === 'base');
 }
 function $c322f9a5057eaf5c$export$eeefd08c3a6f8db7(element, adapter) {
     // Element itself is not valid.
@@ -264,29 +264,29 @@ function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head, adapter) {
     // Get all children of head element
     const children = adapter.getChildren(head);
     // Check for title elements
-    const titleElements = children.filter((child)=>adapter.getTagName(child) === "title");
+    const titleElements = children.filter((child)=>adapter.getTagName(child) === 'title');
     const titleElementCount = titleElements.length;
     if (titleElementCount != 1) validationWarnings.push({
-        ruleId: titleElementCount === 0 ? "require-title" : "no-duplicate-title",
+        ruleId: titleElementCount === 0 ? 'require-title' : 'no-duplicate-title',
         warning: `Expected exactly 1 <title> element, found ${titleElementCount}`,
         elements: titleElements
     });
     // Check for meta viewport
     const metaViewport = children.filter((child)=>{
-        if (adapter.getTagName(child) !== "meta") return false;
-        const name = adapter.getAttribute(child, "name");
-        return name && name.toLowerCase() === "viewport";
+        if (adapter.getTagName(child) !== 'meta') return false;
+        const name = adapter.getAttribute(child, 'name');
+        return name && name.toLowerCase() === 'viewport';
     });
     if (metaViewport.length != 1) validationWarnings.push({
-        ruleId: metaViewport.length === 0 ? "require-meta-viewport" : "valid-meta-viewport",
+        ruleId: metaViewport.length === 0 ? 'require-meta-viewport' : 'valid-meta-viewport',
         warning: `Expected exactly 1 <meta name=viewport> element, found ${metaViewport.length}`,
         elements: metaViewport
     });
     // Check for base elements
-    const baseElements = children.filter((child)=>adapter.getTagName(child) === "base");
+    const baseElements = children.filter((child)=>adapter.getTagName(child) === 'base');
     const baseElementCount = baseElements.length;
     if (baseElementCount > 1) validationWarnings.push({
-        ruleId: "no-duplicate-base",
+        ruleId: 'no-duplicate-base',
         warning: `Expected at most 1 <base> element, found ${baseElementCount}`,
         elements: baseElements
     });
@@ -298,7 +298,7 @@ function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head, adapter) {
         // For invalid elements, we just report the element itself
         // (adapter doesn't have parentElement concept, so we can't find root)
         validationWarnings.push({
-            ruleId: "no-invalid-head-elements",
+            ruleId: 'no-invalid-head-elements',
             warning: `${adapter.getTagName(element)} elements are not allowed in the <head>`,
             element: element
         });
@@ -334,18 +334,18 @@ function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element, adapter, parentEleme
 function $c322f9a5057eaf5c$var$validateCSP(element, adapter) {
     const warnings = [];
     let payload = null;
-    const httpEquiv = adapter.getAttribute(element, "http-equiv");
+    const httpEquiv = adapter.getAttribute(element, 'http-equiv');
     const httpEquivLower = httpEquiv?.toLowerCase();
-    if (httpEquivLower === "content-security-policy-report-only") {
+    if (httpEquivLower === 'content-security-policy-report-only') {
         //https://w3c.github.io/webappsec-csp/#meta-element
         warnings.push("CSP Report-Only is forbidden in meta tags");
         return {
-            ruleId: "no-meta-csp",
+            ruleId: 'no-meta-csp',
             warnings: warnings,
             payload: payload
         };
     }
-    if (httpEquivLower === "content-security-policy") warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
+    if (httpEquivLower === 'content-security-policy') warnings.push("meta CSP discouraged. See https://crbug.com/1458493.");
     const content = adapter.getAttribute(element, "content");
     if (!content) {
         warnings.push("Invalid CSP. The content attribute must be set.");
@@ -367,7 +367,7 @@ function $c322f9a5057eaf5c$var$validateCSP(element, adapter) {
     if ("frame-ancestors" in directives) warnings.push("The frame-ancestors directive is not supported. Use the Content-Security-Policy HTTP header instead.");
     if ("sandbox" in directives) warnings.push("The sandbox directive is not supported. Use the Content-Security-Policy HTTP header instead.");
     return {
-        ruleId: "no-meta-csp",
+        ruleId: 'no-meta-csp',
         warnings: warnings,
         payload: payload
     };
@@ -379,7 +379,7 @@ function $c322f9a5057eaf5c$var$isInvalidOriginTrial(element, adapter) {
 }
 function $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter) {
     const metadata = {
-        ruleId: "no-invalid-origin-trial",
+        ruleId: 'no-invalid-origin-trial',
         payload: null,
         warnings: []
     };
@@ -392,7 +392,7 @@ function $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter) {
     }
     if (metadata.payload.expiry < new Date()) metadata.warnings.push("Invalid origin trial token: expired");
     // Origin validation only works in browser context with document.location
-    if (typeof document !== "undefined" && document.location && document.location.href) {
+    if (typeof document !== 'undefined' && document.location && document.location.href) {
         if (!$c322f9a5057eaf5c$var$isSameOrigin(metadata.payload.origin, document.location.href)) {
             const subdomain = $c322f9a5057eaf5c$var$isSubdomain(metadata.payload.origin, document.location.href);
             // Cross-origin OTs are only valid if:
@@ -426,26 +426,26 @@ function $c322f9a5057eaf5c$var$isSubdomain(a, b) {
     return b.host.endsWith(`.${a.host}`);
 }
 function $c322f9a5057eaf5c$var$isDefaultStyle(element, adapter) {
-    if (adapter.getTagName(element) !== "meta") return false;
-    const httpEquiv = adapter.getAttribute(element, "http-equiv");
-    return httpEquiv?.toLowerCase() === "default-style";
+    if (adapter.getTagName(element) !== 'meta') return false;
+    const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+    return httpEquiv?.toLowerCase() === 'default-style';
 }
 function $c322f9a5057eaf5c$var$isContentType(element, adapter) {
     // Matches: meta[http-equiv="content-type" i], meta[charset]
-    if (adapter.getTagName(element) !== "meta") return false;
-    if (adapter.hasAttribute(element, "charset")) return true;
-    const httpEquiv = adapter.getAttribute(element, "http-equiv");
-    return httpEquiv?.toLowerCase() === "content-type";
+    if (adapter.getTagName(element) !== 'meta') return false;
+    if (adapter.hasAttribute(element, 'charset')) return true;
+    const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+    return httpEquiv?.toLowerCase() === 'content-type';
 }
 function $c322f9a5057eaf5c$var$isHttpEquiv(element, adapter) {
     // Matches: meta[http-equiv]
-    if (adapter.getTagName(element) !== "meta") return false;
-    return adapter.hasAttribute(element, "http-equiv");
+    if (adapter.getTagName(element) !== 'meta') return false;
+    return adapter.hasAttribute(element, 'http-equiv');
 }
 function $c322f9a5057eaf5c$var$isMetaViewport(element, adapter) {
-    if (adapter.getTagName(element) !== "meta") return false;
-    const name = adapter.getAttribute(element, "name");
-    return name?.toLowerCase() === "viewport";
+    if (adapter.getTagName(element) !== 'meta') return false;
+    const name = adapter.getAttribute(element, 'name');
+    return name?.toLowerCase() === 'viewport';
 }
 function $c322f9a5057eaf5c$var$isInvalidDefaultStyle(element, adapter) {
     if (!$c322f9a5057eaf5c$var$isDefaultStyle(element, adapter)) return false;
@@ -470,10 +470,10 @@ function $c322f9a5057eaf5c$var$isInvalidMetaViewport(element, adapter) {
 function $c322f9a5057eaf5c$var$isUnnecessaryPreload(element, adapter, parentElement = null) {
     // Matches: link:is([rel="preload" i], [rel="modulepreload" i])
     const tagName = adapter.getTagName(element);
-    if (tagName !== "link") return false;
-    const rel = adapter.getAttribute(element, "rel");
+    if (tagName !== 'link') return false;
+    const rel = adapter.getAttribute(element, 'rel');
     const relLower = rel?.toLowerCase();
-    if (relLower !== "preload" && relLower !== "modulepreload") return false;
+    if (relLower !== 'preload' && relLower !== 'modulepreload') return false;
     const href = adapter.getAttribute(element, "href");
     if (!href) return false;
     const parent = parentElement || adapter.getParent(element);
@@ -483,20 +483,20 @@ function $c322f9a5057eaf5c$var$isUnnecessaryPreload(element, adapter, parentElem
 }
 function $c322f9a5057eaf5c$var$isInvalidFontPreload(element, adapter) {
     const tagName = adapter.getTagName(element);
-    if (tagName !== "link") return false;
-    const rel = adapter.getAttribute(element, "rel");
-    if (rel?.toLowerCase() !== "preload") return false;
-    const as = adapter.getAttribute(element, "as");
-    if (as?.toLowerCase() !== "font") return false;
+    if (tagName !== 'link') return false;
+    const rel = adapter.getAttribute(element, 'rel');
+    if (rel?.toLowerCase() !== 'preload') return false;
+    const as = adapter.getAttribute(element, 'as');
+    if (as?.toLowerCase() !== 'font') return false;
     // crossorigin must be present (even if empty, which means anonymous)
-    return !adapter.hasAttribute(element, "crossorigin");
+    return !adapter.hasAttribute(element, 'crossorigin');
 }
 function $c322f9a5057eaf5c$var$validateInvalidFontPreload(element, adapter) {
     const warnings = [
         "Font preloads must have the crossorigin attribute set, even for same-origin fonts."
     ];
     return {
-        ruleId: "valid-font-preload",
+        ruleId: 'valid-font-preload',
         warnings: warnings,
         payload: null
     };
@@ -515,15 +515,15 @@ function $c322f9a5057eaf5c$var$validateInvalidFontPreload(element, adapter) {
         if (child === excludeElement) continue;
         const tagName = adapter.getTagName(child);
         // Check link elements (but not preload/modulepreload)
-        if (tagName === "link") {
-            const rel = adapter.getAttribute(child, "rel");
+        if (tagName === 'link') {
+            const rel = adapter.getAttribute(child, 'rel');
             if (rel && /\b(preload|modulepreload)\b/i.test(rel)) continue; // Skip other preloads
-            const childHref = adapter.getAttribute(child, "href");
+            const childHref = adapter.getAttribute(child, 'href');
             if (childHref === sourceUrl) return child;
         }
         // Check script elements
-        if (tagName === "script") {
-            const src = adapter.getAttribute(child, "src");
+        if (tagName === 'script') {
+            const src = adapter.getAttribute(child, 'src');
             if (src === sourceUrl) return child;
         }
     }
@@ -531,7 +531,7 @@ function $c322f9a5057eaf5c$var$validateInvalidFontPreload(element, adapter) {
 }
 function $c322f9a5057eaf5c$var$absolutifyUrl(href) {
     // Browser-only function
-    if (typeof document === "undefined" || !document.baseURI) // In non-browser context, return href as-is
+    if (typeof document === 'undefined' || !document.baseURI) // In non-browser context, return href as-is
     return href;
     return new URL(href, document.baseURI).href;
 }
@@ -554,7 +554,7 @@ function $c322f9a5057eaf5c$var$validateDefaultStyle(element, adapter) {
     warnings.push("This has no effect. The content attribute must be set to a valid stylesheet title.");
     warnings.push("Even when used correctly, the default-style method of setting a preferred stylesheet results in a flash of unstyled content. Use modern CSS features like @media rules instead.");
     return {
-        ruleId: "no-default-style",
+        ruleId: 'no-default-style',
         warnings: warnings,
         payload: payload
     };
@@ -565,27 +565,27 @@ function $c322f9a5057eaf5c$var$validateContentType(element, adapter) {
     // https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration
     // Check if there exists both meta[http-equiv] and meta[chartset] variations
     // Check if this is a charset or content-type meta
-    const isCharset = adapter.hasAttribute(element, "charset");
-    const httpEquiv = adapter.getAttribute(element, "http-equiv");
-    const isContentTypeMeta = httpEquiv?.toLowerCase() === "content-type";
+    const isCharset = adapter.hasAttribute(element, 'charset');
+    const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+    const isContentTypeMeta = httpEquiv?.toLowerCase() === 'content-type';
     if (isCharset || isContentTypeMeta) {
         // Check for duplicate charset declarations among siblings
         const siblings = adapter.getSiblings(element);
         const hasDuplicateCharset = siblings.some((sibling)=>{
-            if (adapter.getTagName(sibling) !== "meta") return false;
+            if (adapter.getTagName(sibling) !== 'meta') return false;
             // Check if sibling is also a charset declaration
-            if (adapter.hasAttribute(sibling, "charset")) return true;
-            const siblingHttpEquiv = adapter.getAttribute(sibling, "http-equiv");
-            return siblingHttpEquiv?.toLowerCase() === "content-type";
+            if (adapter.hasAttribute(sibling, 'charset')) return true;
+            const siblingHttpEquiv = adapter.getAttribute(sibling, 'http-equiv');
+            return siblingHttpEquiv?.toLowerCase() === 'content-type';
         });
         if (hasDuplicateCharset) {
             const parent = adapter.getParent(element);
             if (parent) {
                 const charsetElements = adapter.getChildren(parent).filter((child)=>{
-                    if (adapter.getTagName(child) !== "meta") return false;
-                    if (adapter.hasAttribute(child, "charset")) return true;
-                    const childHttpEquiv = adapter.getAttribute(child, "http-equiv");
-                    return childHttpEquiv?.toLowerCase() === "content-type";
+                    if (adapter.getTagName(child) !== 'meta') return false;
+                    if (adapter.hasAttribute(child, 'charset')) return true;
+                    const childHttpEquiv = adapter.getAttribute(child, 'http-equiv');
+                    return childHttpEquiv?.toLowerCase() === 'content-type';
                 });
                 // Find the first one (not this element)
                 const encodingDeclaration = charsetElements.find((el)=>el !== element);
@@ -622,7 +622,7 @@ function $c322f9a5057eaf5c$var$validateContentType(element, adapter) {
     if (warnings.length) // Append the spec source to the last warning
     warnings[warnings.length - 1] += "\nLearn more: https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration";
     return {
-        ruleId: "valid-charset",
+        ruleId: 'valid-charset',
         warnings: warnings,
         payload: payload
     };
@@ -711,7 +711,7 @@ function $c322f9a5057eaf5c$var$validateHttpEquiv(element, adapter) {
             break;
     }
     return {
-        ruleId: "no-invalid-http-equiv",
+        ruleId: 'no-invalid-http-equiv',
         warnings: warnings
     };
 }
@@ -722,17 +722,17 @@ function $c322f9a5057eaf5c$var$validateMetaViewport(element, adapter) {
     // Check if there are other viewport meta elements among siblings
     const siblings = adapter.getSiblings(element);
     const hasDuplicateViewport = siblings.some((sibling)=>{
-        if (adapter.getTagName(sibling) !== "meta") return false;
-        const name = adapter.getAttribute(sibling, "name");
-        return name?.toLowerCase() === "viewport";
+        if (adapter.getTagName(sibling) !== 'meta') return false;
+        const name = adapter.getAttribute(sibling, 'name');
+        return name?.toLowerCase() === 'viewport';
     });
     if (hasDuplicateViewport) {
         const parent = adapter.getParent(element);
         if (parent) {
             const viewportElements = adapter.getChildren(parent).filter((child)=>{
-                if (adapter.getTagName(child) !== "meta") return false;
-                const name = adapter.getAttribute(child, "name");
-                return name?.toLowerCase() === "viewport";
+                if (adapter.getTagName(child) !== 'meta') return false;
+                const name = adapter.getAttribute(child, 'name');
+                return name?.toLowerCase() === 'viewport';
             });
             // Find the first one (not this element)
             const firstMetaViewport = viewportElements.find((el)=>el !== element);
@@ -833,13 +833,14 @@ function $c322f9a5057eaf5c$var$validateMetaViewport(element, adapter) {
         return false;
         if (directive == "shrink-to-fit") // shrink-to-fit is not valid, but we have a separate warning for it.
         return false;
-        directive;
+        if (directive == "viewport-fit") // viewport-fit is non-standard, but widely supported.
+        return false;
         return true;
     }).forEach((directive)=>{
         warnings.push(`Invalid viewport directive "${directive}".`);
     });
     return {
-        ruleId: "valid-meta-viewport",
+        ruleId: 'valid-meta-viewport',
         warnings: warnings,
         payload: payload
     };
@@ -847,21 +848,21 @@ function $c322f9a5057eaf5c$var$validateMetaViewport(element, adapter) {
 function $c322f9a5057eaf5c$var$validateUnnecessaryPreload(element, adapter, parentElement = null) {
     const href = adapter.getAttribute(element, "href");
     if (!href) return {
-        ruleId: "no-unnecessary-preload",
+        ruleId: 'no-unnecessary-preload',
         warnings: []
     };
     const parent = parentElement || adapter.getParent(element);
     if (!parent) return {
-        ruleId: "no-unnecessary-preload",
+        ruleId: 'no-unnecessary-preload',
         warnings: []
     };
     const preloadedElement = $c322f9a5057eaf5c$var$findElementWithSource(parent, href, element, adapter);
     if (!preloadedElement) return {
-        ruleId: "no-unnecessary-preload",
+        ruleId: 'no-unnecessary-preload',
         warnings: []
     };
     return {
-        ruleId: "no-unnecessary-preload",
+        ruleId: 'no-unnecessary-preload',
         warnings: [
             `This preload has little to no effect. ${href} is already discoverable by another ${adapter.getTagName(preloadedElement)} element.`
         ]
@@ -910,7 +911,7 @@ function $4638c35e8aec1c56$export$a824357f4ceaf2cf(weight) {
     for (const [category, value] of Object.entries($ee7e0c73e51ebfda$export$881088883fcab450)){
         if (value === weight) return category;
     }
-    return "UNKNOWN";
+    return 'UNKNOWN';
 }
 function $4638c35e8aec1c56$export$9d3d5cf01843f4a8(weights) {
     const violations = [];
@@ -961,16 +962,16 @@ function $4638c35e8aec1c56$export$283ccd6e4ed2051d(headNode, adapter, options = 
  * 
  * @interface HTMLAdapter
  */ const $7afc5bf68bcc75e1$var$REQUIRED_METHODS = [
-    "isElement",
-    "getTagName",
-    "getAttribute",
-    "hasAttribute",
-    "getAttributeNames",
-    "getTextContent",
-    "getChildren",
-    "getParent",
-    "getSiblings",
-    "stringify"
+    'isElement',
+    'getTagName',
+    'getAttribute',
+    'hasAttribute',
+    'getAttributeNames',
+    'getTextContent',
+    'getChildren',
+    'getParent',
+    'getSiblings',
+    'stringify'
 ];
 class $7afc5bf68bcc75e1$export$d1d100ae3c773a95 {
     /**
@@ -978,14 +979,14 @@ class $7afc5bf68bcc75e1$export$d1d100ae3c773a95 {
    * @param {any} node - The node to check
    * @returns {boolean}
    */ isElement(node) {
-        throw new Error("isElement() not implemented");
+        throw new Error('isElement() not implemented');
     }
     /**
    * Get the tag name of an element (lowercase)
    * @param {any} node - Element node
    * @returns {string} - Tag name like 'meta', 'link', 'script'
    */ getTagName(node) {
-        throw new Error("getTagName() not implemented");
+        throw new Error('getTagName() not implemented');
     }
     /**
    * Get attribute value from element
@@ -993,7 +994,7 @@ class $7afc5bf68bcc75e1$export$d1d100ae3c773a95 {
    * @param {string} attrName - Attribute name (case-insensitive)
    * @returns {string | null} - Attribute value or null if not found
    */ getAttribute(node, attrName) {
-        throw new Error("getAttribute() not implemented");
+        throw new Error('getAttribute() not implemented');
     }
     /**
    * Check if element has a specific attribute
@@ -1001,42 +1002,42 @@ class $7afc5bf68bcc75e1$export$d1d100ae3c773a95 {
    * @param {string} attrName - Attribute name (case-insensitive)
    * @returns {boolean} - True if attribute exists
    */ hasAttribute(node, attrName) {
-        throw new Error("hasAttribute() not implemented");
+        throw new Error('hasAttribute() not implemented');
     }
     /**
    * Get all attribute names for an element
    * @param {any} node - Element node
    * @returns {string[]} - Array of attribute names
    */ getAttributeNames(node) {
-        throw new Error("getAttributeNames() not implemented");
+        throw new Error('getAttributeNames() not implemented');
     }
     /**
    * Get text content of a node (for inline scripts/styles)
    * @param {any} node - Element node
    * @returns {string} - Text content
    */ getTextContent(node) {
-        throw new Error("getTextContent() not implemented");
+        throw new Error('getTextContent() not implemented');
     }
     /**
    * Get child elements of a node
    * @param {any} node - Parent node
    * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
    */ getChildren(node) {
-        throw new Error("getChildren() not implemented");
+        throw new Error('getChildren() not implemented');
     }
     /**
    * Get parent element of a node
    * @param {any} node - Child node
    * @returns {any | null} - Parent element node, or null if no parent
    */ getParent(node) {
-        throw new Error("getParent() not implemented");
+        throw new Error('getParent() not implemented');
     }
     /**
    * Get sibling elements of a node
    * @param {any} node - Element node
    * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
    */ getSiblings(node) {
-        throw new Error("getSiblings() not implemented");
+        throw new Error('getSiblings() not implemented');
     }
     /**
    * Get source location for a node (optional, for linting)
@@ -1050,12 +1051,12 @@ class $7afc5bf68bcc75e1$export$d1d100ae3c773a95 {
    * @param {any} node - Element node
    * @returns {string} - String representation like "<meta charset='utf-8'>"
    */ stringify(node) {
-        throw new Error("stringify() not implemented");
+        throw new Error('stringify() not implemented');
     }
 }
 function $7afc5bf68bcc75e1$export$8b0c6d51edeaa8b(adapter) {
     for (const method of $7afc5bf68bcc75e1$var$REQUIRED_METHODS){
-        if (typeof adapter[method] !== "function") throw new Error(`Adapter missing required method: ${method}()`);
+        if (typeof adapter[method] !== 'function') throw new Error(`Adapter missing required method: ${method}()`);
     }
 }
 
@@ -1075,7 +1076,7 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    * @param {any} node - Element node
    * @returns {string} - Tag name like 'meta', 'link', 'script'
    */ getTagName(node) {
-        if (!node || !node.tagName) return "";
+        if (!node || !node.tagName) return '';
         return node.tagName.toLowerCase();
     }
     /**
@@ -1084,7 +1085,7 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    * @param {string} attrName - Attribute name (case-insensitive)
    * @returns {string | null} - Attribute value or null if not found
    */ getAttribute(node, attrName) {
-        if (!node || typeof node.getAttribute !== "function") return null;
+        if (!node || typeof node.getAttribute !== 'function') return null;
         return node.getAttribute(attrName);
     }
     /**
@@ -1093,7 +1094,7 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    * @param {string} attrName - Attribute name (case-insensitive)
    * @returns {boolean} - True if attribute exists
    */ hasAttribute(node, attrName) {
-        if (!node || typeof node.hasAttribute !== "function") return false;
+        if (!node || typeof node.hasAttribute !== 'function') return false;
         return node.hasAttribute(attrName);
     }
     /**
@@ -1101,7 +1102,7 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    * @param {any} node - Element node
    * @returns {string[]} - Array of attribute names
    */ getAttributeNames(node) {
-        if (!node || typeof node.getAttributeNames !== "function") return [];
+        if (!node || typeof node.getAttributeNames !== 'function') return [];
         return node.getAttributeNames();
     }
     /**
@@ -1109,8 +1110,8 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    * @param {any} node - Element node
    * @returns {string} - Text content
    */ getTextContent(node) {
-        if (!node) return "";
-        return node.textContent || "";
+        if (!node) return '';
+        return node.textContent || '';
     }
     /**
    * Get child elements of a node
@@ -1155,7 +1156,7 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    * @param {any} node - Element node
    * @returns {string} - String representation like "<meta charset='utf-8'>"
    */ stringify(node) {
-        if (!node || !node.nodeName) return "[invalid node]";
+        if (!node || !node.nodeName) return '[invalid node]';
         const tagName = this.getTagName(node);
         const attrNames = this.getAttributeNames(node);
         if (attrNames.length === 0) return `<${tagName}>`;
@@ -1163,9 +1164,9 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
         const attrs = attrNames.map((attr)=>{
             const value = this.getAttribute(node, attr);
             // Escape value for display
-            const escapedValue = value ? value.replace(/"/g, "&quot;") : "";
+            const escapedValue = value ? value.replace(/"/g, '&quot;') : '';
             return `${attr}="${escapedValue}"`;
-        }).join(" ");
+        }).join(' ');
         return `<${tagName} ${attrs}>`;
     }
 }
@@ -1194,21 +1195,21 @@ function $47602b39438c5a8c$export$921514c0345db5eb(hue) {
         `oklch(80% .2 ${hue})`,
         `oklch(90% .1 ${hue})`,
         `oklch(99% .05 ${hue})`,
-        "#ccc"
+        '#ccc'
     ];
 }
 const $47602b39438c5a8c$export$e6952b12ade67489 = [
-    "#9e0142",
-    "#d53e4f",
-    "#f46d43",
-    "#fdae61",
-    "#fee08b",
-    "#e6f598",
-    "#abdda4",
-    "#66c2a5",
-    "#3288bd",
-    "#5e4fa2",
-    "#cccccc"
+    '#9e0142',
+    '#d53e4f',
+    '#f46d43',
+    '#fdae61',
+    '#fee08b',
+    '#e6f598',
+    '#abdda4',
+    '#66c2a5',
+    '#3288bd',
+    '#5e4fa2',
+    '#cccccc'
 ];
 const $47602b39438c5a8c$export$d68d0fda4a10dbc2 = $47602b39438c5a8c$export$921514c0345db5eb($47602b39438c5a8c$var$Hues.PINK);
 const $47602b39438c5a8c$export$738c3b9a44c87ecc = $47602b39438c5a8c$export$921514c0345db5eb($47602b39438c5a8c$var$Hues.BLUE);
@@ -1218,8 +1219,8 @@ const $47602b39438c5a8c$export$9a82c28ef488e918 = {
     BLUE: $47602b39438c5a8c$export$738c3b9a44c87ecc
 };
 function $47602b39438c5a8c$export$18c940335d915715(elementColor) {
-    let invalidColor = "#cccccc";
-    if (elementColor == invalidColor) invalidColor = "red";
+    let invalidColor = '#cccccc';
+    if (elementColor == invalidColor) invalidColor = 'red';
     return `repeating-linear-gradient(45deg, ${elementColor}, ${elementColor} 3px, ${invalidColor} 3px, ${invalidColor} 6px)`;
 }
 
@@ -1320,7 +1321,7 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         this.logValidationWarnings(result.validationWarnings);
         // Log custom validations (e.g. origin trials) at the top level
         result.customValidations.forEach((v)=>{
-            if (v.warnings.length > 0) this.console.warn(`${this.options.loggingPrefix}${v.warnings[0]}`, v.element, v.payload || "");
+            if (v.warnings.length > 0) this.console.warn(`${this.options.loggingPrefix}${v.warnings[0]}`, v.element, v.payload || '');
         });
         this.visualizeHead("Actual", headElement, headWeights);
         const sortedHeadWeights = [
@@ -1350,13 +1351,11 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
     logElement({ viz: viz, weight: weight, element: element, isValid: isValid, customValidations: customValidations = {}, omitPrefix: omitPrefix = false }) {
         if (!omitPrefix) viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
         let loggingLevel = "log";
-        const loggedElement = element.cloneNode(false);
-        loggedElement.innerHTML = "";
         const args = [
             viz.visual,
             viz.style,
             weight + 1,
-            loggedElement
+            element
         ];
         if (!this.options.isValidationEnabled()) {
             this.console[loggingLevel](...args);
@@ -1371,11 +1370,12 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         if (warnings?.length) {
             // Element-specific warnings.
             loggingLevel = "warn";
-            args.push("\n" + warnings.map((warning)=>`  ❌ ${warning}`).join("\n"));
+            args.push("\n" + warnings.map((warning)=>`  \u{274C} ${warning}`).join("\n"));
         } else if (!isValid && (this.options.prefersDynamicAssessment() || this.isStaticHead)) {
             // General warnings.
             loggingLevel = "warn";
-            args.push(`\n  ❌ invalid element (${element.tagName})`);
+            args.push(`
+  \u{274C} invalid element (${element.tagName})`);
         }
         this.console[loggingLevel](...args);
     }
@@ -1406,7 +1406,7 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         };
     }
     getElementVisualization(weight, isValid = true) {
-        const visual = `%c${new Array(weight + 1).fill("█").join("")}`;
+        const visual = `%c${new Array(weight + 1).fill("\u2588").join("")}`;
         const color = this.getColor(weight);
         let style = `color: ${color}`;
         return {
@@ -1436,7 +1436,7 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
 
 
 class $5daa40bf356478d7$export$c019608e5b5bb4cb {
-    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $47602b39438c5a8c$export$e6952b12ade67489, loggingPrefix: loggingPrefix = "Capo: " } = {}){
+    constructor({ preferredAssessmentMode: preferredAssessmentMode = $5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode.STATIC, validation: validation = true, palette: palette = $47602b39438c5a8c$export$e6952b12ade67489, loggingPrefix: loggingPrefix = 'Capo: ' } = {}){
         this.setPreferredAssessmentMode(preferredAssessmentMode);
         this.setValidation(validation);
         this.setPalette(palette);
@@ -1444,8 +1444,8 @@ class $5daa40bf356478d7$export$c019608e5b5bb4cb {
     }
     static get AssessmentMode() {
         return {
-            STATIC: "static",
-            DYNAMIC: "dynamic"
+            STATIC: 'static',
+            DYNAMIC: 'dynamic'
         };
     }
     static get Palettes() {
@@ -1474,8 +1474,8 @@ class $5daa40bf356478d7$export$c019608e5b5bb4cb {
         this.validation = validation;
     }
     setPalette(palette) {
-        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected [${Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).join("|")}] or an array of colors, got "${palette}".`);
-        if (typeof palette === "string") {
+        if (!this.isValidPalette(palette)) throw new Error(`Invalid option: palette, expected [${Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).join('|')}] or an array of colors, got "${palette}".`);
+        if (typeof palette === 'string') {
             this.palette = $47602b39438c5a8c$export$9a82c28ef488e918[palette];
             return;
         }
@@ -1489,15 +1489,15 @@ class $5daa40bf356478d7$export$c019608e5b5bb4cb {
         return Object.values($5daa40bf356478d7$export$c019608e5b5bb4cb.AssessmentMode).includes(assessmentMode);
     }
     isValidValidation(validation) {
-        return typeof validation === "boolean";
+        return typeof validation === 'boolean';
     }
     isValidPalette(palette) {
-        if (typeof palette === "string") return Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).includes(palette);
+        if (typeof palette === 'string') return Object.keys($47602b39438c5a8c$export$9a82c28ef488e918).includes(palette);
         if (!Array.isArray(palette)) return false;
-        return palette.length === 11 && palette.every((color)=>typeof color === "string");
+        return palette.length === 11 && palette.every((color)=>typeof color === 'string');
     }
     isValidLoggingPrefix(loggingPrefix) {
-        return typeof loggingPrefix === "string";
+        return typeof loggingPrefix === 'string';
     }
     isPreferredPalette(palette) {
         return JSON.stringify(this.palette) == JSON.stringify(palette);
@@ -1518,7 +1518,7 @@ const $3536df9ffc9a62b8$var$FORCED_OPTIONS = {
 };
 function $3536df9ffc9a62b8$export$889ea624f2cb2c57(input, output, userOptions = {}) {
     userOptions = Object.assign(userOptions, $3536df9ffc9a62b8$var$FORCED_OPTIONS);
-    const staticDoc = document.implementation.createHTMLDocument("New Document");
+    const staticDoc = document.implementation.createHTMLDocument('New Document');
     staticDoc.documentElement.innerHTML = input;
     const options = new (0, $5daa40bf356478d7$export$c019608e5b5bb4cb)(userOptions);
     const io = new (0, $33f7359dc421be0c$export$8f8422ac5947a789)(staticDoc.documentElement, options, output);
