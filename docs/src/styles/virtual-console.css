@@ -29,11 +29,9 @@ virtual-console {
     border-left: 4px solid var(--vc-error-border);
   }
 
-  & > {
-    .log, .warn, .error {
-      margin-top: 1rem;
-      width: 100%;
-    }
+  & > .log, & > .warn, & > .error {
+    margin-top: 1rem;
+    width: 100%;
   }
 
   details {

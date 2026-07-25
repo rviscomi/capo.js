@@ -97,9 +97,9 @@
   },
   "devDependencies": {
     "@parcel/cache": "^2.16.4",
-    "dedent": "^1.7.0",
-    "esbuild": "^0.27.3",
-    "jsdom": "^27.0.1",
+    "dedent": "^1.7.2",
+    "esbuild": "^0.28.1",
+    "jsdom": "^29.1.1",
     "parcel": "latest"
   }
 }
