@@ -951,7 +951,7 @@ function validateMetaViewport(element, adapter) {
       }
       if (directive == "viewport-fit") {
         // viewport-fit is non-standard, but widely supported.
-        // https://github.com/rviscomi/capo.js/issues/110
+        return false;
       }
       return true;
     })
