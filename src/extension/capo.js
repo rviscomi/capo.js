@@ -44,7 +44,7 @@ async function run(io) {
           weight,
           color: io.getColor(weight),
           selector: io.stringifyElement(element),
-          innerHTML: element.innerHTML,
+          html: element.innerHTML,
           isValid,
           customValidations: sanitizeForStorage(customValidations, io),
         };

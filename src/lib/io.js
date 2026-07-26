@@ -160,12 +160,12 @@ export class IO {
     return headWeights;
   }
 
-  logElementFromSelector({ weight, selector, innerHTML, isValid, customValidations = {} }) {
+  logElementFromSelector({ weight, selector, html, isValid, customValidations = {} }) {
     weight = +weight;
     const viz = this.getElementVisualization(weight, isValid);
     let element = this.createElementFromSelector(selector);
     const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
-    const doc = parser.parseFromString(innerHTML || "", "text/html");
+    const doc = parser.parseFromString(html || "", "text/html");
     const nodes = [...doc.head.childNodes, ...doc.body.childNodes];
     nodes.forEach((child) => element.appendChild(child.cloneNode(true)));
     element = this.getLoggableElement(element);

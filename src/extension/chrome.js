@@ -56,7 +56,7 @@ function getCapoHeadElement({
   weight,
   color,
   selector,
-  innerHTML,
+  html,
   isValid,
   customValidations,
 }) {
@@ -66,14 +66,14 @@ function getCapoHeadElement({
   span.dataset.weight = weight;
   span.style.backgroundColor = color;
   span.dataset.selector = selector;
-  span.dataset.innerHTML = innerHTML;
+  span.dataset.html = html;
   span.dataset.customValidations = JSON.stringify(customValidations);
   span.title = `[${weight + 1}] ${selector}`;
   return span;
 }
 
 async function handleCapoClick(event) {
-  const { weight, selector, innerHTML } = event.target.dataset;
+  const { weight, selector, html } = event.target.dataset;
   const customValidations = JSON.parse(event.target.dataset.customValidations);
   const isValid = !event.target.classList.contains("invalid");
 
@@ -81,7 +81,7 @@ async function handleCapoClick(event) {
     click: JSON.stringify({
       weight,
       selector,
-      innerHTML,
+      html,
       isValid,
       customValidations,
     }),

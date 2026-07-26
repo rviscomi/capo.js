@@ -1334,12 +1334,12 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         this.visualizeHead("Sorted", sortedHeadElement, sortedHeadWeights);
         return headWeights;
     }
-    logElementFromSelector({ weight: weight, selector: selector, innerHTML: innerHTML, isValid: isValid, customValidations: customValidations = {} }) {
+    logElementFromSelector({ weight: weight, selector: selector, html: html, isValid: isValid, customValidations: customValidations = {} }) {
         weight = +weight;
         const viz = this.getElementVisualization(weight, isValid);
         let element = this.createElementFromSelector(selector);
         const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
-        const doc = parser.parseFromString(innerHTML || "", "text/html");
+        const doc = parser.parseFromString(html || "", "text/html");
         const nodes = [
             ...doc.head.childNodes,
             ...doc.body.childNodes
