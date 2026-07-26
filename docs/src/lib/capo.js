@@ -1395,7 +1395,7 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         elements.forEach(({ weight: weight, isValid: isValid })=>{
             visual += "%c ";
             const color = this.getColor(weight);
-            let style = `padding: 5px; margin: 0 -1px; `;
+            let style = `padding: 5px; margin: 4px -1px 0; display: inline-block; `;
             if (isValid) style += `background-color: ${color};`;
             else style += `background-image: ${(0, $47602b39438c5a8c$export$18c940335d915715)(color)}`;
             styles.push(style);

@@ -15,14 +15,24 @@ Disable the production version of the extension and pin the local version to ens
     git clone git@github.com:rviscomi/capo.js.git
     ```
 
-2. Navigate to `chrome://extensions` and enable **Developer mode**
+2. Install dependencies and build the extensions:
 
-    ![Developer mode enabled](../../../assets/developer-mode.png)
+    ```sh
+    npm install
+    npm run build
+    ```
 
-3. Select **Load unpacked** and choose the `crx` subdirectory
+3. Load the built extension into your browser:
 
-    ![Select the crx directory to load the unpacked extension](../../../assets/load-unpacked.png)
+    **For Chrome:**
+    - Navigate to `chrome://extensions` and enable **Developer mode**
+    - Select **Load unpacked** and choose the newly generated `dist/chrome` subdirectory
 
-If you get the error `Manifest file is missing or unreadable. Could not load manifest.` make sure you're loading the `crx` subdirectory, and not the top-level `capo.js` directory.
+    **For Firefox:**
+    - Navigate to `about:debugging`
+    - Click **This Firefox** on the left
+    - Click **Load Temporary Add-on...** and select the `manifest.json` file inside the newly generated `dist/firefox` subdirectory
+
+If you get the error `Manifest file is missing or unreadable. Could not load manifest.` in Chrome, make sure you're loading the `dist/chrome` subdirectory, and not the top-level `capo.js` directory or the `src` directory.
 
 If there are any other error messages, it's possible that the latest source code has a bug. Please [file an issue](https://github.com/rviscomi/capo.js/issues/new) so we can investigate.

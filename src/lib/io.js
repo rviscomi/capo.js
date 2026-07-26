@@ -224,7 +224,7 @@ export class IO {
       visual += "%c ";
 
       const color = this.getColor(weight);
-      let style = `padding: 5px; margin: 0 -1px; `;
+      let style = `padding: 5px; margin: 4px -1px 0; display: inline-block; `;
 
       if (isValid) {
         style += `background-color: ${color};`;

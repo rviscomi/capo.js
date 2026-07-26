@@ -2,17 +2,13 @@ init();
 
 async function getCurrentTab() {
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return { tabId: tab.id };
+  if (!tab) {
+    [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  }
+  return { tabId: tab?.id };
 }
 
 async function init() {
-  await chrome.storage.local.remove("data");
-
-  await chrome.scripting.executeScript({
-    target: await getCurrentTab(),
-    files: ["capo.js"],
-  });
-
   chrome.storage.onChanged.addListener((changes) => {
     console.log("Storage changed", changes);
     const { data } = changes;
@@ -20,10 +16,25 @@ async function init() {
       print(data.newValue);
     }
   });
+
+  await chrome.storage.local.remove("data");
+
+  await chrome.scripting.executeScript({
+    target: await getCurrentTab(),
+    files: ["capo.js"],
+  });
+
+  const { data } = await chrome.storage.local.get("data");
+  if (data) {
+    print(data);
+  }
 }
 
 function print(result) {
   console.log("Data", result);
+  actual.innerHTML = "";
+  sorted.innerHTML = "";
+
   let frag = document.createDocumentFragment();
   for (let r of result.actual) {
     frag.appendChild(getCapoHeadElement(r));
