@@ -306,7 +306,17 @@ function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head, adapter) {
     // to avoid duplicate reporting
     // Check for invalid elements
     children.forEach((element)=>{
-        if ($c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter)) return;
+        if ($c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter)) {
+            const elementChildren = adapter.getChildren(element);
+            elementChildren.forEach((child)=>{
+                if (!$c322f9a5057eaf5c$export$a8257692ac88316c(child, adapter)) validationWarnings.push({
+                    ruleId: 'no-invalid-head-elements',
+                    warning: `${adapter.getTagName(child).toUpperCase()} elements are not allowed in the <head>`,
+                    element: element
+                });
+            });
+            return;
+        }
         // For invalid elements, we just report the element itself
         // (adapter doesn't have parentElement concept, so we can't find root)
         validationWarnings.push({
@@ -800,11 +810,11 @@ function $c322f9a5057eaf5c$var$validateMetaViewport(element, adapter) {
         const maxScale = Number(directives["maximum-scale"]);
         if (isNaN(maxScale)) warnings.push(`Invalid maximum zoom level "${directives["maximum-scale"]}". Values must be numeric.`);
         if (maxScale < 0.1 || maxScale > 10) warnings.push(`Invalid maximum zoom level "${maxScale}". Values must be between 0.1 and 10.`);
-        if (maxScale < 2) warnings.push(`Disabling zoom levels under 2x can cause accessibility issues. Found "${maxScale}".`);
+        if (maxScale < 2) warnings.push(`Disabling zoom levels under 2x can cause accessibility issues. Found "maximum-scale=${directives["maximum-scale"]}".`);
     }
     if ("user-scalable" in directives) {
         const userScalable = directives["user-scalable"];
-        if (userScalable == "no" || userScalable == "0") warnings.push(`Disabling zooming can cause accessibility issues to users with visual impairments. Found "${userScalable}".`);
+        if (userScalable == "no" || userScalable == "0") warnings.push(`Disabling zooming can cause accessibility issues to users with visual impairments. Found "user-scalable=${userScalable}".`);
         if (![
             "0",
             "1",
@@ -1089,7 +1099,9 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    * @returns {string} - Tag name like 'meta', 'link', 'script'
    */ getTagName(node) {
         if (!node || !node.tagName) return '';
-        return node.tagName.toLowerCase();
+        const name = node.tagName.toLowerCase();
+        if (name === 'static-head') return 'head';
+        return name;
     }
     /**
    * Get attribute value from element
@@ -1130,7 +1142,19 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    * @param {any} node - Parent node
    * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
    */ getChildren(node) {
-        if (!node || !node.children) return [];
+        if (!node) return [];
+        if (this.getTagName(node) === 'noscript') {
+            const content = node.innerHTML || '';
+            if (content.trim()) {
+                const doc = node.ownerDocument || (typeof document !== 'undefined' ? document : null);
+                if (doc) {
+                    const temp = doc.createElement('div');
+                    temp.innerHTML = content;
+                    return Array.from(temp.children);
+                }
+            }
+        }
+        if (!node.children) return [];
         return Array.from(node.children);
     }
     /**
@@ -1245,6 +1269,20 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         this.isStaticHead = false;
         this.head = null;
     }
+    static formatStaticHeadHTML(html) {
+        if (/<head[\s>]/i.test(html)) return html.replace(/(\<\/?)(head)/gi, "$1static-head");
+        return `<static-head>${html}</static-head>`;
+    }
+    initFromStaticHead(head) {
+        this.head = head;
+        this.isStaticHead = true;
+    }
+    initFromHTML(html) {
+        const formattedHtml = $33f7359dc421be0c$export$8f8422ac5947a789.formatStaticHeadHTML(html.trim());
+        const parser = new (this.document?.defaultView?.DOMParser || DOMParser)();
+        const staticDoc = parser.parseFromString(formattedHtml, "text/html");
+        this.initFromStaticHead(staticDoc.querySelector("static-head") || staticDoc.head);
+    }
     async init() {
         if (this.head) return;
         if (this.options.prefersDynamicAssessment()) {
@@ -1253,11 +1291,11 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         }
         try {
             let html = await this.getStaticHTML();
-            html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
+            html = $33f7359dc421be0c$export$8f8422ac5947a789.formatStaticHeadHTML(html);
             const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
             const staticDoc = parser.parseFromString(html, "text/html");
-            this.head = staticDoc.querySelector("static-head");
-            if (this.head) this.isStaticHead = true;
+            const staticHead = staticDoc.querySelector("static-head");
+            if (staticHead) this.initFromStaticHead(staticHead);
             else this.head = this.document.head;
         } catch (e) {
             this.console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
@@ -1280,8 +1318,10 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
     }
     getLoggableElement(element) {
         if (!this.isStaticHead) return element;
+        const head = this.document?.head || this.head;
+        if (!head) return element;
         const selector = this.stringifyElement(element);
-        const candidates = Array.from(this.document.head.querySelectorAll(selector));
+        const candidates = Array.from(head.querySelectorAll(selector));
         if (candidates.length == 0) return element;
         if (candidates.length == 1) return candidates[0];
         // The way the static elements are parsed makes their innerHTML different.
@@ -1323,10 +1363,12 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         const headElement = this.getHead();
         const headWeights = result.weights.map((w)=>{
             const customValidation = result.customValidations.find((v)=>v.element === w.element);
+            const validationWarning = result.validationWarnings.find((v)=>v.element === w.element || v.elements && v.elements.includes(w.element));
+            const isElementValid = !customValidation && !validationWarning;
             return {
                 element: w.element,
                 weight: w.weight,
-                isValid: !customValidation,
+                isValid: isElementValid,
                 customValidations: customValidation || {}
             };
         });
@@ -1380,7 +1422,7 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
             return;
         }
         const { payload: payload, warnings: warnings } = customValidations;
-        if (payload) {
+        if (payload && Object.keys(payload).length > 0) {
             if (typeof payload.expiry == "string") // Deserialize origin trial expiration dates.
             payload.expiry = new Date(payload.expiry);
             args.push(payload);
@@ -1536,11 +1578,9 @@ const $3536df9ffc9a62b8$var$FORCED_OPTIONS = {
 };
 function $3536df9ffc9a62b8$export$889ea624f2cb2c57(input, output, userOptions = {}) {
     userOptions = Object.assign(userOptions, $3536df9ffc9a62b8$var$FORCED_OPTIONS);
-    const parser = new DOMParser();
-    const staticDoc = parser.parseFromString(input, 'text/html');
     const options = new (0, $5daa40bf356478d7$export$c019608e5b5bb4cb)(userOptions);
-    const io = new (0, $33f7359dc421be0c$export$8f8422ac5947a789)(staticDoc.documentElement, options, output);
-    io.init();
+    const io = new (0, $33f7359dc421be0c$export$8f8422ac5947a789)(null, options, output);
+    io.initFromHTML(input);
     const headElement = io.getHead();
     const adapter = new (0, $6e48536853157d9f$export$e467cc3399500025)();
     const result = (0, $4638c35e8aec1c56$export$66aa292af6e88fd9)(headElement, adapter);

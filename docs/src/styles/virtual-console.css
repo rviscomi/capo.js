@@ -51,9 +51,12 @@ virtual-console {
     list-style: none;
     padding: 0.25rem 0.5rem;
     font-family: monospace;
-    width: 600px;
+    width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 
     &::-webkit-details-marker {
       display: none;
@@ -72,11 +75,50 @@ virtual-console {
     border-bottom: 1px solid var(--sl-color-gray-5);
     font-family: monospace;
     white-space: pre-wrap;
-    width: 600px;
+    width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .console-element {
+    display: block;
+    margin-top: 0.25rem;
+    padding-left: 1rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  summary .console-element {
+    display: inline;
+    margin-top: 0;
+    padding-left: 0;
+  }
+
+  pre {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0.25rem 0 0 1rem !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    box-shadow: none !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
+  a.vc-link, a.vc-link:visited {
+    color: var(--sl-color-text-accent, #50fa7b);
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  a.vc-link:hover {
+    color: var(--sl-color-white);
   }
 
   --vc-token-tag: #ff79c6;

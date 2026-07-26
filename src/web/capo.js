@@ -21,13 +21,10 @@ const FORCED_OPTIONS = {
 export function run(input, output, userOptions={}) {
   userOptions = Object.assign(userOptions, FORCED_OPTIONS);
 
-  const parser = new DOMParser();
-  const staticDoc = parser.parseFromString(input, 'text/html');
-
   const options = new Options(userOptions);
-  const io = new IO(staticDoc.documentElement, options, output);
+  const io = new IO(null, options, output);
+  io.initFromHTML(input);
 
-  io.init();
   const headElement = io.getHead();
   const adapter = new BrowserAdapter();
   const result = analyzeHead(headElement, adapter);

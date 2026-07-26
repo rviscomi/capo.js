@@ -53,8 +53,7 @@ export default defineConfig({
           items: [
             { label: "Quick start", link: "/user/quick-start/" },
             { label: "Rules", link: "/user/rules/" },
-            { label: "Improve performance", link: "/user/performance/" },
-            { label: "Interpret results", link: "/user/actionability/" },
+            { label: "Configuration", link: "/user/config/" },
             {
               label: "Static vs dynamic assessment",
               link: "/user/assessment-mode/",

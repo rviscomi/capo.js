@@ -1,0 +1,166 @@
+---
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import VirtualConsole from "./VirtualConsole.astro";
+
+interface Props {
+  snippet?: string;
+}
+
+const { snippet = "" } = Astro.props;
+const cleanSnippet = snippet.trim();
+---
+
+<capo-widget class="capo-widget">
+  <Tabs>
+    <TabItem label="HTML">
+      <div class="capo-widget-editor">
+        <div class="capo-widget-code-container">
+          <pre class="capo-widget-highlight" aria-hidden="true"><code class="capo-widget-code"></code></pre>
+          <textarea
+            class="capo-widget-input"
+            placeholder="Enter HTML snippet"
+            spellcheck="false"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off">{cleanSnippet}</textarea>
+        </div>
+      </div>
+    </TabItem>
+    <TabItem label="Results">
+      <div class="capo-widget-results">
+        <VirtualConsole />
+      </div>
+    </TabItem>
+  </Tabs>
+</capo-widget>
+
+<script>
+  import { CapoWidgetElement } from "../lib/CapoWidgetElement.js";
+
+  if (!customElements.get("capo-widget")) {
+    customElements.define("capo-widget", CapoWidgetElement);
+  }
+</script>
+
+<style>
+  .capo-widget {
+    display: block;
+    margin: 1.5rem 0;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: var(--sl-color-bg-inline-code, var(--sl-color-bg-nav));
+    box-shadow: var(--sl-shadow-sm);
+  }
+
+  /* Starlight Tab hover & pointer visual feedback */
+  :global(.capo-widget [role="tab"]) {
+    cursor: pointer !important;
+    transition: color 0.15s ease, background-color 0.15s ease !important;
+  }
+
+  :global(.capo-widget [role="tab"]:hover) {
+    color: var(--sl-color-text-accent) !important;
+  }
+
+  :global(.capo-widget [role="tab"][aria-selected="true"]) {
+    color: var(--sl-color-white) !important;
+    border-bottom-color: var(--sl-color-text-accent) !important;
+  }
+
+  .capo-widget-editor {
+    display: flex;
+    flex-direction: column;
+    margin-top: 0.5rem;
+  }
+
+  .capo-widget-code-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    min-height: 70px;
+    max-height: 350px;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    background-color: var(--sl-color-black);
+    overflow: hidden;
+  }
+
+  :root[data-theme='light'] .capo-widget-code-container {
+    background-color: var(--sl-color-gray-6);
+  }
+
+  .capo-widget-highlight,
+  .capo-widget-input {
+    grid-area: 1 / 1 / 2 / 2;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0.75rem !important;
+    font-family: var(--sl-font-mono, monospace) !important;
+    font-size: 0.875rem !important;
+    line-height: 1.4 !important;
+    tab-size: 2;
+    white-space: pre !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    box-sizing: border-box;
+  }
+
+  .capo-widget-highlight {
+    pointer-events: none;
+    border: 1px solid transparent;
+    color: var(--sl-color-gray-2);
+    overflow: hidden;
+  }
+
+  .capo-widget-input {
+    field-sizing: content;
+    min-height: 70px;
+    max-height: 350px;
+    background: transparent !important;
+    color: transparent !important;
+    caret-color: var(--sl-color-white, #ffffff);
+    border: 1px solid transparent;
+    resize: none;
+    overflow: auto;
+  }
+
+  :root[data-theme='light'] .capo-widget-input {
+    caret-color: var(--sl-color-gray-1, #000000);
+  }
+
+  .capo-widget-input:focus {
+    outline: none;
+  }
+
+  .capo-widget-code-container:focus-within {
+    border-color: var(--sl-color-text-accent);
+  }
+
+  /* Syntax Highlighting Colors matching VirtualConsole */
+  :global(.capo-widget-code .tag) {
+    color: #ff79c6;
+    font-weight: bold;
+  }
+  :global(.capo-widget-code .attr) {
+    color: #50fa7b;
+  }
+  :global(.capo-widget-code .val) {
+    color: #f1fa8c;
+  }
+
+  :root[data-theme='light'] :global(.capo-widget-code .tag) {
+    color: #881280;
+  }
+  :root[data-theme='light'] :global(.capo-widget-code .attr) {
+    color: #994500;
+  }
+  :root[data-theme='light'] :global(.capo-widget-code .val) {
+    color: #1a1aa6;
+  }
+
+  .capo-widget-results {
+    margin-top: 0.5rem;
+    overflow-x: auto;
+  }
+</style>

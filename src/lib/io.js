@@ -9,6 +9,25 @@ export class IO {
     this.head = null;
   }
 
+  static formatStaticHeadHTML(html) {
+    if (/<head[\s>]/i.test(html)) {
+      return html.replace(/(\<\/?)(head)/gi, "$1static-head");
+    }
+    return `<static-head>${html}</static-head>`;
+  }
+
+  initFromStaticHead(head) {
+    this.head = head;
+    this.isStaticHead = true;
+  }
+
+  initFromHTML(html) {
+    const formattedHtml = IO.formatStaticHeadHTML(html.trim());
+    const parser = new (this.document?.defaultView?.DOMParser || DOMParser)();
+    const staticDoc = parser.parseFromString(formattedHtml, "text/html");
+    this.initFromStaticHead(staticDoc.querySelector("static-head") || staticDoc.head);
+  }
+
   async init() {
     if (this.head) {
       return;
@@ -21,13 +40,13 @@ export class IO {
 
     try {
       let html = await this.getStaticHTML();
-      html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
+      html = IO.formatStaticHeadHTML(html);
       const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
       const staticDoc = parser.parseFromString(html, "text/html");
-      this.head = staticDoc.querySelector("static-head");
+      const staticHead = staticDoc.querySelector("static-head");
 
-      if (this.head) {
-        this.isStaticHead = true;
+      if (staticHead) {
+        this.initFromStaticHead(staticHead);
       } else {
         this.head = this.document.head;
       }
@@ -65,8 +84,13 @@ export class IO {
       return element;
     }
 
+    const head = this.document?.head || this.head;
+    if (!head) {
+      return element;
+    }
+
     const selector = this.stringifyElement(element);
-    const candidates = Array.from(this.document.head.querySelectorAll(selector));
+    const candidates = Array.from(head.querySelectorAll(selector));
     if (candidates.length == 0) {
       return element;
     }
@@ -129,10 +153,12 @@ export class IO {
     const headElement = this.getHead();
     const headWeights = result.weights.map(w => {
       const customValidation = result.customValidations.find(v => v.element === w.element);
+      const validationWarning = result.validationWarnings.find(v => v.element === w.element || (v.elements && v.elements.includes(w.element)));
+      const isElementValid = !customValidation && !validationWarning;
       return {
         element: w.element,
         weight: w.weight,
-        isValid: !customValidation,
+        isValid: isElementValid,
         customValidations: customValidation || {}
       };
     });
@@ -187,7 +213,7 @@ export class IO {
     }
 
     const { payload, warnings } = customValidations;
-    if (payload) {
+    if (payload && Object.keys(payload).length > 0) {
       if (typeof payload.expiry == "string") {
         // Deserialize origin trial expiration dates.
         payload.expiry = new Date(payload.expiry);

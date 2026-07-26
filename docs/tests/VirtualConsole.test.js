@@ -90,7 +90,7 @@ describe('VirtualConsole', () => {
   it('should render objects with highlighted JSON', () => {
     const obj = { key: 'value' };
     const output = virtualConsole.renderLog(obj);
-    expect(output).toContain('<pre>');
+    expect(output).toContain('<pre');
     expect(output).toContain('<span class="key">&quot;key&quot;:</span>');
   });
 
@@ -101,8 +101,18 @@ describe('VirtualConsole', () => {
 
   it('should handle color bar formatting', () => {
     const output = virtualConsole.renderLog('%c ', 'background-color: red', '%c ', 'background-color: blue');
-    expect(output).toContain('<div class="color-bar">');
+    expect(output).toContain('<div class="color-bar" data-console-block="true">');
     expect(output).toContain('background-color: red');
     expect(output).toContain('background-color: blue');
+  });
+
+  it('should convert URLs to safe links', () => {
+    const output = virtualConsole.renderLog('Visit https://example.com/path for details');
+    expect(output).toContain('<a href="https://example.com/path" target="_blank" rel="noopener noreferrer" class="vc-link">https://example.com/path</a>');
+  });
+
+  it('should sanitize quote characters in href attribute', () => {
+    const output = virtualConsole.renderLog('Check https://example.com/foo&quot;bar');
+    expect(output).toContain('href="https://example.com/foo%22bar"');
   });
 });

@@ -24,11 +24,14 @@ import VirtualConsole from "./VirtualConsole.astro";
   let activeFetchUrl = null;
 
   async function init() {
-    input = document.querySelector("#input");
-    virtualConsole = document.querySelector("#virtual-console");
-    markup = document.querySelector("#markup");
-    url = document.querySelector("#url");
-    shareBtn = document.querySelector("#share");
+    const root = document.querySelector("#capo-client");
+    if (!root) return;
+
+    input = root.querySelector("#input");
+    virtualConsole = root.querySelector("virtual-console");
+    markup = root.querySelector("#markup");
+    url = root.querySelector("#url");
+    shareBtn = root.querySelector("#share");
 
     await handleOAuthCallback();
     const loadedGist = await initGist();
@@ -36,11 +39,13 @@ import VirtualConsole from "./VirtualConsole.astro";
       initUrl();
     }
 
-    input.addEventListener("submit", (e) => {
-      handleSubmit();
-      e.preventDefault();
-      return false;
-    });
+    if (input) {
+      input.addEventListener("submit", (e) => {
+        handleSubmit();
+        e.preventDefault();
+        return false;
+      });
+    }
 
     if (shareBtn) {
       shareBtn.addEventListener("click", handleShare);
@@ -48,9 +53,11 @@ import VirtualConsole from "./VirtualConsole.astro";
   }
 
   function findTab(name) {
+    const root = document.querySelector("#capo-client");
+    if (!root) return null;
     const target = name.trim().toUpperCase();
-    return Array.from(document.querySelectorAll("[role=tab]")).find((tab) =>
-      (tab.textContent || "").trim().toUpperCase().includes(target),
+    return Array.from(root.querySelectorAll("[role=tab]")).find(
+      (tab) => (tab.textContent || "").trim().toUpperCase().includes(target)
     );
   }
 
