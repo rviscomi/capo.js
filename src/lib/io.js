@@ -9,6 +9,25 @@ export class IO {
     this.head = null;
   }
 
+  static formatStaticHeadHTML(html) {
+    if (/<head[\s>]/i.test(html)) {
+      return html.replace(/(\<\/?)(head)/gi, "$1static-head");
+    }
+    return `<static-head>${html}</static-head>`;
+  }
+
+  initFromStaticHead(head) {
+    this.head = head;
+    this.isStaticHead = true;
+  }
+
+  initFromHTML(html) {
+    const formattedHtml = IO.formatStaticHeadHTML(html.trim());
+    const parser = new (this.document?.defaultView?.DOMParser || DOMParser)();
+    const staticDoc = parser.parseFromString(formattedHtml, "text/html");
+    this.initFromStaticHead(staticDoc.querySelector("static-head") || staticDoc.head);
+  }
+
   async init() {
     if (this.head) {
       return;
@@ -21,17 +40,13 @@ export class IO {
 
     try {
       let html = await this.getStaticHTML();
-      if (/<head[\s>]/i.test(html)) {
-        html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
-      } else {
-        html = `<static-head>${html}</static-head>`;
-      }
+      html = IO.formatStaticHeadHTML(html);
       const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
       const staticDoc = parser.parseFromString(html, "text/html");
-      this.head = staticDoc.querySelector("static-head");
+      const staticHead = staticDoc.querySelector("static-head");
 
-      if (this.head) {
-        this.isStaticHead = true;
+      if (staticHead) {
+        this.initFromStaticHead(staticHead);
       } else {
         this.head = this.document.head;
       }

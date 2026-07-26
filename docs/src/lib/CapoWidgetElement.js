@@ -25,6 +25,16 @@ export class CapoWidgetElement extends HTMLElement {
     this.init();
   }
 
+  disconnectedCallback() {
+    if (this.textarea) {
+      if (this.onInput) this.textarea.removeEventListener('input', this.onInput);
+      if (this.onScroll) this.textarea.removeEventListener('scroll', this.onScroll);
+    }
+    if (this.onClick) {
+      this.removeEventListener('click', this.onClick);
+    }
+  }
+
   init() {
     this.textarea = this.querySelector('.capo-widget-input');
     this.highlightPre = this.querySelector('.capo-widget-highlight');
@@ -32,17 +42,16 @@ export class CapoWidgetElement extends HTMLElement {
     this.virtualConsole = this.querySelector('virtual-console');
 
     if (this.textarea) {
-      this.textarea.addEventListener('input', () => {
-        this.syncHighlight();
-      });
-      this.textarea.addEventListener('scroll', () => {
-        this.syncScroll();
-      });
+      this.onInput = () => this.syncHighlight();
+      this.onScroll = () => this.syncScroll();
+
+      this.textarea.addEventListener('input', this.onInput);
+      this.textarea.addEventListener('scroll', this.onScroll);
       this.syncHighlight();
     }
 
     // Re-run whenever user switches to Results tab
-    this.addEventListener('click', (e) => {
+    this.onClick = (e) => {
       const tab = e.target.closest('[role="tab"]');
       if (tab) {
         const tabText = (tab.textContent || '').trim().toUpperCase();
@@ -50,7 +59,8 @@ export class CapoWidgetElement extends HTMLElement {
           this.runCapo();
         }
       }
-    });
+    };
+    this.addEventListener('click', this.onClick);
 
     // Auto-run initial snippet on mount
     this.runCapo();

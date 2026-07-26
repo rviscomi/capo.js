@@ -109,7 +109,7 @@ export class BrowserAdapter extends AdapterInterface {
       return [];
     }
     if (this.getTagName(node) === 'noscript') {
-      const content = node.innerHTML || node.textContent || '';
+      const content = node.innerHTML || '';
       if (content.trim()) {
         const doc = node.ownerDocument || (typeof document !== 'undefined' ? document : null);
         if (doc) {

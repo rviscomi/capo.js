@@ -1144,7 +1144,7 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    */ getChildren(node) {
         if (!node) return [];
         if (this.getTagName(node) === 'noscript') {
-            const content = node.innerHTML || node.textContent || '';
+            const content = node.innerHTML || '';
             if (content.trim()) {
                 const doc = node.ownerDocument || (typeof document !== 'undefined' ? document : null);
                 if (doc) {
@@ -1269,6 +1269,20 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         this.isStaticHead = false;
         this.head = null;
     }
+    static formatStaticHeadHTML(html) {
+        if (/<head[\s>]/i.test(html)) return html.replace(/(\<\/?)(head)/gi, "$1static-head");
+        return `<static-head>${html}</static-head>`;
+    }
+    initFromStaticHead(head) {
+        this.head = head;
+        this.isStaticHead = true;
+    }
+    initFromHTML(html) {
+        const formattedHtml = $33f7359dc421be0c$export$8f8422ac5947a789.formatStaticHeadHTML(html.trim());
+        const parser = new (this.document?.defaultView?.DOMParser || DOMParser)();
+        const staticDoc = parser.parseFromString(formattedHtml, "text/html");
+        this.initFromStaticHead(staticDoc.querySelector("static-head") || staticDoc.head);
+    }
     async init() {
         if (this.head) return;
         if (this.options.prefersDynamicAssessment()) {
@@ -1277,12 +1291,11 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         }
         try {
             let html = await this.getStaticHTML();
-            if (/<head[\s>]/i.test(html)) html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
-            else html = `<static-head>${html}</static-head>`;
+            html = $33f7359dc421be0c$export$8f8422ac5947a789.formatStaticHeadHTML(html);
             const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
             const staticDoc = parser.parseFromString(html, "text/html");
-            this.head = staticDoc.querySelector("static-head");
-            if (this.head) this.isStaticHead = true;
+            const staticHead = staticDoc.querySelector("static-head");
+            if (staticHead) this.initFromStaticHead(staticHead);
             else this.head = this.document.head;
         } catch (e) {
             this.console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
@@ -1565,15 +1578,9 @@ const $3536df9ffc9a62b8$var$FORCED_OPTIONS = {
 };
 function $3536df9ffc9a62b8$export$889ea624f2cb2c57(input, output, userOptions = {}) {
     userOptions = Object.assign(userOptions, $3536df9ffc9a62b8$var$FORCED_OPTIONS);
-    let html = input.trim();
-    if (/<head[\s>]/i.test(html)) html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
-    else html = `<static-head>${html}</static-head>`;
-    const parser = new DOMParser();
-    const staticDoc = parser.parseFromString(html, 'text/html');
     const options = new (0, $5daa40bf356478d7$export$c019608e5b5bb4cb)(userOptions);
-    const io = new (0, $33f7359dc421be0c$export$8f8422ac5947a789)(staticDoc.documentElement, options, output);
-    io.head = staticDoc.querySelector("static-head") || staticDoc.head;
-    io.isStaticHead = true;
+    const io = new (0, $33f7359dc421be0c$export$8f8422ac5947a789)(null, options, output);
+    io.initFromHTML(input);
     const headElement = io.getHead();
     const adapter = new (0, $6e48536853157d9f$export$e467cc3399500025)();
     const result = (0, $4638c35e8aec1c56$export$66aa292af6e88fd9)(headElement, adapter);

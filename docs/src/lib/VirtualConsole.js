@@ -72,8 +72,8 @@ export class VirtualConsole extends HTMLElement {
         result += current;
       } else {
         const prev = output[i - 1];
-        const isPrevBlock = /^\s*<(div|pre|span class="console-element")/i.test(prev) || /<\/(div|pre|span)>\s*$/i.test(prev);
-        const isCurrBlock = /^\s*<(div|pre|span class="console-element")/i.test(current);
+        const isPrevBlock = /data-console-block="true"/i.test(prev);
+        const isCurrBlock = /data-console-block="true"/i.test(current);
         if (isPrevBlock || isCurrBlock) {
           result += current;
         } else {
@@ -90,7 +90,7 @@ export class VirtualConsole extends HTMLElement {
 
   renderElement(arg) {
     let html = escapeHTML(arg.outerHTML);
-    return `<span class="console-element">${this.highlightHTML(html)}</span>`;
+    return `<span class="console-element" data-console-block="true">${this.highlightHTML(html)}</span>`;
   }
 
   renderObject(arg) {
@@ -106,7 +106,7 @@ export class VirtualConsole extends HTMLElement {
         2
       )
     );
-    return `<pre>${this.highlightJSON(json)}</pre>`;
+    return `<pre data-console-block="true">${this.highlightJSON(json)}</pre>`;
   }
 
   renderConsoleStyle(arg, args, index) {
@@ -136,7 +136,7 @@ export class VirtualConsole extends HTMLElement {
         currentGroup.push(span);
       } else {
         if (currentGroup.length > 0) {
-          result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+          result.push(`<div class="color-bar" data-console-block="true">${currentGroup.join('')}</div>`);
           currentGroup = [];
         }
         result.push(span);
@@ -144,7 +144,7 @@ export class VirtualConsole extends HTMLElement {
       skipArgs++;
     }
     if (currentGroup.length > 0) {
-      result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+      result.push(`<div class="color-bar" data-console-block="true">${currentGroup.join('')}</div>`);
     }
 
     return { html: result.join(''), skipArgs };
@@ -228,6 +228,7 @@ export function linkifyURLs(str) {
       trailing = puncMatch[0];
       url = url.slice(0, -trailing.length);
     }
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="vc-link">${url}</a>${trailing}`;
+    const safeHref = url.replace(/"/g, '%22').replace(/&amp;quot;/g, '%22').replace(/&quot;/g, '%22');
+    return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer" class="vc-link">${url}</a>${trailing}`;
   });
 }
