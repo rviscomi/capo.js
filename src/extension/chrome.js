@@ -32,8 +32,8 @@ async function init() {
 
 function print(result) {
   console.log("Data", result);
-  actual.innerHTML = "";
-  sorted.innerHTML = "";
+  actual.textContent = "";
+  sorted.textContent = "";
 
   let frag = document.createDocumentFragment();
   for (let r of result.actual) {

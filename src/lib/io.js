@@ -22,8 +22,8 @@ export class IO {
     try {
       let html = await this.getStaticHTML();
       html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
-      const staticDoc = this.document.implementation.createHTMLDocument("New Document");
-      staticDoc.documentElement.innerHTML = html;
+      const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
+      const staticDoc = parser.parseFromString(html, "text/html");
       this.head = staticDoc.querySelector("static-head");
 
       if (this.head) {
@@ -75,14 +75,18 @@ export class IO {
     }
 
     // The way the static elements are parsed makes their innerHTML different.
-    // Recreate the element in DOM and compare its innerHTML with those of the candidates.
-    // This ensures a consistent parsing and positive string matches.
-    const candidateWrapper = this.document.createElement("div");
-    const elementWrapper = this.document.createElement("div");
-    elementWrapper.innerHTML = element.innerHTML;
+    // Compare child nodes using isEqualNode to avoid unsafe innerHTML assignment.
+    // This ensures a consistent parsing and positive matches.
     const candidate = candidates.find((c) => {
-      candidateWrapper.innerHTML = c.innerHTML;
-      return candidateWrapper.innerHTML == elementWrapper.innerHTML;
+      if (c.childNodes.length !== element.childNodes.length) {
+        return false;
+      }
+      for (let i = 0; i < c.childNodes.length; i++) {
+        if (!c.childNodes[i].isEqualNode(element.childNodes[i])) {
+          return false;
+        }
+      }
+      return true;
     });
     if (candidate) {
       return candidate;
@@ -160,7 +164,10 @@ export class IO {
     weight = +weight;
     const viz = this.getElementVisualization(weight, isValid);
     let element = this.createElementFromSelector(selector);
-    element.innerHTML = innerHTML;
+    const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
+    const doc = parser.parseFromString(innerHTML || "", "text/html");
+    const nodes = [...doc.head.childNodes, ...doc.body.childNodes];
+    nodes.forEach((child) => element.appendChild(child.cloneNode(true)));
     element = this.getLoggableElement(element);
 
     this.logElement({ viz, weight, element, isValid, customValidations });

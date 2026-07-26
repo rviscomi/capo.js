@@ -1242,8 +1242,8 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         try {
             let html = await this.getStaticHTML();
             html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
-            const staticDoc = this.document.implementation.createHTMLDocument("New Document");
-            staticDoc.documentElement.innerHTML = html;
+            const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
+            const staticDoc = parser.parseFromString(html, "text/html");
             this.head = staticDoc.querySelector("static-head");
             if (this.head) this.isStaticHead = true;
             else this.head = this.document.head;
@@ -1273,14 +1273,14 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         if (candidates.length == 0) return element;
         if (candidates.length == 1) return candidates[0];
         // The way the static elements are parsed makes their innerHTML different.
-        // Recreate the element in DOM and compare its innerHTML with those of the candidates.
-        // This ensures a consistent parsing and positive string matches.
-        const candidateWrapper = this.document.createElement("div");
-        const elementWrapper = this.document.createElement("div");
-        elementWrapper.innerHTML = element.innerHTML;
+        // Compare child nodes using isEqualNode to avoid unsafe innerHTML assignment.
+        // This ensures a consistent parsing and positive matches.
         const candidate = candidates.find((c)=>{
-            candidateWrapper.innerHTML = c.innerHTML;
-            return candidateWrapper.innerHTML == elementWrapper.innerHTML;
+            if (c.childNodes.length !== element.childNodes.length) return false;
+            for(let i = 0; i < c.childNodes.length; i++){
+                if (!c.childNodes[i].isEqualNode(element.childNodes[i])) return false;
+            }
+            return true;
         });
         if (candidate) return candidate;
         return element;
@@ -1338,7 +1338,13 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
         weight = +weight;
         const viz = this.getElementVisualization(weight, isValid);
         let element = this.createElementFromSelector(selector);
-        element.innerHTML = innerHTML;
+        const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
+        const doc = parser.parseFromString(innerHTML || "", "text/html");
+        const nodes = [
+            ...doc.head.childNodes,
+            ...doc.body.childNodes
+        ];
+        nodes.forEach((child)=>element.appendChild(child.cloneNode(true)));
         element = this.getLoggableElement(element);
         this.logElement({
             viz: viz,
@@ -1518,8 +1524,8 @@ const $3536df9ffc9a62b8$var$FORCED_OPTIONS = {
 };
 function $3536df9ffc9a62b8$export$889ea624f2cb2c57(input, output, userOptions = {}) {
     userOptions = Object.assign(userOptions, $3536df9ffc9a62b8$var$FORCED_OPTIONS);
-    const staticDoc = document.implementation.createHTMLDocument('New Document');
-    staticDoc.documentElement.innerHTML = input;
+    const parser = new DOMParser();
+    const staticDoc = parser.parseFromString(input, 'text/html');
     const options = new (0, $5daa40bf356478d7$export$c019608e5b5bb4cb)(userOptions);
     const io = new (0, $33f7359dc421be0c$export$8f8422ac5947a789)(staticDoc.documentElement, options, output);
     io.init();

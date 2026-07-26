@@ -21,8 +21,8 @@ const FORCED_OPTIONS = {
 export function run(input, output, userOptions={}) {
   userOptions = Object.assign(userOptions, FORCED_OPTIONS);
 
-  const staticDoc = document.implementation.createHTMLDocument('New Document');
-  staticDoc.documentElement.innerHTML = input;
+  const parser = new DOMParser();
+  const staticDoc = parser.parseFromString(input, 'text/html');
 
   const options = new Options(userOptions);
   const io = new IO(staticDoc.documentElement, options, output);
