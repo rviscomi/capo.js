@@ -901,7 +901,9 @@ function validateMetaViewport(element, adapter) {
       warnings.push(`Invalid maximum zoom level "${maxScale}". Values must be between 0.1 and 10.`);
     }
     if (maxScale < 2) {
-      warnings.push(`Disabling zoom levels under 2x can cause accessibility issues. Found "${maxScale}".`);
+      warnings.push(
+        `Disabling zoom levels under 2x can cause accessibility issues. Found "maximum-scale=${directives["maximum-scale"]}".`
+      );
     }
   }
 
@@ -909,7 +911,7 @@ function validateMetaViewport(element, adapter) {
     const userScalable = directives["user-scalable"];
     if (userScalable == "no" || userScalable == "0") {
       warnings.push(
-        `Disabling zooming can cause accessibility issues to users with visual impairments. Found "${userScalable}".`
+        `Disabling zooming can cause accessibility issues to users with visual impairments. Found "user-scalable=${userScalable}".`
       );
     }
     if (!["0", "1", "yes", "no"].includes(userScalable)) {

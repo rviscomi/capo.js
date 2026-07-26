@@ -69,8 +69,13 @@ export class IO {
       return element;
     }
 
+    const head = this.document?.head || this.head;
+    if (!head) {
+      return element;
+    }
+
     const selector = this.stringifyElement(element);
-    const candidates = Array.from(this.document.head.querySelectorAll(selector));
+    const candidates = Array.from(head.querySelectorAll(selector));
     if (candidates.length == 0) {
       return element;
     }
@@ -193,7 +198,7 @@ export class IO {
     }
 
     const { payload, warnings } = customValidations;
-    if (payload) {
+    if (payload && Object.keys(payload).length > 0) {
       if (typeof payload.expiry == "string") {
         // Deserialize origin trial expiration dates.
         payload.expiry = new Date(payload.expiry);

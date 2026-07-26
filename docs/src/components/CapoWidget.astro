@@ -4,15 +4,13 @@ import VirtualConsole from "./VirtualConsole.astro";
 
 interface Props {
   snippet?: string;
-  title?: string;
 }
 
-const { snippet = "", title } = Astro.props;
+const { snippet = "" } = Astro.props;
 const cleanSnippet = snippet.trim();
 ---
 
 <capo-widget class="capo-widget">
-  {title && <div class="capo-widget-title">{title}</div>}
   <Tabs>
     <TabItem label="HTML">
       <div class="capo-widget-editor">
@@ -53,15 +51,6 @@ const cleanSnippet = snippet.trim();
     padding: 1rem;
     background-color: var(--sl-color-bg-inline-code, var(--sl-color-bg-nav));
     box-shadow: var(--sl-shadow-sm);
-  }
-
-  .capo-widget-title {
-    font-weight: 600;
-    font-size: var(--sl-text-sm);
-    color: var(--sl-color-white);
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--sl-color-gray-5);
   }
 
   /* Starlight Tab hover & pointer visual feedback */

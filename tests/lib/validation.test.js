@@ -305,25 +305,25 @@ describe('validation.js', () => {
     it('should warn about user-scalable=no', () => {
       const element = createElement('<meta name="viewport" content="width=device-width, user-scalable=no">');
       const { warnings = [] } = getCustomValidations(element, adapter);
-      assert.ok(warnings.some(w => w.includes('Disabling zooming') && w.includes('accessibility')));
+      assert.ok(warnings.some(w => w.includes('Disabling zooming') && w.includes('user-scalable=no')));
     });
 
     it('should warn about user-scalable=0', () => {
       const element = createElement('<meta name="viewport" content="width=device-width, user-scalable=0">');
       const { warnings = [] } = getCustomValidations(element, adapter);
-      assert.ok(warnings.some(w => w.includes('Disabling zooming') && w.includes('accessibility')));
+      assert.ok(warnings.some(w => w.includes('Disabling zooming') && w.includes('user-scalable=0')));
     });
 
     it('should warn about maximum-scale=1', () => {
       const element = createElement('<meta name="viewport" content="width=device-width, maximum-scale=1">');
       const { warnings = [] } = getCustomValidations(element, adapter);
-      assert.ok(warnings.some(w => w.includes('zoom levels under 2x') || w.includes('accessibility')));
+      assert.ok(warnings.some(w => w.includes('zoom levels under 2x') && w.includes('maximum-scale=1')));
     });
 
     it('should warn about maximum-scale=1.5', () => {
       const element = createElement('<meta name="viewport" content="width=device-width, maximum-scale=1.5">');
       const { warnings = [] } = getCustomValidations(element, adapter);
-      assert.ok(warnings.some(w => w.includes('zoom levels under 2x')));
+      assert.ok(warnings.some(w => w.includes('zoom levels under 2x') && w.includes('maximum-scale=1.5')));
     });
 
     it('should warn about invalid width', () => {

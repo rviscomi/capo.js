@@ -6,6 +6,7 @@ description: Learn how to use config options to customize the capo.js behavior
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import CapoOptions from '../../../components/CapoOptions.astro';
 import CapoPalette from '../../../components/CapoPalette.astro';
+import CapoWidget from '../../../components/CapoWidget.astro';
 import InlineCapoIcon from '../../../components/InlineCapoIcon.astro';
 
 You can configure how capo.js behaves in a couple of different ways depending on which tool you're using.
@@ -40,7 +41,11 @@ To use dynamic evaluation, set the `preferredAssessmentMode` parameter to `"dyna
 
 By default, capo.js will log validation warnings, including things like [HTML spec](https://html.spec.whatwg.org/multipage/semantics.html#the-head-element) violations, major performance concerns, or expired origin trial tokens.
 
-![Validation example](../../../assets/validation-csp.png)
+<CapoWidget
+  snippet={`<title>CSP Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'">`}
+/>
 
 To enable validation, omit the `validation` parameter, or explicitly set it to `true`.
 

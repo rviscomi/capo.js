@@ -810,11 +810,11 @@ function $c322f9a5057eaf5c$var$validateMetaViewport(element, adapter) {
         const maxScale = Number(directives["maximum-scale"]);
         if (isNaN(maxScale)) warnings.push(`Invalid maximum zoom level "${directives["maximum-scale"]}". Values must be numeric.`);
         if (maxScale < 0.1 || maxScale > 10) warnings.push(`Invalid maximum zoom level "${maxScale}". Values must be between 0.1 and 10.`);
-        if (maxScale < 2) warnings.push(`Disabling zoom levels under 2x can cause accessibility issues. Found "${maxScale}".`);
+        if (maxScale < 2) warnings.push(`Disabling zoom levels under 2x can cause accessibility issues. Found "maximum-scale=${directives["maximum-scale"]}".`);
     }
     if ("user-scalable" in directives) {
         const userScalable = directives["user-scalable"];
-        if (userScalable == "no" || userScalable == "0") warnings.push(`Disabling zooming can cause accessibility issues to users with visual impairments. Found "${userScalable}".`);
+        if (userScalable == "no" || userScalable == "0") warnings.push(`Disabling zooming can cause accessibility issues to users with visual impairments. Found "user-scalable=${userScalable}".`);
         if (![
             "0",
             "1",
@@ -1305,8 +1305,10 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
     }
     getLoggableElement(element) {
         if (!this.isStaticHead) return element;
+        const head = this.document?.head || this.head;
+        if (!head) return element;
         const selector = this.stringifyElement(element);
-        const candidates = Array.from(this.document.head.querySelectorAll(selector));
+        const candidates = Array.from(head.querySelectorAll(selector));
         if (candidates.length == 0) return element;
         if (candidates.length == 1) return candidates[0];
         // The way the static elements are parsed makes their innerHTML different.
@@ -1407,7 +1409,7 @@ class $33f7359dc421be0c$export$8f8422ac5947a789 {
             return;
         }
         const { payload: payload, warnings: warnings } = customValidations;
-        if (payload) {
+        if (payload && Object.keys(payload).length > 0) {
             if (typeof payload.expiry == "string") // Deserialize origin trial expiration dates.
             payload.expiry = new Date(payload.expiry);
             args.push(payload);
