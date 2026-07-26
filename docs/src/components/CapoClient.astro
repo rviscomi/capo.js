@@ -16,7 +16,8 @@ import VirtualConsole from "./VirtualConsole.astro";
   document.addEventListener("DOMContentLoaded", init);
 
   let markup, input, virtualConsole, url, shareBtn;
-  let lastFetchedUrl = "", lastFetchedUrlHtml = "";
+  let lastFetchedUrl = "",
+    lastFetchedUrlHtml = "";
   let activeTabName = "HTML";
   let activeFetchController = null;
   let activeFetchPromise = null;
@@ -48,8 +49,8 @@ import VirtualConsole from "./VirtualConsole.astro";
 
   function findTab(name) {
     const target = name.trim().toUpperCase();
-    return Array.from(document.querySelectorAll("[role=tab]")).find(
-      (tab) => (tab.textContent || "").trim().toUpperCase().includes(target)
+    return Array.from(document.querySelectorAll("[role=tab]")).find((tab) =>
+      (tab.textContent || "").trim().toUpperCase().includes(target),
     );
   }
 
@@ -139,8 +140,14 @@ import VirtualConsole from "./VirtualConsole.astro";
       if (pendingShare) {
         sessionStorage.removeItem("capo_pending_share");
         try {
-          const { tab, url: savedUrl, markup: savedMarkup, lastFetchedUrl: savedLastUrl, lastFetchedUrlHtml: savedLastHtml } = JSON.parse(pendingShare);
-          
+          const {
+            tab,
+            url: savedUrl,
+            markup: savedMarkup,
+            lastFetchedUrl: savedLastUrl,
+            lastFetchedUrlHtml: savedLastHtml,
+          } = JSON.parse(pendingShare);
+
           if (savedLastUrl && savedLastHtml) {
             lastFetchedUrl = savedLastUrl;
             lastFetchedUrlHtml = savedLastHtml;
@@ -169,14 +176,14 @@ import VirtualConsole from "./VirtualConsole.astro";
 
   function getSelectedTab() {
     const urlPanel = url.closest('[role="tabpanel"]');
-    if (urlPanel && !urlPanel.hasAttribute('hidden')) {
+    if (urlPanel && !urlPanel.hasAttribute("hidden")) {
       return "URL";
     }
     return "HTML";
   }
 
   async function handleShare(targetTab) {
-    const selectedTab = (typeof targetTab === 'string' ? targetTab : null) || getSelectedTab();
+    const selectedTab = (typeof targetTab === "string" ? targetTab : null) || getSelectedTab();
     let htmlContent;
 
     const originalContent = shareBtn.innerHTML;
@@ -210,13 +217,16 @@ import VirtualConsole from "./VirtualConsole.astro";
     const token = localStorage.getItem("capo_github_token");
     if (!token) {
       try {
-        sessionStorage.setItem("capo_pending_share", JSON.stringify({
-          tab: selectedTab,
-          url: selectedTab === "URL" ? url.value : null,
-          markup: selectedTab === "HTML" ? markup.value : null,
-          lastFetchedUrl: lastFetchedUrl,
-          lastFetchedUrlHtml: lastFetchedUrlHtml
-        }));
+        sessionStorage.setItem(
+          "capo_pending_share",
+          JSON.stringify({
+            tab: selectedTab,
+            url: selectedTab === "URL" ? url.value : null,
+            markup: selectedTab === "HTML" ? markup.value : null,
+            lastFetchedUrl: lastFetchedUrl,
+            lastFetchedUrlHtml: lastFetchedUrlHtml,
+          }),
+        );
       } catch (e) {
         console.warn("Failed to save pending share state", e);
       }
@@ -256,7 +266,7 @@ import VirtualConsole from "./VirtualConsole.astro";
         shareBtn.innerHTML = originalContent;
       }, 3500);
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      if (e.name === "AbortError") return;
       if (e.message === "Unauthorized") {
         localStorage.removeItem("capo_github_token");
         // Retry share to trigger redirect
@@ -284,7 +294,7 @@ import VirtualConsole from "./VirtualConsole.astro";
       virtualConsole.clear();
       run(html, virtualConsole);
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      if (e.name === "AbortError") return;
       console.error("Capo error", e);
       showNotification(`Error: ${e.message}`, true);
     }
@@ -332,9 +342,9 @@ import VirtualConsole from "./VirtualConsole.astro";
     activeFetchPromise = (async () => {
       const proxy = new URL("https://capo.rviscomi.workers.dev/");
       proxy.searchParams.set("url", targetUrl);
-      
+
       const response = await fetch(proxy, { signal: activeFetchController.signal });
-      
+
       if (response.status == 502) {
         throw new Error(`502 Gateway Error. The URL ${targetUrl} cannot be fetched. (Possibly too many redirects)`);
       } else if (response.status == 404) {
@@ -344,12 +354,12 @@ import VirtualConsole from "./VirtualConsole.astro";
           "Unknown error fetching the URL. Please file an issue: https://github.com/rviscomi/capo.js/issues/",
         );
       }
-      
+
       const text = await response.text();
-      
+
       lastFetchedUrl = targetUrl;
       lastFetchedUrlHtml = text;
-      
+
       return text;
     })();
 
@@ -449,12 +459,13 @@ import VirtualConsole from "./VirtualConsole.astro";
   <form id="input">
     <Tabs>
       <TabItem label="HTML">
-        <textarea id="markup" placeholder="Enter HTML">
-          <title>test</title> <meta charset="utf-8"> <meta name="description" content="Try capo.js"> <style></style>
-          <meta http-equiv="origin-trial"
-          content="AuNyVoVDAnYrBa2cL89WmgDSi1Os1UAt4SmcY1vXSJKDlIlBNfD4SEpIfg3LNDexEWv6N2kHnJ17MT4cVmRhQgIAAABueyJvcmlnaW4iOiJodHRwczovL3J2aXNjb21pLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiQmFja0ZvcndhcmRDYWNoZU5vdFJlc3RvcmVkUmVhc29ucyIsImV4cGlyeSI6MTY5MTUzOTE5OX0=">
-          <script></script>
-        </textarea>
+        <!-- prettier-ignore -->
+        <textarea id="markup" placeholder="Enter HTML"><title>test</title>
+<meta charset="utf-8">
+<meta name="description" content="Try capo.js">
+&lt;style&gt;&lt;/style&gt;
+<meta http-equiv="origin-trial" content="AuNyVoVDAnYrBa2cL89WmgDSi1Os1UAt4SmcY1vXSJKDlIlBNfD4SEpIfg3LNDexEWv6N2kHnJ17MT4cVmRhQgIAAABueyJvcmlnaW4iOiJodHRwczovL3J2aXNjb21pLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiQmFja0ZvcndhcmRDYWNoZU5vdFJlc3RvcmVkUmVhc29ucyIsImV4cGlyeSI6MTY5MTUzOTE5OX0=">
+&lt;script&gt;&lt;/script&gt;</textarea>
       </TabItem>
       <TabItem label="URL">
         <input id="url" type="url" value="https://www.example.com/" placeholder="https://www.example.com/" />
