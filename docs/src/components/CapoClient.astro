@@ -1,70 +1,229 @@
 ---
-import { Icon } from '@astrojs/starlight/components';
-import { Tabs, TabItem } from '@astrojs/starlight/components';
-import VirtualConsole from './VirtualConsole.astro';
+import { Icon } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import VirtualConsole from "./VirtualConsole.astro";
 ---
 
 <script>
-  import { run } from '../lib/capo.js';
+  import { run } from "../lib/capo.js";
+  import { fetchGist, exchangeCodeForToken, createGist } from "../lib/gist.js";
 
-  document.addEventListener('DOMContentLoaded', init);
+  // GitHub OAuth settings - loaded from Astro environment files (.env.development / .env.production)
+  const GITHUB_CLIENT_ID = import.meta.env.PUBLIC_GITHUB_CLIENT_ID;
 
-  let markup, input, virtualConsole, url;
+  const WORKER_AUTH_ENDPOINT = "https://capo.rviscomi.workers.dev/auth";
 
-  function init() {
-    input = document.querySelector('#input');
-    virtualConsole = document.querySelector('#virtual-console');
-    markup = document.querySelector('#markup');
-    url = document.querySelector('#url');
-    
-    initUrl();
+  document.addEventListener("DOMContentLoaded", init);
 
-    input.addEventListener('submit', e => {
+  let markup, input, virtualConsole, url, shareBtn;
+  let lastFetchedUrl = "", lastFetchedUrlHtml = "";
+
+  async function init() {
+    input = document.querySelector("#input");
+    virtualConsole = document.querySelector("#virtual-console");
+    markup = document.querySelector("#markup");
+    url = document.querySelector("#url");
+    shareBtn = document.querySelector("#share");
+
+    await handleOAuthCallback();
+    const loadedGist = await initGist();
+    if (!loadedGist) {
+      initUrl();
+    }
+
+    input.addEventListener("submit", (e) => {
       handleSubmit();
       e.preventDefault();
       return false;
     });
+
+    if (shareBtn) {
+      shareBtn.addEventListener("click", handleShare);
+    }
   }
 
   async function initUrl() {
     const thisUrl = new URL(location.href);
-    const urlParam = thisUrl.searchParams.get('url');
+    const urlParam = thisUrl.searchParams.get("url");
     if (!urlParam) {
       return;
     }
     url.value = urlParam;
-    const urlTab = Array.from(document.querySelectorAll('a[role=tab]')).find(tab => tab.innerText === 'URL');
+    const urlTab = Array.from(document.querySelectorAll("a[role=tab]")).find((tab) => tab.innerText === "URL");
     if (urlTab) {
       urlTab.click();
     }
     try {
       await handleSubmit();
     } catch (e) {
-      console.error('Capo error', e);
+      console.error("Capo error", e);
+    }
+  }
+
+  async function initGist() {
+    const thisUrl = new URL(location.href);
+    const gistParam = thisUrl.searchParams.get("gist");
+    if (!gistParam) {
+      return false;
+    }
+
+    const htmlTab = Array.from(document.querySelectorAll("a[role=tab]")).find((tab) => tab.innerText === "HTML");
+    if (htmlTab) {
+      htmlTab.click();
+    }
+
+    try {
+      markup.value = "Loading Gist...";
+      const content = await fetchGist(gistParam);
+      markup.value = content;
+      await handleSubmit();
+      return true;
+    } catch (e) {
+      console.error("Capo error loading gist", e);
+      markup.value = `Error loading Gist: ${e.message}`;
+      return false;
+    }
+  }
+
+  let notificationTimeout;
+  function showNotification(message, isError = false) {
+    const notificationEl = document.querySelector("#notification");
+    if (!notificationEl) return;
+
+    clearTimeout(notificationTimeout);
+    notificationEl.innerText = message;
+    notificationEl.classList.remove("hidden");
+    if (isError) {
+      notificationEl.classList.add("error");
+    } else {
+      notificationEl.classList.remove("error");
+    }
+
+    notificationTimeout = setTimeout(() => {
+      notificationEl.classList.add("hidden");
+    }, 4500);
+  }
+
+  async function handleOAuthCallback() {
+    const thisUrl = new URL(location.href);
+    const code = thisUrl.searchParams.get("code");
+    if (!code) {
+      return;
+    }
+
+    try {
+      const redirectUri = window.location.origin + window.location.pathname;
+      const token = await exchangeCodeForToken(code, redirectUri, GITHUB_CLIENT_ID, WORKER_AUTH_ENDPOINT);
+      localStorage.setItem("capo_github_token", token);
+      showNotification("GitHub authentication successful!");
+    } catch (e) {
+      console.error("OAuth token exchange failed", e);
+      showNotification(`GitHub authentication failed: ${e.message}`, true);
+    } finally {
+      thisUrl.searchParams.delete("code");
+      history.replaceState(null, null, thisUrl);
+    }
+  }
+
+  async function handleShare() {
+    const selectedTab = document.querySelector("a[role=tab][aria-selected=true]").innerText;
+    let htmlContent;
+
+    const originalContent = shareBtn.innerHTML;
+
+    if (selectedTab === "URL") {
+      if (!url.value || !url.validity.valid) {
+        showNotification(`Invalid URL "${url.value}"`, true);
+        return;
+      }
+      try {
+        if (lastFetchedUrl !== url.value || !lastFetchedUrlHtml) {
+          shareBtn.disabled = true;
+          shareBtn.innerText = "Fetching HTML...";
+        }
+        htmlContent = await getStaticHTML(url.value);
+      } catch (e) {
+        showNotification(`Failed to fetch URL HTML: ${e.message}`, true);
+        shareBtn.disabled = false;
+        shareBtn.innerHTML = originalContent;
+        return;
+      }
+    } else {
+      htmlContent = markup.value;
+    }
+
+    if (!htmlContent || htmlContent.trim() === "") {
+      showNotification("Cannot save empty HTML content.", true);
+      return;
+    }
+
+    const token = localStorage.getItem("capo_github_token");
+    if (!token) {
+      // Redirect to GitHub OAuth flow
+      const redirectUri = window.location.origin + window.location.pathname;
+      const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=gist&redirect_uri=${encodeURIComponent(redirectUri)}`;
+      window.location.href = authUrl;
+      return;
+    }
+
+    try {
+      shareBtn.disabled = true;
+      shareBtn.innerText = "Saving Gist...";
+      const gistId = await createGist(htmlContent, token);
+
+      const shareUrl = new URL(location.href);
+      shareUrl.searchParams.delete("url");
+      shareUrl.searchParams.set("gist", gistId);
+
+      history.replaceState(null, null, shareUrl);
+
+      await navigator.clipboard.writeText(shareUrl.toString()).catch(() => {});
+
+      shareBtn.innerHTML = "✓ Link copied!";
+      shareBtn.classList.add("success");
+      showNotification("Gist created and permalink copied to clipboard!");
+
+      setTimeout(() => {
+        shareBtn.classList.remove("success");
+        shareBtn.innerHTML = originalContent;
+      }, 3500);
+    } catch (e) {
+      if (e.message === "Unauthorized") {
+        localStorage.removeItem("capo_github_token");
+        // Retry share to trigger redirect
+        handleShare();
+        return;
+      }
+      console.error("Failed to create Gist", e);
+      showNotification(`Failed to save Gist: ${e.message}`, true);
+      shareBtn.innerHTML = originalContent;
+    } finally {
+      shareBtn.disabled = false;
     }
   }
 
   function setUrl(urlParam) {
     const thisUrl = new URL(location.href);
-    thisUrl.searchParams.set('url', urlParam);
+    thisUrl.searchParams.delete("gist");
+    thisUrl.searchParams.set("url", urlParam);
     history.replaceState(null, null, thisUrl);
   }
 
   async function handleSubmit() {
-    const html = await getHtml(virtualConsole);
+    const html = await getHtml();
     virtualConsole.clear();
     run(html, virtualConsole);
   }
 
   async function getHtml() {
     let html;
-    const selectedTab = document.querySelector('a[role=tab][aria-selected=true]').innerText;
+    const selectedTab = document.querySelector("a[role=tab][aria-selected=true]").innerText;
 
-    if (selectedTab === 'URL') {
+    if (selectedTab === "URL") {
       if (!url.value || !url.validity.valid) {
         throw new Error(`Invalid URL "${url.value}"`);
       }
-      if (url.value != url.getAttribute('placeholder')) {
+      if (url.value != url.getAttribute("placeholder")) {
         setUrl(url.value);
       }
       html = await getStaticHTML(url.value);
@@ -73,24 +232,33 @@ import VirtualConsole from './VirtualConsole.astro';
     }
 
     if (!html) {
-      throw new Error('Unable to run. Invalid HTML.');
+      throw new Error("Unable to run. Invalid HTML.");
     }
 
     return html;
   }
 
-  async function getStaticHTML(url) {
-    const proxy = new URL('https://capo.rviscomi.workers.dev/');
-    proxy.searchParams.set('url', url);
+  async function getStaticHTML(targetUrl) {
+    if (lastFetchedUrl === targetUrl && lastFetchedUrlHtml) {
+      return lastFetchedUrlHtml;
+    }
+
+    const proxy = new URL("https://capo.rviscomi.workers.dev/");
+    proxy.searchParams.set("url", targetUrl);
     const response = await fetch(proxy);
     if (response.status == 502) {
-      throw new Error(`502 Gateway Error. The URL ${url} cannot be fetched. (Possibly too many redirects)`);
+      throw new Error(`502 Gateway Error. The URL ${targetUrl} cannot be fetched. (Possibly too many redirects)`);
     } else if (response.status == 404) {
-      throw new Error('Unable to fetch that URL. The page might not exist.');
+      throw new Error("Unable to fetch that URL. The page might not exist.");
     } else if (!response.ok) {
-      throw new Error('Unknown error fetching the URL. Please file an issue: https://github.com/rviscomi/capo.js/issues/');
+      throw new Error(
+        "Unknown error fetching the URL. Please file an issue: https://github.com/rviscomi/capo.js/issues/",
+      );
     }
-    return await response.text();
+    const text = await response.text();
+    lastFetchedUrl = targetUrl;
+    lastFetchedUrlHtml = text;
+    return text;
   }
 </script>
 
@@ -108,17 +276,53 @@ import VirtualConsole from './VirtualConsole.astro';
     font-family: monospace !important;
   }
 
+  .actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-self: center;
+  }
+
   button {
     cursor: pointer;
-    align-self: center;
-    display: inline-block;
-    border: none;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid transparent;
     border-radius: 999rem;
     margin: 0 !important;
-    padding: 1rem 1.25rem;
+    padding: 1rem 1.5rem;
     background-color: var(--sl-color-text-accent);
     color: var(--sl-color-black);
     font-size: var(--sl-text-base);
+    font-weight: bold;
+    transition: all 0.2s ease;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  #share {
+    background-color: transparent;
+    color: var(--sl-color-text-accent);
+    border-color: var(--sl-color-text-accent);
+  }
+
+  #share:hover {
+    background-color: var(--sl-color-text-accent);
+    color: var(--sl-color-black);
+    opacity: 1;
+  }
+
+  #share.success {
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+    border-color: #10b981 !important;
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   button svg {
@@ -136,29 +340,27 @@ import VirtualConsole from './VirtualConsole.astro';
   }
 </style>
 
-
 <p>To see capo.js in action, enter HTML or a URL in the form field below and click <strong>Run</strong>.</p>
-
-
 
 <div id="capo-client">
   <form id="input">
     <Tabs>
       <TabItem label="HTML">
         <textarea id="markup" placeholder="Enter HTML">
-<title>test</title>
-<meta charset="utf-8">
-<meta name="description" content="Try capo.js">
-<style></style>
-<meta http-equiv="origin-trial" content="AuNyVoVDAnYrBa2cL89WmgDSi1Os1UAt4SmcY1vXSJKDlIlBNfD4SEpIfg3LNDexEWv6N2kHnJ17MT4cVmRhQgIAAABueyJvcmlnaW4iOiJodHRwczovL3J2aXNjb21pLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiQmFja0ZvcndhcmRDYWNoZU5vdFJlc3RvcmVkUmVhc29ucyIsImV4cGlyeSI6MTY5MTUzOTE5OX0=">
-<script></script>
+          <title>test</title> <meta charset="utf-8"> <meta name="description" content="Try capo.js"> <style></style>
+          <meta http-equiv="origin-trial"
+          content="AuNyVoVDAnYrBa2cL89WmgDSi1Os1UAt4SmcY1vXSJKDlIlBNfD4SEpIfg3LNDexEWv6N2kHnJ17MT4cVmRhQgIAAABueyJvcmlnaW4iOiJodHRwczovL3J2aXNjb21pLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiQmFja0ZvcndhcmRDYWNoZU5vdFJlc3RvcmVkUmVhc29ucyIsImV4cGlyeSI6MTY5MTUzOTE5OX0=">
+          <script></script>
         </textarea>
       </TabItem>
       <TabItem label="URL">
-        <input id="url" type="url" value="https://www.example.com/" placeholder="https://www.example.com/">
+        <input id="url" type="url" value="https://www.example.com/" placeholder="https://www.example.com/" />
       </TabItem>
     </Tabs>
-    <button>Run <Icon name="rocket" color="inherit" size="1.5rem" /></button>
+    <div class="actions">
+      <button type="submit">Run <Icon name="rocket" color="inherit" size="1.5rem" /></button>
+      <button type="button" id="share">Save Gist <Icon name="external" color="inherit" size="1.5rem" /></button>
+    </div>
   </form>
 
   <VirtualConsole />
