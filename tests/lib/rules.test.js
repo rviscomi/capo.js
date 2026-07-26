@@ -164,6 +164,11 @@ describe('rules.js', () => {
       const element = createElement('<link rel="stylesheet" href="styles.css">');
       assert.strictEqual(isImportStyles(element, adapter), false);
     });
+
+    it('should NOT detect style with @import and media="print"', () => {
+      const element = createElement('<style media="print">@import url("fonts.css");</style>');
+      assert.strictEqual(isImportStyles(element, adapter), false);
+    });
   });
 
   describe('isSyncScript', () => {
@@ -216,6 +221,21 @@ describe('rules.js', () => {
 
     it('should NOT detect preload links', () => {
       const element = createElement('<link rel="preload" href="font.woff2" as="font">');
+      assert.strictEqual(isSyncStyles(element, adapter), false);
+    });
+
+    it('should NOT detect link stylesheets with media="print"', () => {
+      const element = createElement('<link rel="stylesheet" href="styles.css" media="print">');
+      assert.strictEqual(isSyncStyles(element, adapter), false);
+    });
+
+    it('should NOT detect inline styles with media="print"', () => {
+      const element = createElement('<style media="print">body { margin: 0; }</style>');
+      assert.strictEqual(isSyncStyles(element, adapter), false);
+    });
+
+    it('should NOT detect styles with @import and media="print"', () => {
+      const element = createElement('<style media="print">@import url("fonts.css");</style>');
       assert.strictEqual(isSyncStyles(element, adapter), false);
     });
   });
