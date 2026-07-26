@@ -1,10 +1,53 @@
-# Browser extensions
+# Capo Browser Extension Source Code
 
-[![capo.js Browser extensions](https://rviscomi.github.io/capo.js/_astro/capo-chrome.CCIqkX9y_hNTMf.webp)](https://chromewebstore.google.com/detail/capo-get-your-%EF%B9%A4%F0%9D%9A%91%F0%9D%9A%8E%F0%9D%9A%8A%F0%9D%9A%8D%EF%B9%A5/ohabpnaccigjhkkebjofhpmebofgpbeb)
+This directory contains the source code for the Capo browser extension (available for Chrome and Firefox).
 
+## Build Instructions
 
-Click the Capo.js extension icon to open the `<head>` visualization and log additional info to the console.
+This extension is built from source using Node.js and Parcel. Follow these steps to produce the exact binary package submitted for verification.
 
-## Installation and documentation
+### Requirements
 
-See the [Extension](https://rviscomi.github.io/capo.js/user/extension/) guide for the installation instructions and full documentation.
+- **Operating System:** macOS, Linux, or Windows.
+- **Environment:** 
+  - **Node.js:** v18.0.0 or higher (v22.x recommended).
+  - **npm:** v9.0.0 or higher (v10.x recommended).
+
+### 1. Installation of Prerequisites
+
+If Node.js and npm are not installed:
+- **macOS (via Homebrew):** `brew install node`
+- **Windows / Linux:** Download the installer from [nodejs.org](https://nodejs.org/).
+
+Verify installation:
+```bash
+node -v
+npm -v
+```
+
+### 2. Install Project Dependencies
+
+Run the following command from the root of the source code directory to install all required development and build dependencies:
+
+```bash
+npm install
+```
+
+### 3. Execute the Build Script
+
+Run the build script to compile and package the extension:
+
+```bash
+npm run build
+```
+
+This runs:
+- `npm run build:cjs`: Compiles CommonJS bundles using `esbuild`.
+- `parcel build`: Compiles, bundles, and minifies the extension source code (`src/extension/capo.js` and `src/extension/options.js`) using `Parcel`.
+- `node scripts/build-extension.js`: Copies static files, generates the Firefox-compatible manifest, and packages them.
+
+### 4. Locate Build Outputs
+
+Once the build is complete:
+- The compiled Firefox extension files will be in `dist/firefox/`.
+- The final zip package submitted to Mozilla is located at `dist/firefox.zip`.

@@ -13,9 +13,9 @@ This script helps you identify which elements are out of order.
 
 ## How to use it
 
-✨ _New: Install the Capo browser extension for [Chrome](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) or [Firefox](https://addons.mozilla.org/en-US/firefox/)_ ✨
+✨ _New: Install the Capo browser extension for [Chrome](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/capo-get-your-head-in-order/)_ ✨
 
-1. Install the extension for [Chrome](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) or [Firefox](https://addons.mozilla.org/en-US/firefox/)
+1. Install the extension for [Chrome](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/capo-get-your-head-in-order/)
 2. Explore the console logs
 
 <img width="1552" alt="capo screenshot" src="https://github.com/rviscomi/capo.js/assets/1120896/b29672f9-1f05-4a05-a85e-df27acd153bd">
