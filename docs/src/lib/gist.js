@@ -4,7 +4,10 @@
  * @returns {Promise<string>}
  */
 export async function fetchGist(gistId) {
-  const response = await fetch(`https://api.github.com/gists/${gistId}`);
+  if (!gistId || typeof gistId !== 'string' || !/^[a-f0-9]+$/i.test(gistId.trim())) {
+    throw new Error('Invalid Gist ID.');
+  }
+  const response = await fetch(`https://api.github.com/gists/${gistId.trim()}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch Gist: ${response.statusText}`);
   }

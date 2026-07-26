@@ -22,9 +22,9 @@ describe('gist library', () => {
       };
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockResponse);
 
-      const html = await fetchGist('mock-gist-id');
+      const html = await fetchGist('1234567890abcdef');
       expect(html).toBe('<html></html>');
-      expect(globalThis.fetch).toHaveBeenCalledWith('https://api.github.com/gists/mock-gist-id');
+      expect(globalThis.fetch).toHaveBeenCalledWith('https://api.github.com/gists/1234567890abcdef');
     });
 
     it('should fetch raw_url if content is truncated', async () => {
@@ -45,7 +45,7 @@ describe('gist library', () => {
         .mockResolvedValueOnce(mockApiResponse)
         .mockResolvedValueOnce(mockRawResponse);
 
-      const html = await fetchGist('mock-gist-id');
+      const html = await fetchGist('1234567890abcdef');
       expect(html).toBe('<html>large content</html>');
       expect(globalThis.fetch).toHaveBeenNthCalledWith(2, 'https://raw.githubusercontent.com/gists/raw-file');
     });
@@ -61,7 +61,7 @@ describe('gist library', () => {
       };
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockResponse);
 
-      const html = await fetchGist('mock-gist-id');
+      const html = await fetchGist('1234567890abcdef');
       expect(html).toBe('plain text');
     });
 
@@ -72,7 +72,11 @@ describe('gist library', () => {
       };
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockResponse);
 
-      await expect(fetchGist('mock-gist-id')).rejects.toThrow('Failed to fetch Gist: Not Found');
+      await expect(fetchGist('1234567890abcdef')).rejects.toThrow('Failed to fetch Gist: Not Found');
+    });
+
+    it('should throw error if Gist ID is invalid', async () => {
+      await expect(fetchGist('../invalid-gist-id!')).rejects.toThrow('Invalid Gist ID.');
     });
   });
 
