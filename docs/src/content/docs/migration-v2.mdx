@@ -1,6 +1,6 @@
 ---
 title: Migration to v2.0.0
-description: Guide for migrating from v1 to v2 of Capo.js
+description: Guide for migrating from v1 to v2 of capo.js
 ---
 
 ## Breaking changes
@@ -32,18 +32,18 @@ const isValid = isValidElement(element, adapter);
 
 Support for WebPageTest and BigQuery has been removed from the core library to reduce maintenance burden and focus on the core analysis engine. This includes the removal of the `webpagetest/` and `bigquery/` directories.
 
-### Removal of Capo.js snippet
+### Removal of capo.js snippet
 
-The standalone Capo.js snippet has been removed. Users are encouraged to use the Chrome extension or the programmatic API.
+The standalone capo.js snippet has been removed. Users are encouraged to use the browser extension or the programmatic API.
 
 ## New features and improvements
 
 ### New adapter system
 
-Capo.js now supports a flexible adapter system, allowing it to run on different DOM implementations.
+capo.js now supports a flexible adapter system, allowing it to run on different DOM implementations.
 
 - **Built-in adapter**: The `BrowserAdapter` is provided for standard browser DOM environments.
-- **Custom adapters**: Consumers can implement their own adapters by extending the base `AdapterInterface` class. This enables Capo.js to work with different parsers (like JSDOM or ASTs), unlocking its use in static analysis tools.
+- **Custom adapters**: Consumers can implement their own adapters by extending the base `AdapterInterface` class. This enables capo.js to work with different parsers (like JSDOM or ASTs), unlocking its use in static analysis tools.
 
 ```javascript
 import { BrowserAdapter, analyzeHead } from '@rviscomi/capo.js';
@@ -54,7 +54,7 @@ const results = analyzeHead(document.head, adapter);
 
 ### New validation rules
 
-- **Font preload missing crossorigin**: Capo.js now validates that font preloads include the `crossorigin` attribute.
+- **Font preload missing crossorigin**: capo.js now validates that font preloads include the `crossorigin` attribute.
 
 ### Virtual console
 

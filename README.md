@@ -13,9 +13,9 @@ This script helps you identify which elements are out of order.
 
 ## How to use it
 
-✨ _New: Install the [Capo Chrome extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb)_ ✨
+✨ _New: Install the Capo browser extension for [Chrome](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/capo-get-your-head-in-order/)_ ✨
 
-1. Install the [Chrome extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb)
+1. Install the extension for [Chrome](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/capo-get-your-head-in-order/)
 2. Explore the console logs
 
 <img width="1552" alt="capo screenshot" src="https://github.com/rviscomi/capo.js/assets/1120896/b29672f9-1f05-4a05-a85e-df27acd153bd">
@@ -114,9 +114,9 @@ See the [migration guide](docs/src/content/docs/migration-v2.mdx) for detailed m
 - New subpath exports for granular imports
 - Enhanced TypeScript support via JSDoc
 
-### Chrome extension
+### Browser extension
 
-![Capo.js Chrome extension](https://github.com/rviscomi/capo.js/assets/1120896/389bcec0-567d-448f-9897-eee5ca373e6b)
+![Capo.js Browser extension](https://github.com/rviscomi/capo.js/assets/1120896/389bcec0-567d-448f-9897-eee5ca373e6b)
 
 See the [extension docs](docs/src/content/docs/user/extension.mdx) for detailed usage instructions.
 

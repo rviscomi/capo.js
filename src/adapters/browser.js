@@ -44,7 +44,9 @@ export class BrowserAdapter extends AdapterInterface {
     if (!node || !node.tagName) {
       return '';
     }
-    return node.tagName.toLowerCase();
+    const name = node.tagName.toLowerCase();
+    if (name === 'static-head') return 'head';
+    return name;
   }
 
   /**
@@ -103,7 +105,21 @@ export class BrowserAdapter extends AdapterInterface {
    * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
    */
   getChildren(node) {
-    if (!node || !node.children) {
+    if (!node) {
+      return [];
+    }
+    if (this.getTagName(node) === 'noscript') {
+      const content = node.innerHTML || '';
+      if (content.trim()) {
+        const doc = node.ownerDocument || (typeof document !== 'undefined' ? document : null);
+        if (doc) {
+          const temp = doc.createElement('div');
+          temp.innerHTML = content;
+          return Array.from(temp.children);
+        }
+      }
+    }
+    if (!node.children) {
       return [];
     }
     return Array.from(node.children);

@@ -1,6 +1,6 @@
 {
   "name": "@rviscomi/capo.js",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Get your ﹤𝚑𝚎𝚊𝚍﹥ in order",
   "author": "Rick Viscomi",
   "license": "Apache-2.0",
@@ -15,7 +15,6 @@
   "files": [
     "src",
     "dist",
-    "crx",
     "docs"
   ],
   "type": "module",
@@ -65,14 +64,14 @@
     "doc": "docs"
   },
   "targets": {
-    "crx": {
-      "source": "src/crx/capo.js",
-      "distDir": "crx",
+    "chrome": {
+      "source": "src/extension/capo.js",
+      "distDir": "dist/chrome",
       "sourceMap": false
     },
-    "crx-options": {
-      "source": "src/crx/options.js",
-      "distDir": "crx/options",
+    "chrome-options": {
+      "source": "src/extension/options.js",
+      "distDir": "dist/chrome/options",
       "sourceMap": false
     },
     "web": {
@@ -85,7 +84,8 @@
   },
   "scripts": {
     "watch": "parcel watch",
-    "build": "npm run build:cjs && parcel build",
+    "build": "npm run build:cjs && parcel build && node scripts/build-extension.js",
+    "package:source": "zip -r -q dist/source.zip . -x \"node_modules/*\" \"dist/*\" \".git/*\" \".parcel-cache/*\" \"docs/node_modules/*\" \"docs/.astro/*\" \"docs/dist/*\" \".github/*\" \"*/.DS_Store\" \".DS_Store\"",
     "build:cjs": "esbuild src/index.js src/analyzer.js src/adapters/adapter.js src/adapters/index.js src/adapters/browser.js src/lib/rules.js src/lib/validation.js src/lib/io.js src/lib/options.js src/lib/colors.js src/adapters/test-suite.js --bundle --platform=node --format=cjs --outdir=dist --out-extension:.js=.cjs",
     "test": "node --test tests/**/*.test.js",
     "test:watch": "node --test --watch tests/**/*.test.js",

@@ -37,7 +37,7 @@ export class VirtualConsole extends HTMLElement {
     let output = [];
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      if (arg === undefined || arg === null) {
+      if (arg === undefined || arg === null || arg === '') {
         continue;
       }
 
@@ -57,12 +57,31 @@ export class VirtualConsole extends HTMLElement {
       
       if (typeof arg == 'string') {
         const { html, skipArgs } = this.renderConsoleStyle(arg, args, i);
-        output.push(html);
+        if (html) {
+          output.push(html);
+        }
         i += skipArgs;
       }
     }
 
-    return output.join(' ');
+    let result = '';
+    for (let i = 0; i < output.length; i++) {
+      const current = output[i];
+      if (!current) continue;
+      if (result.length === 0) {
+        result += current;
+      } else {
+        const prev = output[i - 1];
+        const isPrevBlock = /data-console-block="true"/i.test(prev);
+        const isCurrBlock = /data-console-block="true"/i.test(current);
+        if (isPrevBlock || isCurrBlock) {
+          result += current;
+        } else {
+          result += ' ' + current;
+        }
+      }
+    }
+    return result;
   }
 
   renderNumber(arg) {
@@ -71,23 +90,34 @@ export class VirtualConsole extends HTMLElement {
 
   renderElement(arg) {
     let html = escapeHTML(arg.outerHTML);
-    return this.highlightHTML(html);
+    return `<span class="console-element" data-console-block="true">${this.highlightHTML(html)}</span>`;
   }
 
   renderObject(arg) {
-    let json = escapeHTML(JSON.stringify(arg, null, 2));
-    return `<pre>${this.highlightJSON(json)}</pre>`;
+    let json = escapeHTML(
+      JSON.stringify(
+        arg,
+        (key, value) => {
+          if (typeof HTMLElement !== 'undefined' && value instanceof HTMLElement) {
+            return value.outerHTML;
+          }
+          return value;
+        },
+        2
+      )
+    );
+    return `<pre data-console-block="true">${this.highlightJSON(json)}</pre>`;
   }
 
   renderConsoleStyle(arg, args, index) {
     const fragments = arg.split('%c');
     if (fragments.length == 1) {
-      return { html: escapeHTML(arg), skipArgs: 0 };
+      return { html: linkifyURLs(escapeHTML(arg)), skipArgs: 0 };
     }
 
     let currentGroup = [];
     let result = [];
-    result.push(nlToBr(escapeHTML(fragments[0])));
+    result.push(linkifyURLs(nlToBr(escapeHTML(fragments[0]))));
 
     let skipArgs = 0;
     for (let j = 1; j < fragments.length; j++) {
@@ -100,13 +130,13 @@ export class VirtualConsole extends HTMLElement {
         return s.split(':')[0].trim() == 'background-color' || s.split(':')[0].trim() == 'background-image';
       }) || styleArg;
       const isColorBarSpan = style && (style.includes('background-color') || style.includes('background-image')) && (fragment === ' ' || fragment === '');
-      const span = `<span class="color-bar-item" style="${style}">${nlToBr(escapeHTML(fragment))}</span>`;
+      const span = `<span class="color-bar-item" style="${style}">${linkifyURLs(nlToBr(escapeHTML(fragment)))}</span>`;
 
       if (isColorBarSpan) {
         currentGroup.push(span);
       } else {
         if (currentGroup.length > 0) {
-          result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+          result.push(`<div class="color-bar" data-console-block="true">${currentGroup.join('')}</div>`);
           currentGroup = [];
         }
         result.push(span);
@@ -114,7 +144,7 @@ export class VirtualConsole extends HTMLElement {
       skipArgs++;
     }
     if (currentGroup.length > 0) {
-      result.push(`<div class="color-bar">${currentGroup.join('')}</div>`);
+      result.push(`<div class="color-bar" data-console-block="true">${currentGroup.join('')}</div>`);
     }
 
     return { html: result.join(''), skipArgs };
@@ -187,4 +217,18 @@ export function escapeHTML(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+export function linkifyURLs(str) {
+  return str.replace(/(https?:\/\/[^\s<"']+)/g, (match) => {
+    let url = match;
+    let trailing = '';
+    const puncMatch = url.match(/[.,;)\]]+$/);
+    if (puncMatch) {
+      trailing = puncMatch[0];
+      url = url.slice(0, -trailing.length);
+    }
+    const safeHref = url.replace(/"/g, '%22').replace(/&amp;quot;/g, '%22').replace(/&quot;/g, '%22');
+    return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer" class="vc-link">${url}</a>${trailing}`;
+  });
 }

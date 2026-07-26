@@ -1,23 +1,28 @@
 ---
 title: Using the Capo extension
-description: Learn about the Capo extension for Chrome and how to use it with capo.js
+description: Learn about the Capo browser extension for Chrome and Firefox and how to use it with capo.js
 hero:
   actions:
-    - text: Install the extension
-      link: https://chrome.google.com/webstore/detail/capo-get-your-%EF%B9%A4%F0%9D%9A%91%F0%9D%9A%8E%F0%9D%9A%8A%F0%9D%9A%8D%EF%B9%A5/ohabpnaccigjhkkebjofhpmebofgpbeb
+    - text: Install for Chrome
+      link: https://chromewebstore.google.com/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb
       icon: rocket
       variant: primary
+    - text: Install for Firefox
+      link: https://addons.mozilla.org/en-US/firefox/addon/capo-get-your-head-in-order/
+      icon: rocket
 ---
 
 import { Steps } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import CapoChrome from "../../../assets/capo-chrome.png";
 import CapoOptions from "../../../components/CapoOptions.astro";
 import CapoPalette from "../../../components/CapoPalette.astro";
 import InlineCapoIcon from "../../../components/InlineCapoIcon.astro";
 import InlineCapoWeightBars from "../../../components/InlineCapoWeightBars.astro";
 
-![Capo extension](../../../assets/capo-chrome.png)
+<Image src={CapoChrome} alt="Capo extension" loading="eager" decoding="auto" />
 
-Capo is a Chrome extension that gives you one-click access to the capo.js script. Clicking the extension icon ( <InlineCapoIcon/> ) will open a color bar visualizing the `<head>` ordering, and log messages to the console, including validation warnings and detailed element info.
+Capo is a browser extension available for Chrome and Firefox that gives you one-click access to the capo.js script. Clicking the extension icon ( <InlineCapoIcon/> ) will open a color bar visualizing the `<head>` ordering, and log messages to the console, including validation warnings and detailed element info.
 
 ## Understanding the color bar
 
@@ -70,7 +75,7 @@ See the [Rules](./rules) guide for a complete list of all the weights and what t
 
 In addition to overlaying the color bar on top of the page, clicking the Capo extension icon ( <InlineCapoIcon/> ) also logs to the DevTools console.
 
-Color bars for the actual and sorted `<head>` orderings are show in addition to a summary of any validation warnings.
+Color bars for the actual and sorted `<head>` orderings are shown in addition to a summary of any validation warnings.
 
 ![Capo extension logging to the console with expanded details](../../../assets/crx-console-expanded.png)
 
@@ -90,11 +95,11 @@ To install the Capo extension:
 
 <Steps>
 
-1. Navigate to the [Capo extension](https://chrome.google.com/webstore/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb) in the Chrome Web Store
+1. Navigate to the Capo extension in your browser's store:
+   - **Chrome**: [Chrome Web Store](https://chromewebstore.google.com/detail/capo-get-your-%3Chead%3E-in-o/ohabpnaccigjhkkebjofhpmebofgpbeb)
+   - **Firefox**: [Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/capo-get-your-head-in-order/)
 
-   ![The Capo extension in the Chrome Web Store](../../../assets/crx-store.png)
-
-2. Click the **Add to Chrome** button
+2. Click the **Add to Chrome** (or **Add to Firefox**) button
 3. On any page, click the Capo icon ( <InlineCapoIcon/> ) in the browser toolbar
 
    Open the DevTools Console to see additional logs

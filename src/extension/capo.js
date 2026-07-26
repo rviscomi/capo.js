@@ -3,6 +3,32 @@ import { BrowserAdapter } from "@rviscomi/capo.js/adapters/browser";
 import { IO } from "@rviscomi/capo.js/lib/io";
 import { Options } from "@rviscomi/capo.js/lib/options";
 
+function sanitizeForStorage(obj, io) {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  if (typeof obj === "object" && (obj.nodeType || (typeof Element !== "undefined" && obj instanceof Element))) {
+    return io ? io.stringifyElement(obj) : (obj.outerHTML || obj.tagName || String(obj));
+  }
+  if (obj instanceof Date) {
+    return obj.toString();
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item) => sanitizeForStorage(item, io));
+  }
+  if (typeof obj === "object") {
+    const clean = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (key === "element" && value && typeof value === "object" && (value.nodeType || (typeof Element !== "undefined" && value instanceof Element))) {
+        continue;
+      }
+      clean[key] = sanitizeForStorage(value, io);
+    }
+    return clean;
+  }
+  return obj;
+}
+
 async function run(io) {
   await io.init();
   const headElement = io.getHead();
@@ -14,18 +40,13 @@ async function run(io) {
   return {
     actual: headWeights.map(
       ({ element, weight, isValid, customValidations }) => {
-        if (customValidations?.payload?.expiry) {
-          // Serialize origin trial expiration dates.
-          customValidations.payload.expiry =
-            customValidations.payload.expiry.toString();
-        }
         return {
           weight,
           color: io.getColor(weight),
           selector: io.stringifyElement(element),
-          innerHTML: element.innerHTML,
+          html: element.innerHTML,
           isValid,
-          customValidations,
+          customValidations: sanitizeForStorage(customValidations, io),
         };
       }
     ),

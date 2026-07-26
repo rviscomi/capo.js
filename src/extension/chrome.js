@@ -2,17 +2,13 @@ init();
 
 async function getCurrentTab() {
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return { tabId: tab.id };
+  if (!tab) {
+    [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  }
+  return { tabId: tab?.id };
 }
 
 async function init() {
-  await chrome.storage.local.remove("data");
-
-  await chrome.scripting.executeScript({
-    target: await getCurrentTab(),
-    files: ["capo.js"],
-  });
-
   chrome.storage.onChanged.addListener((changes) => {
     console.log("Storage changed", changes);
     const { data } = changes;
@@ -20,10 +16,25 @@ async function init() {
       print(data.newValue);
     }
   });
+
+  await chrome.storage.local.remove("data");
+
+  await chrome.scripting.executeScript({
+    target: await getCurrentTab(),
+    files: ["capo.js"],
+  });
+
+  const { data } = await chrome.storage.local.get("data");
+  if (data) {
+    print(data);
+  }
 }
 
 function print(result) {
   console.log("Data", result);
+  actual.textContent = "";
+  sorted.textContent = "";
+
   let frag = document.createDocumentFragment();
   for (let r of result.actual) {
     frag.appendChild(getCapoHeadElement(r));
@@ -45,7 +56,7 @@ function getCapoHeadElement({
   weight,
   color,
   selector,
-  innerHTML,
+  html,
   isValid,
   customValidations,
 }) {
@@ -55,14 +66,14 @@ function getCapoHeadElement({
   span.dataset.weight = weight;
   span.style.backgroundColor = color;
   span.dataset.selector = selector;
-  span.dataset.innerHTML = innerHTML;
+  span.dataset.html = html;
   span.dataset.customValidations = JSON.stringify(customValidations);
   span.title = `[${weight + 1}] ${selector}`;
   return span;
 }
 
 async function handleCapoClick(event) {
-  const { weight, selector, innerHTML } = event.target.dataset;
+  const { weight, selector, html } = event.target.dataset;
   const customValidations = JSON.parse(event.target.dataset.customValidations);
   const isValid = !event.target.classList.contains("invalid");
 
@@ -70,7 +81,7 @@ async function handleCapoClick(event) {
     click: JSON.stringify({
       weight,
       selector,
-      innerHTML,
+      html,
       isValid,
       customValidations,
     }),

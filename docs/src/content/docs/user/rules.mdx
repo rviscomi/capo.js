@@ -6,10 +6,20 @@ tableOfContents:
 ---
 
 import InlineCapoWeightBars from '../../../components/InlineCapoWeightBars.astro';
+import CapoWidget from '../../../components/CapoWidget.astro';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 
 Elements are categorized into 11 groups. Each group has an associated weight to determine the optimal sort order. Elements within the same group are considered equal weight and displayed in the order they're found in the document.
+
+<CapoWidget
+  snippet={`<title>My Website</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="analytics.js"></script>
+<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<meta charset="utf-8">`}
+/>
 
 ## <InlineCapoWeightBars weight="11" /> 11. Pragma directives
 
@@ -142,7 +152,7 @@ The `@import` rule is used to import style rules from other style sheets.
 
 Because `@import` rules must precede all other types of rules, capo.js recommends placing them early in the document.
 
-Capo.js scans the content of `<style>` tags for `@import` rules. If found, the entire `<style>` element is given a higher weight to encourage moving it earlier in the document, or ideally, replacing the `@import` with a `<link rel=stylesheet>` element.
+capo.js scans the content of `<style>` tags for `@import` rules. If found, the entire `<style>` element is given a higher weight to encourage moving it earlier in the document, or ideally, replacing the `@import` with a `<link rel=stylesheet>` element.
 
 ## <InlineCapoWeightBars weight="6" /> 6. Synchronous scripts
 
@@ -150,7 +160,7 @@ Capo.js scans the content of `<style>` tags for `@import` rules. If found, the e
 
 Synchronous scripts block the parsing of the document until they are downloaded and executed.
 
-Capo.js recommends placing them before synchronous styles. While the script still blocks parsing, modern browsers' preload scanners will discover and start downloading subsequent stylesheets in parallel. If placed after stylesheets, the script's execution would be blocked until the stylesheets are fully loaded.
+capo.js recommends placing them before synchronous styles. While the script still blocks parsing, modern browsers' preload scanners will discover and start downloading subsequent stylesheets in parallel. If placed after stylesheets, the script's execution would be blocked until the stylesheets are fully loaded.
 
 ## <InlineCapoWeightBars weight="5" /> 5. Synchronous styles
 
@@ -160,10 +170,10 @@ Capo.js recommends placing them before synchronous styles. While the script stil
 
 Synchronous styles are critical for rendering the page.
 
-Capo.js recommends placing them early in the document, but after synchronous scripts (if any), to ensure they are discovered and downloaded as soon as possible.
+capo.js recommends placing them early in the document, but after synchronous scripts (if any), to ensure they are discovered and downloaded as soon as possible.
 
 :::note
-Stylesheets explicitly marked for print media (e.g. `<link rel="stylesheet" media="print">` or `<style media="print">`) are not render-blocking for screen media. Capo.js does not classify them as synchronous styles and instead gives them the lowest weight (**1. Everything else**).
+Stylesheets explicitly marked for print media (e.g. `<link rel="stylesheet" media="print">` or `<style media="print">`) are not render-blocking for screen media. capo.js does not classify them as synchronous styles and instead gives them the lowest weight (**1. Everything else**).
 :::
 
 ## <InlineCapoWeightBars weight="4" /> 4. Preload hints
@@ -174,7 +184,7 @@ Stylesheets explicitly marked for print media (e.g. `<link rel="stylesheet" medi
 
 Preload hints tell the browser to download a resource as soon as possible, as it will be needed soon.
 
-While helpful, they are generally less critical than actual resources (like styles and scripts) that are needed immediately. Capo.js recommends placing them after critical resources, but before deferred scripts and prefetch hints, to ensure these resources start downloading as soon as possible.
+While helpful, they are generally less critical than actual resources (like styles and scripts) that are needed immediately. capo.js recommends placing them after critical resources, but before deferred scripts and prefetch hints, to ensure these resources start downloading as soon as possible.
 
 ## <InlineCapoWeightBars weight="3" /> 3. Deferred scripts
 
@@ -203,4 +213,4 @@ While `dns-prefetch` also deals with connection setup like [`preconnect`](#link-
 
 Any other elements found in the `<head>` that don't match the above categories are given the lowest weight.
 
-This includes elements like Open Graph tags (`<meta property="og:title">`), description tags (`<meta name="description">`), icons (`<link rel="icon">`), and other elements that don't affect the loading or rendering of the page. Capo.js recommends placing these at the very bottom of the `<head>`.
+This includes elements like Open Graph tags (`<meta property="og:title">`), description tags (`<meta name="description">`), icons (`<link rel="icon">`), and other elements that don't affect the loading or rendering of the page. capo.js recommends placing these at the very bottom of the `<head>`.

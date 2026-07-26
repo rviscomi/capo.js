@@ -143,4 +143,33 @@ describe('IO', () => {
       assert.ok(!viz.styles[0].includes('background-image'));
     });
   });
+
+  describe('formatStaticHeadHTML & initFromHTML', () => {
+    it('should convert head tags to static-head', () => {
+      const html = '<html><head><title>Test</title></head></html>';
+      const formatted = IO.formatStaticHeadHTML(html);
+      assert.strictEqual(formatted, '<html><static-head><title>Test</title></static-head></html>');
+    });
+
+    it('should wrap headless snippets with static-head', () => {
+      const html = '<title>Test</title><meta charset="utf-8">';
+      const formatted = IO.formatStaticHeadHTML(html);
+      assert.strictEqual(formatted, '<static-head><title>Test</title><meta charset="utf-8"></static-head>');
+    });
+
+    it('should initialize head element from HTML snippet', () => {
+      const { document } = createDocument('');
+      const options = new Options();
+      const io = new IO(document, options, mockConsole());
+
+      io.initFromHTML('<title>Snippet Test</title>');
+
+      const head = io.getHead();
+      assert.ok(head);
+      assert.strictEqual(io.isStaticHead, true);
+      assert.strictEqual(head.tagName.toLowerCase(), 'static-head');
+      assert.ok(head.querySelector('title'));
+      assert.strictEqual(head.querySelector('title').textContent, 'Snippet Test');
+    });
+  });
 });
