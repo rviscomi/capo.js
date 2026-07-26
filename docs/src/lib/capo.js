@@ -77,7 +77,11 @@ function $ee7e0c73e51ebfda$export$20e2051ffd813ee3(element, adapter) {
 }
 function $ee7e0c73e51ebfda$export$be443fc6335656f0(element, adapter) {
     const importRe = /@import/;
-    if (adapter.getTagName(element) === 'style') return importRe.test(adapter.getTextContent(element));
+    if (adapter.getTagName(element) === 'style') {
+        const media = adapter.getAttribute(element, 'media');
+        if (media && media.toLowerCase().trim() === 'print') return false;
+        return importRe.test(adapter.getTextContent(element));
+    }
     /* TODO: Support external stylesheets.
   if (adapter.getTagName(element) === 'link' && 
       adapter.getAttribute(element, 'rel')?.toLowerCase() === 'stylesheet' &&
@@ -109,11 +113,19 @@ function $ee7e0c73e51ebfda$export$65983fc0a5543400(element, adapter) {
 function $ee7e0c73e51ebfda$export$9d6cdbffb13bee21(element, adapter) {
     const tagName = adapter.getTagName(element);
     // Check if it's a style element
-    if (tagName === 'style') return true;
+    if (tagName === 'style') {
+        const media = adapter.getAttribute(element, 'media');
+        if (media && media.toLowerCase().trim() === 'print') return false;
+        return true;
+    }
     // Check if it's a stylesheet link
     if (tagName === 'link') {
         const rel = adapter.getAttribute(element, 'rel');
-        return rel?.toLowerCase() === 'stylesheet';
+        if (rel?.toLowerCase() === 'stylesheet') {
+            const media = adapter.getAttribute(element, 'media');
+            if (media && media.toLowerCase().trim() === 'print') return false;
+            return true;
+        }
     }
     return false;
 }
