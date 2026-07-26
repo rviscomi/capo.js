@@ -21,13 +21,22 @@ const FORCED_OPTIONS = {
 export function run(input, output, userOptions={}) {
   userOptions = Object.assign(userOptions, FORCED_OPTIONS);
 
+  let html = input.trim();
+  if (/<head[\s>]/i.test(html)) {
+    html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
+  } else {
+    html = `<static-head>${html}</static-head>`;
+  }
+
   const parser = new DOMParser();
-  const staticDoc = parser.parseFromString(input, 'text/html');
+  const staticDoc = parser.parseFromString(html, 'text/html');
 
   const options = new Options(userOptions);
   const io = new IO(staticDoc.documentElement, options, output);
 
-  io.init();
+  io.head = staticDoc.querySelector("static-head") || staticDoc.head;
+  io.isStaticHead = true;
+
   const headElement = io.getHead();
   const adapter = new BrowserAdapter();
   const result = analyzeHead(headElement, adapter);

@@ -5,6 +5,7 @@ description: Learn about how capo.js validates the head element
 
 import { Image } from "astro:assets";
 import ValidationAreas from "../../../assets/validation-areas.png";
+import CapoWidget from "../../../components/CapoWidget.astro";
 
 The `<head>` element sets up all of the necessary metadata for a page to load properly and performantly. capo.js performs a number of validation checks on the `<head>` to ensure it meets modern best practices.
 
@@ -45,6 +46,15 @@ According to the [HTML specification](https://html.spec.whatwg.org/multipage/sem
 
 If capo.js detects any other elements in the `<head>`, it will log a validation warning.
 
+<CapoWidget
+  title="Validation Example: Disallowed Element in <head>"
+  snippet={`<title>My Page</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<noscript>
+  <img src="https://example.com/pixel.gif" alt="" />
+</noscript>`}
+/>
+
 ![Validation warning that "IMG elements are not allowed in the head"](../../../assets/validation-invalid-element.png)
 
 In the example above, a `<noscript>` element contains an `<img>` child element, so capo.js warns that "IMG elements are not allowed in the `<head>`".
@@ -63,6 +73,13 @@ The HTML specification requires that there be [exactly one `<title>` element](ht
 
 If capo.js detects zero or more than one `<title>` element, it will log a validation warning:
 
+<CapoWidget
+  title="Validation Example: Missing <title> Element"
+  snippet={`<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/app.js" defer></script>`}
+/>
+
 ![Validation warning that "Expected exactly 1 title element, found 0"](../../../assets/validation-title.png)
 
 In the example above, the `<title>` element is missing, so capo.js warns that "Expected exactly 1 `<title>` element, found 0".
@@ -73,6 +90,14 @@ The HTML specification requires that there be [no more than one `<base>` element
 
 If capo.js detects more than one `<base>` element, it will log a validation warning:
 
+<CapoWidget
+  title="Validation Example: Multiple <base> Elements"
+  snippet={`<title>Multiple Base Tags</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="https://example.com/v1/">
+<base href="https://example.com/v2/">`}
+/>
+
 ![Validation warning that "Expected no more than one 1 base element, found 0"](../../../assets/validation-base.png)
 
 In the example above, there is more than one `<base>` element, so capo.js warns that "Expected at most 1 `<base>` element, found 2".
@@ -80,6 +105,13 @@ In the example above, there is more than one `<base>` element, so capo.js warns 
 ## No invalid `<meta http-equiv>` elements
 
 There are a handful of standardized pragma directives that can be used with the `http-equiv` attribute to change browser behavior. There are even some non-standard directives that browsers still choose support, the most notable being [`origin-trial`](#no-invalid-origin-trials). And there are actually a couple of standardized directives that are non-conforming, meaning that their use is totally discouraged, specifically: `content-language` and `set-cookie`.
+
+<CapoWidget
+  title="Validation Example: Invalid http-equiv=set-cookie"
+  snippet={`<title>Cookie Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="set-cookie" content="session=xyz; path=/">`}
+/>
 
 :::caution
 Contrary to popular belief, `http-equiv` meta tags _are not_ equivalent to HTTP headers. Learn more about why [you probably don't need `http-equiv` meta tags](https://rviscomi.dev/2023/07/you-probably-dont-need-http-equiv-meta-tags/).
@@ -109,6 +141,13 @@ Due to a [bug in Chrome](https://bugs.chromium.org/p/chromium/issues/detail?id=1
 :::
 
 If capo.js detects a `<meta>` CSP anywhere in the `<head>`, it will log a validation warning:
+
+<CapoWidget
+  title="Validation Example: Content Security Policy Meta Tag"
+  snippet={`<title>CSP Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'">`}
+/>
 
 ![Validation warning that "CSP meta tags disable the preload scanner due to a bug in Chrome. Use the CSP header instead."](../../../assets/validation-csp.png)
 
@@ -148,6 +187,13 @@ Embedded third parties may dynamically inject origin trial `<meta>` elements in 
 
 If capo.js detects an invalid origin trial token, it will log a validation warning:
 
+<CapoWidget
+  title="Validation Example: Invalid Origin Trial Token"
+  snippet={`<title>Origin Trial Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="origin-trial" content="invalid-token">`}
+/>
+
 ![Validation warnings that "Invalid origin trial token: invalid origin and expired."](../../../assets/validation-origin-trial.png)
 
 In the example above, two separate embedded third party scripts injected origin trial `<meta>` elements with invalid tokens, so in each case capo.js warns that there is an "Invalid origin trial token". The warning also includes a reference to the `<meta>` element as well as the decoded token metadata.
@@ -162,6 +208,13 @@ The `default-style` directive indicates which [alternative stylesheet](https://d
 
 To be used correctly, the `content` attribute of the directive must be equal to the `title` value of an alternative stylesheet. capo.js will warn when the title cannot be found and the directive has no effect.
 
+<CapoWidget
+  title="Validation Example: Invalid default-style Directive"
+  snippet={`<title>Default Style Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="default-style" content="missing-theme">`}
+/>
+
 In addition to flagging incorrect usage, capo.js will also discourage using this directive entirely. Setting a preferred stylesheet results in a flash of unstyled content, which could be avoided by using default stylesheets with `@media` rules instead.
 
 ### No invalid character encoding
@@ -174,11 +227,26 @@ The `content-type` directive is an alias for the `charset` meta tag, which decla
 
 It's valid for a document not to have either `content-type` nor `charset` meta tags, as long as the `Content-Type` HTTP header is set, also to UTF-8. capo.js does not presently validate HTTP headers, only the contents of the document `<head>`.
 
+<CapoWidget
+  title="Validation Example: Redundant Character Encoding Declarations"
+  snippet={`<meta charset="utf-8">
+<title>Encoding Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="content-type" content="text/html; charset=utf-8">`}
+/>
+
 capo.js will validate that all three of the requirements above are met, and log a warning if not. If there are redundant character encoding declarations, capo.js will warn on the `content-type` element, giving preference to the `charset` meta tag. If the declaration occurs too late, capo.js will include the byte index for reference. And if the encoding is not set to UTF-8, capo.js will log the actual encoding used.
 
 ### No meta refresh
 
 The `refresh` directive can force the page to reload or redirect after a specified amount of time. This is considered an [accessibility issue](https://www.w3.org/TR/WCAG10-CORE-TECHS/#auto-page-refresh) by the WCAG. It can be disorienting to users for the page to suddenly reload or redirect, and there are more semantic ways to indicate that a page's contents have moved.
+
+<CapoWidget
+  title="Validation Example: Meta Refresh Directive"
+  snippet={`<title>Redirect Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="5; url=https://example.com">`}
+/>
 
 capo.js issues a warning whenever a meta `refresh` directive is found. If it contains a redirect, capo.js encourages using HTTP 3xx redirects instead. Otherwise, it encourages including a mechanism for users to disable the auto-reloading behavior, if one is not already provided by browsers.
 
@@ -186,11 +254,24 @@ capo.js issues a warning whenever a meta `refresh` directive is found. If it con
 
 The [`x-dns-prefetch-control`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-DNS-Prefetch-Control) HTTP header and meta directive are non-standard, but widely supported. By default, most browsers will speculatively resolve the DNS records for URLs needed by the page, which is a generally accepted performance optimization.
 
+<CapoWidget
+  title="Validation Example: Disabled DNS Prefetching"
+  snippet={`<title>DNS Prefetch Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="x-dns-prefetch-control" content="off">`}
+/>
+
 In Chrome, any value other than `on` will disable the default DNS prefetching behavior. capo.js will always warn when this directive is found, and the message will be unique to the usage. In cases when DNS prefetching is explicitly enabled, capo.js clarifies that this has no effect as it's already the default behavior. In cases where it's set to `off`, capo.js emphasizes the performance benefits of DNS prefetching and clarifies that it should only be disabled when there are legitimate security concerns. For all other values besides `on` and `off`, capo.js warns about using non-standard values and reiterates the performance and security considerations.
 
 ## No invalid viewport directives
 
 The `viewport` meta tag is typically used to control the layout of the page on mobile devices. There are a small number of supported viewport directives, and capo.js will validate them to ensure they are used correctly.
+
+<CapoWidget
+  title="Validation Example: Invalid Viewport Directive (user-scalable=no)"
+  snippet={`<title>Viewport Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">`}
+/>
 
 capo.js will log a warning if any unsupported directives are used, or if any of the supported directives are used incorrectly. For example, the `initial-scale` directive must be a positive number between 0.1 and 10 and capo.js will warn if it is not.
 

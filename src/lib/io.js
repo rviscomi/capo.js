@@ -21,7 +21,11 @@ export class IO {
 
     try {
       let html = await this.getStaticHTML();
-      html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
+      if (/<head[\s>]/i.test(html)) {
+        html = html.replace(/(\<\/?)(head)/gi, "$1static-head");
+      } else {
+        html = `<static-head>${html}</static-head>`;
+      }
       const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
       const staticDoc = parser.parseFromString(html, "text/html");
       this.head = staticDoc.querySelector("static-head");
@@ -129,10 +133,12 @@ export class IO {
     const headElement = this.getHead();
     const headWeights = result.weights.map(w => {
       const customValidation = result.customValidations.find(v => v.element === w.element);
+      const validationWarning = result.validationWarnings.find(v => v.element === w.element || (v.elements && v.elements.includes(w.element)));
+      const isElementValid = !customValidation && !validationWarning;
       return {
         element: w.element,
         weight: w.weight,
-        isValid: !customValidation,
+        isValid: isElementValid,
         customValidations: customValidation || {}
       };
     });

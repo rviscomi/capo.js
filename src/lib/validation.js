@@ -193,6 +193,16 @@ export function getValidationWarnings(head, adapter) {
   // Check for invalid elements
   children.forEach((element) => {
     if (isValidElement(element, adapter)) {
+      const elementChildren = adapter.getChildren(element);
+      elementChildren.forEach((child) => {
+        if (!isValidElement(child, adapter)) {
+          validationWarnings.push({
+            ruleId: 'no-invalid-head-elements',
+            warning: `${adapter.getTagName(child).toUpperCase()} elements are not allowed in the <head>`,
+            element: element,
+          });
+        }
+      });
       return;
     }
 

@@ -528,5 +528,15 @@ describe('validation.js', () => {
         assert.strictEqual(hasValidationWarning(p, adapter), true);
       }
     });
+
+    it('should detect img inside noscript in head', () => {
+      const { head } = createDocument('<noscript><img src="pixel.gif"></noscript>');
+      const noscript = head.querySelector('noscript');
+      assert.ok(noscript);
+      assert.strictEqual(isValidElement(noscript, adapter), true);
+      assert.strictEqual(hasValidationWarning(noscript, adapter), true);
+      const warnings = getValidationWarnings(head, adapter);
+      assert.ok(warnings.some(w => w.warning.toLowerCase().includes('img elements are not allowed')));
+    });
   });
 });
