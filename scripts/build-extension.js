@@ -37,7 +37,12 @@ export function transformManifestForFirefox(manifest) {
   firefoxManifest.browser_specific_settings = {
     gecko: {
       id: "capo@rviscomi.github.io",
-      strict_min_version: "121.0"
+      strict_min_version: "140.0",
+      data_collection_permissions: {
+        required: [
+          "none"
+        ]
+      }
     }
   };
   if (firefoxManifest.background && firefoxManifest.background.service_worker) {
