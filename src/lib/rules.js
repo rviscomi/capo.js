@@ -93,6 +93,10 @@ export function isImportStyles(element, adapter) {
   const importRe = /@import/;
 
   if (adapter.getTagName(element) === 'style') {
+    const media = adapter.getAttribute(element, 'media');
+    if (media && media.toLowerCase().trim() === 'print') {
+      return false;
+    }
     return importRe.test(adapter.getTextContent(element));
   }
 
@@ -149,13 +153,23 @@ export function isSyncStyles(element, adapter) {
   
   // Check if it's a style element
   if (tagName === 'style') {
+    const media = adapter.getAttribute(element, 'media');
+    if (media && media.toLowerCase().trim() === 'print') {
+      return false;
+    }
     return true;
   }
   
   // Check if it's a stylesheet link
   if (tagName === 'link') {
     const rel = adapter.getAttribute(element, 'rel');
-    return rel?.toLowerCase() === 'stylesheet';
+    if (rel?.toLowerCase() === 'stylesheet') {
+      const media = adapter.getAttribute(element, 'media');
+      if (media && media.toLowerCase().trim() === 'print') {
+        return false;
+      }
+      return true;
+    }
   }
   
   return false;

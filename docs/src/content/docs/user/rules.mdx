@@ -162,6 +162,10 @@ Synchronous styles are critical for rendering the page.
 
 Capo.js recommends placing them early in the document, but after synchronous scripts (if any), to ensure they are discovered and downloaded as soon as possible.
 
+:::note
+Stylesheets explicitly marked for print media (e.g. `<link rel="stylesheet" media="print">` or `<style media="print">`) are not render-blocking for screen media. Capo.js does not classify them as synchronous styles and instead gives them the lowest weight (**1. Everything else**).
+:::
+
 ## <InlineCapoWeightBars weight="4" /> 4. Preload hints
 
 ### `<link rel=preload>`
