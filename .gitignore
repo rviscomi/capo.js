@@ -402,3 +402,4 @@ crx.zip
 .DS_STORE
 .parcel-cache
 dist/
+*.tsbuildinfo

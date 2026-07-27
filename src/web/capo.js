@@ -14,9 +14,9 @@ const FORCED_OPTIONS = {
  * For configuration options see:
  * https://rviscomi.github.io/capo.js/user/config/
  * 
- * @param input HTML string
- * @param output Mock console implementation
- * @param options Capo options
+ * @param {string} input HTML string
+ * @param {any} output Mock console implementation
+ * @param {import("@rviscomi/capo.js/lib/options").OptionsInit} [userOptions={}] Capo options
  */
 export function run(input, output, userOptions={}) {
   userOptions = Object.assign(userOptions, FORCED_OPTIONS);

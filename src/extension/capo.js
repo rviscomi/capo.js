@@ -3,6 +3,11 @@ import { BrowserAdapter } from "@rviscomi/capo.js/adapters/browser";
 import { IO } from "@rviscomi/capo.js/lib/io";
 import { Options } from "@rviscomi/capo.js/lib/options";
 
+/**
+ * @param {any} obj
+ * @param {IO} [io]
+ * @returns {any}
+ */
 function sanitizeForStorage(obj, io) {
   if (obj === null || obj === undefined) {
     return obj;
@@ -17,6 +22,7 @@ function sanitizeForStorage(obj, io) {
     return obj.map((item) => sanitizeForStorage(item, io));
   }
   if (typeof obj === "object") {
+    /** @type {Record<string, any>} */
     const clean = {};
     for (const [key, value] of Object.entries(obj)) {
       if (key === "element" && value && typeof value === "object" && (value.nodeType || (typeof Element !== "undefined" && value instanceof Element))) {
@@ -29,6 +35,10 @@ function sanitizeForStorage(obj, io) {
   return obj;
 }
 
+/**
+ * @param {IO} io
+ * @returns {Promise<{ actual: Array<{ weight: number, color: string, selector: string, html: string, isValid: boolean, customValidations: any }> }>}
+ */
 async function run(io) {
   await io.init();
   const headElement = io.getHead();
@@ -45,7 +55,7 @@ async function run(io) {
           color: io.getColor(weight),
           selector: io.stringifyElement(element),
           html: element.innerHTML,
-          isValid,
+          isValid: Boolean(isValid),
           customValidations: sanitizeForStorage(customValidations, io),
         };
       }
@@ -53,21 +63,21 @@ async function run(io) {
   };
 }
 
+/**
+ * @returns {Promise<Options>}
+ */
 async function initOptions() {
   const { options } = await chrome.storage.sync.get("options");
   return new Options(options);
 }
 
+/**
+ * @returns {Promise<void>}
+ */
 async function init() {
   const options = await initOptions();
   const io = new IO(document, options);
 
-  // This file is executed by the extension in two scenarios:
-  //
-  //     1. User opens the extension via the icon
-  //     2. User clicks an element in the color bar
-  //
-  // The existence of the click object tells us which scenario we're in.
   const { click } = await chrome.storage.local.get("click");
   if (click) {
     io.logElementFromSelector(JSON.parse(click));

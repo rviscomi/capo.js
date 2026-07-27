@@ -108,7 +108,7 @@ describe('validation.js', () => {
       const warnings = getValidationWarnings(head, adapter);
       const titleWarning = warnings.find(w => w.warning.includes('Expected exactly 1 <title>'));
       assert.ok(titleWarning);
-      assert.strictEqual(titleWarning.elements.length, 2);
+      assert.strictEqual(titleWarning.elements?.length, 2);
     });
 
     it('should NOT warn on optimal head', () => {
@@ -139,7 +139,7 @@ describe('validation.js', () => {
       const warnings = getValidationWarnings(head, adapter);
       const baseWarning = warnings.find(w => w.warning.includes('<base>'));
       assert.ok(baseWarning);
-      assert.strictEqual(baseWarning.elements.length, 2);
+      assert.strictEqual(baseWarning.elements?.length, 2);
     });
 
     it('should detect CSP meta tag', () => {
@@ -151,7 +151,7 @@ describe('validation.js', () => {
       `);
       const cspMeta = head.querySelector('meta[http-equiv="Content-Security-Policy"]');
       const { warnings } = getCustomValidations(cspMeta, adapter);
-      assert.ok(warnings.some(w => w.includes('meta CSP discouraged')));
+      assert.ok(warnings?.some(w => w.includes('meta CSP discouraged')));
     });
 
     it('should return warnings array', () => {

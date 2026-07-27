@@ -3,6 +3,11 @@ const Hues = {
   BLUE: 200
 };
 
+/**
+ * Generate color swatches for a given hue
+ * @param {number} hue
+ * @returns {string[]}
+ */
 export function generateSwatches(hue) {
   return [
     `oklch(5% .1 ${hue})`,
@@ -19,6 +24,7 @@ export function generateSwatches(hue) {
   ];
 }
 
+/** @type {string[]} */
 export const DEFAULT = [
   '#9e0142',
   '#d53e4f',
@@ -33,15 +39,23 @@ export const DEFAULT = [
   '#cccccc'
 ];
 
+/** @type {string[]} */
 export const PINK = generateSwatches(Hues.PINK);
+/** @type {string[]} */
 export const BLUE = generateSwatches(Hues.BLUE);
 
+/** @type {Record<string, string[]>} */
 export const Palettes = {
   DEFAULT: DEFAULT,
   PINK: PINK,
   BLUE: BLUE
 };
 
+/**
+ * Get striped background gradient for invalid element visualization
+ * @param {string} elementColor
+ * @returns {string}
+ */
 export function getInvalidBackgroundColor(elementColor) {
   let invalidColor = '#cccccc';
   if (elementColor == invalidColor) {

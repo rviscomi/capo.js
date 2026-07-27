@@ -1,3 +1,8 @@
+/**
+ * @typedef {import('../adapters/adapter.js').AdapterInterface} AdapterInterface
+ */
+
+/** @type {Record<string, number>} */
 export const ElementWeights = {
   META: 10,
   TITLE: 9,
@@ -12,19 +17,7 @@ export const ElementWeights = {
   OTHER: 0
 };
 
-export const ElementDetectors = {
-  META: isMeta,
-  TITLE: isTitle,
-  PRECONNECT: isPreconnect,
-  ASYNC_SCRIPT: isAsyncScript,
-  IMPORT_STYLES: isImportStyles,
-  SYNC_SCRIPT: isSyncScript,
-  SYNC_STYLES: isSyncStyles,
-  PRELOAD: isPreload,
-  DEFER_SCRIPT: isDeferScript,
-  PREFETCH_PRERENDER: isPrefetchPrerender
-}
-
+/** @type {string[]} */
 export const META_HTTP_EQUIV_KEYWORDS = [
   'accept-ch',
   'content-security-policy',
@@ -35,32 +28,32 @@ export const META_HTTP_EQUIV_KEYWORDS = [
   'x-dns-prefetch-control'
 ];
 
-
+/**
+ * Check if element is a critical meta/base element
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isMeta(element, adapter) {
   const tagName = adapter.getTagName(element);
   
-  // Check if it's a base element
   if (tagName === 'base') {
     return true;
   }
   
-  // Check if it's a meta element with charset, viewport, or critical http-equiv
   if (tagName !== 'meta') {
     return false;
   }
   
-  // Check for charset attribute
   if (adapter.hasAttribute(element, 'charset')) {
     return true;
   }
   
-  // Check for viewport meta
   const name = adapter.getAttribute(element, 'name');
   if (name && name.toLowerCase() === 'viewport') {
     return true;
   }
   
-  // Check for critical http-equiv values
   const httpEquiv = adapter.getAttribute(element, 'http-equiv');
   if (httpEquiv) {
     const normalizedValue = httpEquiv.toLowerCase();
@@ -70,10 +63,22 @@ export function isMeta(element, adapter) {
   return false;
 }
 
+/**
+ * Check if element is a title element
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isTitle(element, adapter) {
   return adapter.getTagName(element) === 'title';
 }
 
+/**
+ * Check if element is a preconnect link
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isPreconnect(element, adapter) {
   if (adapter.getTagName(element) !== 'link') {
     return false;
@@ -83,12 +88,24 @@ export function isPreconnect(element, adapter) {
   return rel?.toLowerCase() === 'preconnect';
 }
 
+/**
+ * Check if element is an async script
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isAsyncScript(element, adapter) {
   return adapter.getTagName(element) === 'script' &&
     adapter.hasAttribute(element, 'src') && 
-         adapter.hasAttribute(element, 'async');
+    adapter.hasAttribute(element, 'async');
 }
 
+/**
+ * Check if element is a style element containing CSS import rules
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isImportStyles(element, adapter) {
   const importRe = /@import/;
 
@@ -100,33 +117,24 @@ export function isImportStyles(element, adapter) {
     return importRe.test(adapter.getTextContent(element));
   }
 
-  /* TODO: Support external stylesheets.
-  if (adapter.getTagName(element) === 'link' && 
-      adapter.getAttribute(element, 'rel')?.toLowerCase() === 'stylesheet' &&
-      adapter.hasAttribute(element, 'href')) {
-    let response = fetch(adapter.getAttribute(element, 'href'));
-    response = response.text();
-    return importRe.test(response);
-  } */
-
   return false;
 }
 
+/**
+ * Check if element is a synchronous script
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isSyncScript(element, adapter) {
-  // Must be a script element
   if (adapter.getTagName(element) !== 'script') {
     return false;
   }
   
-  // Original selector: script:not([src][defer],[src][type=module],[src][async],[type*=json])
-  // This excludes scripts that match ANY of these compound conditions:
-  
-  // Exclude: scripts with src AND defer
   if (adapter.hasAttribute(element, 'src') && adapter.hasAttribute(element, 'defer')) {
     return false;
   }
   
-  // Exclude: scripts with src AND type=module
   if (adapter.hasAttribute(element, 'src')) {
     const type = adapter.getAttribute(element, 'type');
     if (type && type.toLowerCase() === 'module') {
@@ -134,12 +142,10 @@ export function isSyncScript(element, adapter) {
     }
   }
   
-  // Exclude: scripts with src AND async
   if (adapter.hasAttribute(element, 'src') && adapter.hasAttribute(element, 'async')) {
     return false;
   }
   
-  // Exclude: scripts with type containing "json"
   const type = adapter.getAttribute(element, 'type');
   if (type && type.toLowerCase().includes('json')) {
     return false;
@@ -148,10 +154,15 @@ export function isSyncScript(element, adapter) {
   return true;
 }
 
+/**
+ * Check if element is a synchronous stylesheet or style block
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isSyncStyles(element, adapter) {
   const tagName = adapter.getTagName(element);
   
-  // Check if it's a style element
   if (tagName === 'style') {
     const media = adapter.getAttribute(element, 'media');
     if (media && media.toLowerCase().trim() === 'print') {
@@ -160,7 +171,6 @@ export function isSyncStyles(element, adapter) {
     return true;
   }
   
-  // Check if it's a stylesheet link
   if (tagName === 'link') {
     const rel = adapter.getAttribute(element, 'rel');
     if (rel?.toLowerCase() === 'stylesheet') {
@@ -175,6 +185,12 @@ export function isSyncStyles(element, adapter) {
   return false;
 }
 
+/**
+ * Check if element is a preload link
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isPreload(element, adapter) {
   if (adapter.getTagName(element) !== 'link') {
     return false;
@@ -189,6 +205,12 @@ export function isPreload(element, adapter) {
   return relLower === 'preload' || relLower === 'modulepreload';
 }
 
+/**
+ * Check if element is a deferred script
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isDeferScript(element, adapter) {
   if (adapter.getTagName(element) !== 'script') {
     return false;
@@ -198,12 +220,10 @@ export function isDeferScript(element, adapter) {
     return false;
   }
   
-  // Script with defer attribute
   if (adapter.hasAttribute(element, 'defer')) {
     return true;
   }
   
-  // Module scripts are defer by default, unless they have async
   const type = adapter.getAttribute(element, 'type');
   if (type && type.toLowerCase() === 'module') {
     return !adapter.hasAttribute(element, 'async');
@@ -212,6 +232,12 @@ export function isDeferScript(element, adapter) {
   return false;
 }
 
+/**
+ * Check if element is prefetch/dns-prefetch/prerender link
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isPrefetchPrerender(element, adapter) {
   if (adapter.getTagName(element) !== 'link') {
     return false;
@@ -228,6 +254,12 @@ export function isPrefetchPrerender(element, adapter) {
          relLower === 'prerender';
 }
 
+/**
+ * Check if element is an origin trial meta element
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isOriginTrial(element, adapter) {
   if (adapter.getTagName(element) !== 'meta') {
     return false;
@@ -237,6 +269,12 @@ export function isOriginTrial(element, adapter) {
   return httpEquiv?.toLowerCase() === 'origin-trial';
 }
 
+/**
+ * Check if element is a Content Security Policy meta element
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
 export function isMetaCSP(element, adapter) {
   if (adapter.getTagName(element) !== 'meta') {
     return false;
@@ -252,6 +290,26 @@ export function isMetaCSP(element, adapter) {
          httpEquivLower === 'content-security-policy-report-only';
 }
 
+/** @type {Record<string, (element: any, adapter: AdapterInterface) => boolean>} */
+export const ElementDetectors = {
+  META: isMeta,
+  TITLE: isTitle,
+  PRECONNECT: isPreconnect,
+  ASYNC_SCRIPT: isAsyncScript,
+  IMPORT_STYLES: isImportStyles,
+  SYNC_SCRIPT: isSyncScript,
+  SYNC_STYLES: isSyncStyles,
+  PRELOAD: isPreload,
+  DEFER_SCRIPT: isDeferScript,
+  PREFETCH_PRERENDER: isPrefetchPrerender
+};
+
+/**
+ * Compute weight for an element
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {number}
+ */
 export function getWeight(element, adapter) {
   for (let [id, detector] of Object.entries(ElementDetectors)) {
     if (detector(element, adapter)) {
@@ -262,11 +320,16 @@ export function getWeight(element, adapter) {
   return ElementWeights.OTHER;
 }
 
+/**
+ * Compute weights for all children of head element
+ * @param {any} head
+ * @param {AdapterInterface} adapter
+ * @returns {Array<{ element: any, weight: number }>}
+ */
 export function getHeadWeights(head, adapter) {
   const headChildren = adapter.getChildren(head);
   return headChildren
     .filter(element => {
-      // Filter out text nodes and comments - only include actual elements
       const tagName = adapter.getTagName(element);
       return tagName && tagName !== '';
     })

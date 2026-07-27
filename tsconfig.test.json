@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "declarationDir": null,
+    "emitDeclarationOnly": false,
+    "rootDir": "."
+  },
+  "include": [
+    "src/**/*.js",
+    "tests/**/*.js"
+  ],
+  "exclude": [
+    "src/extension/**",
+    "src/web/**",
+    "worker.js"
+  ]
+}

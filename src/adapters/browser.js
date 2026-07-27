@@ -14,10 +14,9 @@ import { AdapterInterface } from './adapter.js';
  * Wraps native DOM Element APIs for use with capo.js core logic.
  * 
  * @extends AdapterInterface
- * @implements {HTMLAdapter}
  * @example
  * import { BrowserAdapter } from './adapters/browser.js';
- * import { Analyzer } from '../analyzer.js';
+ * import { analyzeHead } from '../analyzer.js';
  * 
  * const adapter = new BrowserAdapter();
  * const head = document.querySelector('head');
@@ -26,6 +25,7 @@ import { AdapterInterface } from './adapter.js';
 export class BrowserAdapter extends AdapterInterface {
   /**
    * Check if node is an Element (not text, comment, etc.)
+   * @override
    * @param {any} node - The node to check
    * @returns {boolean}
    */
@@ -37,6 +37,7 @@ export class BrowserAdapter extends AdapterInterface {
 
   /**
    * Get the tag name of an element (lowercase)
+   * @override
    * @param {any} node - Element node
    * @returns {string} - Tag name like 'meta', 'link', 'script'
    */
@@ -51,6 +52,7 @@ export class BrowserAdapter extends AdapterInterface {
 
   /**
    * Get attribute value from element
+   * @override
    * @param {any} node - Element node
    * @param {string} attrName - Attribute name (case-insensitive)
    * @returns {string | null} - Attribute value or null if not found
@@ -64,6 +66,7 @@ export class BrowserAdapter extends AdapterInterface {
 
   /**
    * Check if element has a specific attribute
+   * @override
    * @param {any} node - Element node
    * @param {string} attrName - Attribute name (case-insensitive)
    * @returns {boolean} - True if attribute exists
@@ -77,6 +80,7 @@ export class BrowserAdapter extends AdapterInterface {
 
   /**
    * Get all attribute names for an element
+   * @override
    * @param {any} node - Element node
    * @returns {string[]} - Array of attribute names
    */
@@ -89,6 +93,7 @@ export class BrowserAdapter extends AdapterInterface {
 
   /**
    * Get text content of a node (for inline scripts/styles)
+   * @override
    * @param {any} node - Element node
    * @returns {string} - Text content
    */
@@ -101,6 +106,7 @@ export class BrowserAdapter extends AdapterInterface {
 
   /**
    * Get child elements of a node
+   * @override
    * @param {any} node - Parent node
    * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
    */
@@ -127,6 +133,7 @@ export class BrowserAdapter extends AdapterInterface {
 
   /**
    * Get parent element of a node
+   * @override
    * @param {any} node - Child node
    * @returns {any | null} - Parent element node, or null if no parent
    */
@@ -139,6 +146,7 @@ export class BrowserAdapter extends AdapterInterface {
 
   /**
    * Get sibling elements of a node
+   * @override
    * @param {any} node - Element node
    * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
    */
@@ -159,6 +167,7 @@ export class BrowserAdapter extends AdapterInterface {
    * Browser DOM elements don't have source location information,
    * so this always returns null.
    * 
+   * @override
    * @param {any} node - Element node
    * @returns {null}
    */
@@ -169,6 +178,7 @@ export class BrowserAdapter extends AdapterInterface {
 
   /**
    * Stringify element for logging/debugging
+   * @override
    * @param {any} node - Element node
    * @returns {string} - String representation like "<meta charset='utf-8'>"
    */

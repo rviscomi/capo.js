@@ -9,6 +9,30 @@ import * as rules from './lib/rules.js';
 import { getValidationWarnings, getCustomValidations } from './lib/validation.js';
 
 /**
+ * @typedef {import('./adapters/adapter.js').AdapterInterface} AdapterInterface
+ * 
+ * @typedef {Object} WeightInfo
+ * @property {any} element - The DOM/AST element
+ * @property {number} weight - Computed weight (0-10)
+ */
+
+/**
+ * @typedef {Object} ValidationWarning
+ * @property {string} [ruleId] - The rule identifier
+ * @property {string} warning - Warning message
+ * @property {any} [element] - Associated element
+ * @property {Array<any>} [elements] - Associated elements array
+ */
+
+/**
+ * @typedef {Object} CustomValidation
+ * @property {string} [ruleId] - The rule identifier
+ * @property {any} element - The element with validation issues
+ * @property {Array<string>} warnings - Validation warning messages
+ * @property {any} [payload] - Extra diagnostic payload
+ */
+
+/**
  * @typedef {Object} AnalysisResult
  * @property {Array<WeightInfo>} weights - Weight information for each element
  * @property {Array<ValidationWarning>} validationWarnings - Document-level validation warnings
@@ -17,41 +41,37 @@ import { getValidationWarnings, getCustomValidations } from './lib/validation.js
  */
 
 /**
- * @typedef {Object} WeightInfo
- * @property {any} element - The DOM/AST element
- * @property {number} weight - Computed weight (0-10)
- * @property {string} category - Weight category name (META, TITLE, etc.)
+ * @typedef {Object} OrderingViolation
+ * @property {number} index
+ * @property {any} currentElement
+ * @property {any} nextElement
+ * @property {number} currentWeight
+ * @property {number} nextWeight
+ * @property {string} currentCategory
+ * @property {string} nextCategory
+ * @property {string} message
  */
 
 /**
- * @typedef {Object} ValidationWarning
- * @property {string} warning - Warning message
- * @property {any|Array<any>} [element] - Associated element(s)
- * @property {Array<any>} [elements] - Associated elements array
+ * @typedef {AnalysisResult & { orderingViolations: Array<OrderingViolation> }} AnalysisResultWithOrdering
  */
 
 /**
- * @typedef {Object} CustomValidation
- * @property {any} element - The element with validation issues
- * @property {Array<string>} warnings - Validation warning messages
+ * @typedef {Object} AnalyzeHeadOptions
+ * @property {boolean} [includeValidation=true] - Whether to include document-level validation warnings
+ * @property {boolean} [includeCustomValidations=true] - Whether to include element-level custom validations
  */
 
 /**
  * Analyze the head element and return element weights, validation warnings, and custom validations.
  *
  * @param {any} headNode - The head element to analyze
- * @param {Object} adapter - Adapter for element operations
- * @param {Object} [options={}] - Analysis options
- * @param {boolean} [options.includeValidation=true] - Whether to include document-level validation warnings
- * @param {boolean} [options.includeCustomValidations=true] - Whether to include element-level custom validations
- * @returns {Object} Analysis results
- * @returns {Array} returns.weights - Array of element weight objects
- * @returns {Array} returns.validationWarnings - Document-level validation warnings
- * @returns {Array} returns.customValidations - Element-level custom validation results
- * @returns {any} returns.headElement - The analyzed head element
+ * @param {AdapterInterface} adapter - Adapter for element operations
+ * @param {AnalyzeHeadOptions} [options={}] - Analysis options
+ * @returns {AnalysisResult} Analysis results
  *
  * @example
- * const adapter = new HtmlEslintAdapter();
+ * const adapter = new BrowserAdapter();
  * const results = analyzeHead(head, adapter);
  * 
  * console.log(`Found ${results.weights.length} elements`);
@@ -88,11 +108,12 @@ export function analyzeHead(headNode, adapter, options = {}) {
  * Get custom validations for all elements in head
  * 
  * @param {any} headNode - The <head> element
- * @param {Object} adapter - HTMLAdapter implementation
+ * @param {AdapterInterface} adapter - HTMLAdapter implementation
  * @returns {Array<CustomValidation>}
  * @private
  */
 function getElementValidations(headNode, adapter) {
+  /** @type {Array<CustomValidation>} */
   const customValidations = [];
   const children = adapter.getChildren(headNode);
 
@@ -137,7 +158,7 @@ export function getWeightCategory(weight) {
  * Check if elements are in optimal order
  * 
  * @param {Array<WeightInfo>} weights - Weight information array
- * @returns {Array<Object>} Array of ordering violations
+ * @returns {Array<OrderingViolation>} Array of ordering violations
  * 
  * @example
  * const weights = analyzeHead(head, adapter).weights;
@@ -145,6 +166,7 @@ export function getWeightCategory(weight) {
  * console.log(`${violations.length} ordering issues found`);
  */
 export function checkOrdering(weights) {
+  /** @type {Array<OrderingViolation>} */
   const violations = [];
 
   for (let i = 0; i < weights.length - 1; i++) {
@@ -176,9 +198,9 @@ export function checkOrdering(weights) {
  * Convenience function that combines analyzeHead() and checkOrdering()
  * 
  * @param {any} headNode - The <head> element
- * @param {Object} adapter - HTMLAdapter implementation
- * @param {Object} [options={}] - Analysis options
- * @returns {Object} Combined analysis with weights, violations, and validations
+ * @param {AdapterInterface} adapter - HTMLAdapter implementation
+ * @param {AnalyzeHeadOptions} [options={}] - Analysis options
+ * @returns {AnalysisResultWithOrdering} Combined analysis with weights, violations, and validations
  * 
  * @example
  * const analysis = analyzeHeadWithOrdering(head, adapter);

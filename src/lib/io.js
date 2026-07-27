@@ -1,14 +1,50 @@
 import { getInvalidBackgroundColor } from "./colors.js";
 
+/**
+ * @typedef {import('./options.js').Options} Options
+ * @typedef {import('../analyzer.js').AnalysisResult} AnalysisResult
+ * 
+ * @typedef {Object} ConsoleOutput
+ * @property {(...args: any[]) => void} log
+ * @property {(...args: any[]) => void} warn
+ * @property {(...args: any[]) => void} error
+ * @property {(...args: any[]) => void} groupCollapsed
+ * @property {() => void} groupEnd
+ * 
+ * @typedef {Object} HeadWeightInfo
+ * @property {any} [element]
+ * @property {number} weight
+ * @property {boolean} [isValid]
+ * @property {Record<string, any>} [customValidations]
+ * 
+ * @typedef {Object} ElementVisualization
+ * @property {string} visual
+ * @property {string} style
+ * 
+ * @typedef {Object} HeadVisualization
+ * @property {string} visual
+ * @property {string[]} styles
+ */
+
 export class IO {
-  constructor(document, options, output = window.console) {
+  /**
+   * @param {Document|null} document
+   * @param {Options} options
+   * @param {ConsoleOutput|any} [output=window.console]
+   */
+  constructor(document, options, output = typeof window !== 'undefined' ? window.console : console) {
     this.document = document;
     this.options = options;
     this.console = output;
     this.isStaticHead = false;
+    /** @type {any} */
     this.head = null;
   }
 
+  /**
+   * @param {string} html
+   * @returns {string}
+   */
   static formatStaticHeadHTML(html) {
     if (/<head[\s>]/i.test(html)) {
       return html.replace(/(\<\/?)(head)/gi, "$1static-head");
@@ -16,11 +52,17 @@ export class IO {
     return `<static-head>${html}</static-head>`;
   }
 
+  /**
+   * @param {any} head
+   */
   initFromStaticHead(head) {
     this.head = head;
     this.isStaticHead = true;
   }
 
+  /**
+   * @param {string} html
+   */
   initFromHTML(html) {
     const formattedHtml = IO.formatStaticHeadHTML(html.trim());
     const parser = new (this.document?.defaultView?.DOMParser || DOMParser)();
@@ -28,31 +70,34 @@ export class IO {
     this.initFromStaticHead(staticDoc.querySelector("static-head") || staticDoc.head);
   }
 
+  /**
+   * @returns {Promise<void>}
+   */
   async init() {
     if (this.head) {
       return;
     }
 
     if (this.options.prefersDynamicAssessment()) {
-      this.head = this.document.querySelector("head");
+      this.head = this.document?.querySelector("head") || null;
       return;
     }
 
     try {
       let html = await this.getStaticHTML();
       html = IO.formatStaticHeadHTML(html);
-      const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
+      const parser = new (this.document?.defaultView?.DOMParser || DOMParser)();
       const staticDoc = parser.parseFromString(html, "text/html");
       const staticHead = staticDoc.querySelector("static-head");
 
       if (staticHead) {
         this.initFromStaticHead(staticHead);
       } else {
-        this.head = this.document.head;
+        this.head = this.document?.head || null;
       }
     } catch (e) {
       this.console.error(`${this.options.loggingPrefix}An exception occurred while getting the static <head>:`, e);
-      this.head = this.document.head;
+      this.head = this.document?.head || null;
     }
 
     if (!this.isStaticHead) {
@@ -63,22 +108,36 @@ export class IO {
     }
   }
 
+  /**
+   * @returns {Promise<string>}
+   */
   async getStaticHTML() {
-    const url = this.document.location.href;
+    const url = this.document?.location.href || '';
     const response = await fetch(url);
     return await response.text();
   }
 
+  /**
+   * @returns {any}
+   */
   getHead() {
     return this.head;
   }
 
+  /**
+   * @param {any} element
+   * @returns {string}
+   */
   stringifyElement(element) {
-    return element.getAttributeNames().reduce((id, attr) => {
+    return element.getAttributeNames().reduce((/** @type {string} */ id, /** @type {string} */ attr) => {
       return (id += `[${CSS.escape(attr)}=${JSON.stringify(element.getAttribute(attr))}]`);
     }, element.nodeName);
   }
 
+  /**
+   * @param {any} element
+   * @returns {any}
+   */
   getLoggableElement(element) {
     if (!this.isStaticHead) {
       return element;
@@ -119,10 +178,14 @@ export class IO {
     return element;
   }
 
-  // Note: AI-generated function.
+  /**
+   * Create an element from a CSS selector
+   * @param {string} selector
+   * @returns {any}
+   */
   createElementFromSelector(selector) {
-    // Extract the tag name from the selector
-    const tagName = selector.match(/^[A-Za-z]+/)[0];
+    const match = selector.match(/^[A-Za-z]+/);
+    const tagName = match ? match[0] : null;
 
     if (!tagName) {
       return;
@@ -149,6 +212,10 @@ export class IO {
     return element;
   }
 
+  /**
+   * @param {AnalysisResult} result
+   * @returns {HeadWeightInfo[]}
+   */
   logAnalysis(result) {
     const headElement = this.getHead();
     const headWeights = result.weights.map(w => {
@@ -186,19 +253,36 @@ export class IO {
     return headWeights;
   }
 
+  /**
+   * @param {Object} params
+   * @param {number|string} params.weight
+   * @param {string} params.selector
+   * @param {string} params.html
+   * @param {boolean} [params.isValid]
+   * @param {Record<string, any>} [params.customValidations]
+   */
   logElementFromSelector({ weight, selector, html, isValid, customValidations = {} }) {
-    weight = +weight;
-    const viz = this.getElementVisualization(weight, isValid);
+    const numWeight = +weight;
+    const viz = this.getElementVisualization(numWeight, isValid);
     let element = this.createElementFromSelector(selector);
-    const parser = new (this.document.defaultView?.DOMParser || DOMParser)();
+    const parser = new (this.document?.defaultView?.DOMParser || DOMParser)();
     const doc = parser.parseFromString(html || "", "text/html");
     const nodes = [...doc.head.childNodes, ...doc.body.childNodes];
     nodes.forEach((child) => element.appendChild(child.cloneNode(true)));
     element = this.getLoggableElement(element);
 
-    this.logElement({ viz, weight, element, isValid, customValidations });
+    this.logElement({ viz, weight: numWeight, element, isValid, customValidations });
   }
 
+  /**
+   * @param {Object} params
+   * @param {ElementVisualization} params.viz
+   * @param {number} params.weight
+   * @param {any} params.element
+   * @param {boolean} [params.isValid]
+   * @param {Record<string, any>} [params.customValidations]
+   * @param {boolean} [params.omitPrefix]
+   */
   logElement({ viz, weight, element, isValid, customValidations = {}, omitPrefix = false }) {
     if (!omitPrefix) {
       viz.visual = `${this.options.loggingPrefix}${viz.visual}`;
@@ -224,7 +308,7 @@ export class IO {
     if (warnings?.length) {
       // Element-specific warnings.
       loggingLevel = "warn";
-      args.push("\n" + warnings.map((warning) => `  ❌ ${warning}`).join("\n"));
+      args.push("\n" + warnings.map((/** @type {string} */ warning) => `  ❌ ${warning}`).join("\n"));
     } else if (!isValid && (this.options.prefersDynamicAssessment() || this.isStaticHead)) {
       // General warnings.
       loggingLevel = "warn";
@@ -234,6 +318,9 @@ export class IO {
     this.console[loggingLevel](...args);
   }
 
+  /**
+   * @param {Array<import('../analyzer.js').ValidationWarning>} warnings
+   */
   logValidationWarnings(warnings) {
     if (!this.options.isValidationEnabled()) {
       return;
@@ -245,12 +332,21 @@ export class IO {
     });
   }
 
+  /**
+   * @param {number} weight
+   * @returns {string}
+   */
   getColor(weight) {
     return this.options.palette[10 - weight];
   }
 
+  /**
+   * @param {HeadWeightInfo[]} elements
+   * @returns {HeadVisualization}
+   */
   getHeadVisualization(elements) {
     let visual = "";
+    /** @type {string[]} */
     const styles = [];
 
     elements.forEach(({ weight, isValid }) => {
@@ -271,6 +367,11 @@ export class IO {
     return { visual, styles };
   }
 
+  /**
+   * @param {number} weight
+   * @param {boolean} [isValid=true]
+   * @returns {ElementVisualization}
+   */
   getElementVisualization(weight, isValid = true) {
     const visual = `%c${new Array(weight + 1).fill("█").join("")}`;
     const color = this.getColor(weight);
@@ -279,6 +380,11 @@ export class IO {
     return { visual, style };
   }
 
+  /**
+   * @param {string} groupName
+   * @param {any} headElement
+   * @param {HeadWeightInfo[]} headWeights
+   */
   visualizeHead(groupName, headElement, headWeights) {
     const headViz = this.getHeadVisualization(headWeights);
 

@@ -25,12 +25,16 @@ import assert from 'node:assert/strict';
 import { validateAdapter } from './adapter.js';
 
 /**
+ * @typedef {Object} AdapterTestSuiteOptions
+ * @property {(html: string) => any} createElement - Function that creates test nodes from HTML strings
+ * @property {boolean} [supportsLocation=false] - Whether adapter supports getLocation()
+ */
+
+/**
  * Run the standard adapter test suite
  * 
- * @param {Function} AdapterClass - The adapter class to test
- * @param {Object} options - Test configuration
- * @param {Function} options.createElement - Function that creates test nodes from HTML strings
- * @param {boolean} [options.supportsLocation=false] - Whether adapter supports getLocation()
+ * @param {new () => any} AdapterClass - The adapter class to test
+ * @param {AdapterTestSuiteOptions} options - Test configuration
  */
 export function runAdapterTestSuite(AdapterClass, options) {
   const { createElement, supportsLocation = false } = options;
@@ -39,6 +43,7 @@ export function runAdapterTestSuite(AdapterClass, options) {
     throw new Error('createElement function is required in test options');
   }
 
+  /** @type {any} */
   let adapter;
 
   function setup() {
@@ -240,7 +245,6 @@ export function runAdapterTestSuite(AdapterClass, options) {
         assert.ok(parent, 'Should return a parent');
         assert.equal(adapter.getTagName(parent), 'head');
       } else {
-        // If createElement doesn't support nested structures, skip this test
         assert.ok(true, 'Skipped - createElement does not support nested structures');
       }
     });
@@ -249,7 +253,6 @@ export function runAdapterTestSuite(AdapterClass, options) {
       setup();
       const el = createElement('<meta charset="utf-8">');
       const parent = adapter.getParent(el);
-      // Parent may be null or the synthetic container
       assert.ok(parent === null || adapter.isElement(parent), 'Should return null or element');
     });
 
@@ -272,7 +275,6 @@ export function runAdapterTestSuite(AdapterClass, options) {
         assert.ok(siblings.length > 0, 'Should have siblings');
         assert.ok(!siblings.includes(meta), 'Should not include element itself');
       } else {
-        // If createElement doesn't support nested structures, skip this test
         assert.ok(true, 'Skipped - createElement does not support nested structures');
       }
     });
@@ -285,7 +287,7 @@ export function runAdapterTestSuite(AdapterClass, options) {
         const meta = children[0];
         const siblings = adapter.getSiblings(meta);
         assert.ok(!siblings.includes(meta), 'Should not include element itself');
-        assert.ok(!siblings.some(s => s === meta), 'Should not contain element itself');
+        assert.ok(!siblings.some((/** @type {any} */ s) => s === meta), 'Should not contain element itself');
       } else {
         assert.ok(true, 'Skipped - createElement does not support nested structures');
       }
@@ -296,7 +298,6 @@ export function runAdapterTestSuite(AdapterClass, options) {
       const el = createElement('<meta charset="utf-8">');
       const siblings = adapter.getSiblings(el);
       assert.ok(Array.isArray(siblings), 'Should return an array');
-      // May be empty if no siblings, or may contain siblings if createElement adds container
     });
 
     it('should handle null node gracefully', () => {
@@ -373,7 +374,7 @@ export function runAdapterTestSuite(AdapterClass, options) {
  * This is a lighter-weight alternative that just checks the adapter
  * implements all required methods without full behavior testing.
  * 
- * @param {Function} AdapterClass - The adapter class to test
+ * @param {new () => any} AdapterClass - The adapter class to test
  */
 export function testAdapterCompliance(AdapterClass) {
   describe('Adapter Compliance', () => {
