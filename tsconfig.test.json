@@ -4,7 +4,8 @@
     "noEmit": true,
     "declaration": false,
     "declarationDir": null,
-    "emitDeclarationOnly": false
+    "emitDeclarationOnly": false,
+    "rootDir": "."
   },
   "include": [
     "src/**/*.js",

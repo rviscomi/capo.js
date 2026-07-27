@@ -15,6 +15,16 @@ export {
   getWeightCategory
 } from './analyzer.js';
 
+/**
+ * @typedef {import('./analyzer.js').AnalysisResult} AnalysisResult
+ * @typedef {import('./analyzer.js').WeightInfo} WeightInfo
+ * @typedef {import('./analyzer.js').ValidationWarning} ValidationWarning
+ * @typedef {import('./analyzer.js').CustomValidation} CustomValidation
+ * @typedef {import('./analyzer.js').OrderingViolation} OrderingViolation
+ * @typedef {import('./analyzer.js').AnalysisResultWithOrdering} AnalysisResultWithOrdering
+ * @typedef {import('./analyzer.js').AnalyzeHeadOptions} AnalyzeHeadOptions
+ */
+
 // Rules API
 export {
   ElementWeights,
