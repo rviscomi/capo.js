@@ -49,7 +49,7 @@ describe('build-extension', () => {
       assert.deepEqual(result.background, {
         scripts: ['background.js']
       });
-      assert.equal(result.background.service_worker, undefined);
+      assert.equal((/** @type {any} */ (result.background)).service_worker, undefined);
     });
 
     it('should not mutate the input manifest', () => {
@@ -65,7 +65,7 @@ describe('build-extension', () => {
       transformManifestForFirefox(inputManifest);
 
       assert.equal(inputManifest.background.service_worker, 'background.js');
-      assert.equal(inputManifest.browser_specific_settings, undefined);
+      assert.equal(/** @type {any} */ (inputManifest).browser_specific_settings, undefined);
     });
 
     it('should handle manifest without background service worker', () => {
@@ -142,6 +142,7 @@ describe('build-extension', () => {
   });
 
   describe('buildExtension', () => {
+    /** @type {string} */
     let tmpDir;
 
     beforeEach(() => {

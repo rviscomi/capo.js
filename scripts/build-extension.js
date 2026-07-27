@@ -9,6 +9,11 @@ const DEFAULT_DIST = 'dist';
 // Files to exclude from copying (Parcel handles these)
 const EXCLUDE = ['capo.js', 'options.js'];
 
+/**
+ * @param {string} src
+ * @param {string} dest
+ * @param {string} [srcBase]
+ */
 export function copyDir(src, dest, srcBase = src) {
   fs.mkdirSync(dest, { recursive: true });
   const entries = fs.readdirSync(src, { withFileTypes: true });
@@ -32,6 +37,10 @@ export function copyDir(src, dest, srcBase = src) {
   }
 }
 
+/**
+ * @param {Record<string, any>} manifest
+ * @returns {Record<string, any>}
+ */
 export function transformManifestForFirefox(manifest) {
   const firefoxManifest = JSON.parse(JSON.stringify(manifest));
   firefoxManifest.browser_specific_settings = {
@@ -53,12 +62,22 @@ export function transformManifestForFirefox(manifest) {
   return firefoxManifest;
 }
 
+/**
+ * @param {Record<string, any>} manifest
+ * @returns {Record<string, any>}
+ */
 export function transformManifestForChrome(manifest) {
   const chromeManifest = JSON.parse(JSON.stringify(manifest));
   delete chromeManifest.browser_specific_settings;
   return chromeManifest;
 }
 
+/**
+ * @param {Object} [options={}]
+ * @param {string} [options.src]
+ * @param {string} [options.dist]
+ * @param {boolean} [options.zip]
+ */
 export function buildExtension({ src = DEFAULT_SRC, dist = DEFAULT_DIST, zip = true } = {}) {
   const distChrome = path.join(dist, 'chrome');
   const distFirefox = path.join(dist, 'firefox');
@@ -105,7 +124,7 @@ export function buildExtension({ src = DEFAULT_SRC, dist = DEFAULT_DIST, zip = t
       execSync(`cd ${distFirefox} && zip -r -q ../firefox.zip .`);
       console.log('Created dist/firefox.zip');
     } catch (error) {
-      console.error('Failed to zip extensions:', error.message);
+      console.error('Failed to zip extensions:', (/** @type {Error} */ (error)).message);
     }
   }
 }

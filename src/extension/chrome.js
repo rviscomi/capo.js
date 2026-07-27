@@ -1,13 +1,19 @@
 init();
 
+/**
+ * @returns {Promise<chrome.scripting.InjectionTarget>}
+ */
 async function getCurrentTab() {
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) {
     [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
   }
-  return { tabId: tab?.id };
+  return { tabId: tab?.id || 0 };
 }
 
+/**
+ * @returns {Promise<void>}
+ */
 async function init() {
   chrome.storage.onChanged.addListener((changes) => {
     console.log("Storage changed", changes);
@@ -30,28 +36,44 @@ async function init() {
   }
 }
 
+/**
+ * @param {any} result
+ */
 function print(result) {
   console.log("Data", result);
-  actual.textContent = "";
-  sorted.textContent = "";
+  const actualEl = document.getElementById("actual");
+  const sortedEl = document.getElementById("sorted");
+
+  if (actualEl) actualEl.textContent = "";
+  if (sortedEl) sortedEl.textContent = "";
 
   let frag = document.createDocumentFragment();
   for (let r of result.actual) {
     frag.appendChild(getCapoHeadElement(r));
   }
-  actual.appendChild(frag);
+  if (actualEl) actualEl.appendChild(frag);
 
-  result.sorted = result.actual.sort((a, b) => {
+  result.sorted = result.actual.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => {
     return b.weight - a.weight;
   });
   frag = document.createDocumentFragment();
   for (let r of result.sorted) {
     frag.appendChild(getCapoHeadElement(r));
   }
-  sorted.appendChild(frag);
+  if (sortedEl) sortedEl.appendChild(frag);
   document.body.addEventListener("click", handleCapoClick);
 }
 
+/**
+ * @param {Object} params
+ * @param {number} params.weight
+ * @param {string} params.color
+ * @param {string} params.selector
+ * @param {string} params.html
+ * @param {boolean} params.isValid
+ * @param {any} params.customValidations
+ * @returns {HTMLSpanElement}
+ */
 function getCapoHeadElement({
   weight,
   color,
@@ -63,7 +85,7 @@ function getCapoHeadElement({
   const span = document.createElement("span");
   span.classList.add("capo-head-element");
   span.classList.toggle("invalid", !isValid);
-  span.dataset.weight = weight;
+  span.dataset.weight = String(weight);
   span.style.backgroundColor = color;
   span.dataset.selector = selector;
   span.dataset.html = html;
@@ -72,10 +94,15 @@ function getCapoHeadElement({
   return span;
 }
 
+/**
+ * @param {MouseEvent} event
+ */
 async function handleCapoClick(event) {
-  const { weight, selector, html } = event.target.dataset;
-  const customValidations = JSON.parse(event.target.dataset.customValidations);
-  const isValid = !event.target.classList.contains("invalid");
+  const target = /** @type {HTMLElement} */ (event.target);
+  if (!target || !target.dataset) return;
+  const { weight, selector, html } = target.dataset;
+  const customValidations = JSON.parse(target.dataset.customValidations || '{}');
+  const isValid = !target.classList.contains("invalid");
 
   await chrome.storage.local.set({
     click: JSON.stringify({

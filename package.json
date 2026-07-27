@@ -1,7 +1,7 @@
 {
   "name": "@rviscomi/capo.js",
   "version": "2.2.0",
-  "description": "Get your ﹤𝚑𝚎𝚊𝚍﹥ in order",
+  "description": "Get your ﹤head﹥ in order",
   "author": "Rick Viscomi",
   "license": "Apache-2.0",
   "repository": {
@@ -14,12 +14,12 @@
   "homepage": "https://rviscomi.github.io/capo.js/",
   "files": [
     "src",
-    "dist",
-    "docs"
+    "dist"
   ],
   "type": "module",
   "main": "dist/index.cjs",
   "module": "src/index.js",
+  "types": "./dist/types/index.d.ts",
   "alias": {
     "@rviscomi/capo.js": "./src/index.js",
     "@rviscomi/capo.js/adapters/browser": "./src/adapters/browser.js",
@@ -28,34 +28,42 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/types/index.d.ts",
       "import": "./src/index.js",
       "require": "./dist/index.cjs"
     },
     "./adapters": {
+      "types": "./dist/types/adapters/index.d.ts",
       "import": "./src/adapters/index.js",
       "require": "./dist/adapters/index.cjs"
     },
     "./adapters/browser": {
+      "types": "./dist/types/adapters/browser.d.ts",
       "import": "./src/adapters/browser.js",
       "require": "./dist/adapters/browser.cjs"
     },
     "./rules": {
+      "types": "./dist/types/lib/rules.d.ts",
       "import": "./src/lib/rules.js",
       "require": "./dist/lib/rules.cjs"
     },
     "./validation": {
+      "types": "./dist/types/lib/validation.d.ts",
       "import": "./src/lib/validation.js",
       "require": "./dist/lib/validation.cjs"
     },
     "./lib/io": {
+      "types": "./dist/types/lib/io.d.ts",
       "import": "./src/lib/io.js",
       "require": "./dist/lib/io.cjs"
     },
     "./lib/options": {
+      "types": "./dist/types/lib/options.d.ts",
       "import": "./src/lib/options.js",
       "require": "./dist/lib/options.cjs"
     },
     "./adapters/test-suite": {
+      "types": "./dist/types/adapters/test-suite.d.ts",
       "import": "./src/adapters/test-suite.js",
       "require": "./dist/adapters/test-suite.cjs"
     }
@@ -83,8 +91,12 @@
     }
   },
   "scripts": {
+    "typecheck": "tsc --noEmit",
+    "typecheck:ext": "tsc --noEmit -p tsconfig.extension.json",
+    "typecheck:test": "tsc --noEmit -p tsconfig.test.json",
+    "build:types": "tsc -p tsconfig.json",
     "watch": "parcel watch",
-    "build": "npm run build:cjs && parcel build && node scripts/build-extension.js",
+    "build": "npm run build:cjs && npm run build:types && parcel build && node scripts/build-extension.js",
     "package:source": "zip -r -q dist/source.zip . -x \"node_modules/*\" \"dist/*\" \".git/*\" \".parcel-cache/*\" \"docs/node_modules/*\" \"docs/.astro/*\" \"docs/dist/*\" \".github/*\" \"*/.DS_Store\" \".DS_Store\"",
     "build:cjs": "esbuild src/index.js src/analyzer.js src/adapters/adapter.js src/adapters/index.js src/adapters/browser.js src/lib/rules.js src/lib/validation.js src/lib/io.js src/lib/options.js src/lib/colors.js src/adapters/test-suite.js --bundle --platform=node --format=cjs --outdir=dist --out-extension:.js=.cjs",
     "test": "node --test tests/**/*.test.js",
@@ -96,9 +108,13 @@
   },
   "devDependencies": {
     "@parcel/cache": "^2.16.4",
+    "@types/jsdom": "^28.0.3",
+    "@types/node": "^26.1.1",
+    "chrome-types": "^0.1.436",
     "dedent": "^1.7.2",
     "esbuild": "^0.28.1",
     "jsdom": "^29.1.1",
-    "parcel": "^2.16.4"
+    "parcel": "^2.16.4",
+    "typescript": "^7.0.2"
   }
 }

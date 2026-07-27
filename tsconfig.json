@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationDir": "./dist/types",
+    "rootDir": "./src",
+    "emitDeclarationOnly": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "allowJs": true,
+    "checkJs": true,
+    "paths": {
+      "@rviscomi/capo.js": ["./src/index.js"],
+      "@rviscomi/capo.js/*": ["./src/*"]
+    },
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*.js"
+  ],
+  "exclude": [
+    "src/extension/**",
+    "src/web/**",
+    "node_modules",
+    "dist",
+    "tests",
+    "docs",
+    "worker.js"
+  ]
+}

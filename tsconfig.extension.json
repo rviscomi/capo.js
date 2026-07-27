@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "declarationDir": null,
+    "emitDeclarationOnly": false,
+    "types": ["chrome-types"]
+  },
+  "include": [
+    "src/extension/**/*.js",
+    "src/web/**/*.js"
+  ],
+  "exclude": []
+}

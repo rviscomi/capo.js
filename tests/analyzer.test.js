@@ -6,10 +6,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { JSDOM } from 'jsdom';
-import { analyzeHead, analyzeHeadWithOrdering, getWeightCategory, checkOrdering } from '../../src/analyzer.js';
-import { BrowserAdapter } from '../../src/adapters/browser.js';
+import { analyzeHead, analyzeHeadWithOrdering, getWeightCategory, checkOrdering } from '../src/analyzer.js';
+import { BrowserAdapter } from '../src/adapters/browser.js';
 
-function createDocument(headContent) {
+function createDocument(/** @type {string} */ headContent) {
   const dom = new JSDOM(`<!DOCTYPE html><html><head>${headContent}</head><body></body></html>`);
   return {
     document: dom.window.document,

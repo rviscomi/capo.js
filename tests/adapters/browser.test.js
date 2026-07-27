@@ -8,11 +8,13 @@ import { JSDOM } from 'jsdom';
 import { BrowserAdapter } from '../../src/adapters/browser.js';
 
 describe('BrowserAdapter', () => {
+  /** @type {BrowserAdapter} */
   let adapter;
+  /** @type {Document} */
   let document;
 
   // Helper to create a DOM element
-  function createElement(html) {
+  function createElement(/** @type {string} */ html) {
     const dom = new JSDOM(`<!DOCTYPE html><html><head>${html}</head><body></body></html>`);
     document = dom.window.document;
     return document.head.firstElementChild;
@@ -33,7 +35,7 @@ describe('BrowserAdapter', () => {
     it('should return false for text nodes', () => {
       setup();
       const el = createElement('<title>Test</title>');
-      const textNode = el.firstChild;
+      const textNode = el?.firstChild;
       assert.equal(adapter.isElement(textNode), false);
     });
 
@@ -205,9 +207,9 @@ describe('BrowserAdapter', () => {
     });
 
     it('should exclude text nodes', () => {
-      setup();
       const dom = new JSDOM(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body></body></html>`);
       const head = dom.window.document.querySelector('head');
+      assert.ok(head);
       // Manually insert a text node
       const textNode = dom.window.document.createTextNode('Text node');
       head.insertBefore(textNode, head.firstChild);

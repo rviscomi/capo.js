@@ -4,10 +4,18 @@
  * This file defines the contract that all adapters must implement.
  * Adapters abstract away environment-specific operations (browser DOM vs AST nodes)
  * to make capo.js core logic reusable across different contexts.
- * 
- * @interface HTMLAdapter
  */
 
+/**
+ * Source location information for a node
+ * @typedef {Object} SourceLocation
+ * @property {number} line
+ * @property {number} column
+ * @property {number} [endLine]
+ * @property {number} [endColumn]
+ */
+
+/** @type {readonly string[]} */
 const REQUIRED_METHODS = [
   'isElement',
   'getTagName',
@@ -22,7 +30,7 @@ const REQUIRED_METHODS = [
 ];
 
 /**
- * Base adapter interface (documentation only)
+ * Base adapter interface
  * 
  * Actual adapters should implement all these methods.
  * This serves as both documentation and a reference implementation.
@@ -124,7 +132,7 @@ export class AdapterInterface {
   /**
    * Get source location for a node (optional, for linting)
    * @param {any} node - Element node
-   * @returns {{ line: number, column: number, endLine?: number, endColumn?: number } | null}
+   * @returns {SourceLocation | null}
    */
   getLocation(node) {
     return null;
@@ -146,8 +154,11 @@ export class AdapterInterface {
  * @throws {Error} If adapter is missing required methods
  */
 export function validateAdapter(adapter) {
+  if (!adapter || typeof adapter !== 'object') {
+    throw new Error('Adapter must be an object');
+  }
   for (const method of REQUIRED_METHODS) {
-    if (typeof adapter[method] !== 'function') {
+    if (typeof /** @type {Record<string, any>} */ (adapter)[method] !== 'function') {
       throw new Error(`Adapter missing required method: ${method}()`);
     }
   }
