@@ -84,13 +84,6 @@
       "source": "src/extension/options.js",
       "distDir": "dist/chrome/options",
       "sourceMap": false
-    },
-    "web": {
-      "source": "src/web/capo.js",
-      "distDir": "docs/src/lib",
-      "outputFormat": "esmodule",
-      "isLibrary": true,
-      "sourceMap": false
     }
   },
   "scripts": {
