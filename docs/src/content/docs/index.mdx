@@ -7,20 +7,30 @@ hero:
   image:
     file: ../../assets/capo256.png
   actions:
-    - text: Try it live
-      link: /capo.js/user/demo/
-      icon: rocket
+    - text: Get the extension
+      link: /capo.js/user/extension/
+      icon: puzzle
       variant: primary
     - text: Browse the source
       link: https://github.com/rviscomi/capo.js
       icon: external
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+import CapoWidget from '../../components/CapoWidget.astro';
 
 :::tip[Inspiration]
 This tool was built by [Rick Viscomi](https://twitter.com/rick_viscomi) and directly inspired by [Harry Roberts](https://twitter.com/csswizardry)' work on [ct.css](https://csswizardry.com/ct/) and [Vitaly Friedman](https://twitter.com/vitalyf)'s [2022 presentation](https://youtu.be/uqLl-Yew2o8?t=2873) at Nordic.js.
 :::
+
+## Try it
+
+<CapoWidget snippet={`<title>My Web Page</title>
+<meta name="description" content="A demonstration of capo.js">
+<script src="/analytics.js"></script>
+<meta charset="utf-8">`} />
+
+<LinkButton href="/capo.js/user/demo/" icon="rocket">Try it live</LinkButton>
 
 ## Why it matters
 
