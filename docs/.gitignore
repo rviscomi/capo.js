@@ -1,6 +1,5 @@
 # build output
 dist/
-src/lib/capo.js
 # generated types
 .astro/
 
