@@ -160,8 +160,64 @@ describe('rules.js', () => {
       assert.strictEqual(isImportStyles(element, adapter), false);
     });
 
-    it('should NOT detect link stylesheets', () => {
+    it('should NOT detect link stylesheets without @import', () => {
       const element = createElement('<link rel="stylesheet" href="styles.css">');
+      assert.strictEqual(isImportStyles(element, adapter), false);
+    });
+
+    it('should detect link stylesheet with @import in sheet', () => {
+      const element = createElement('<link rel="stylesheet" href="styles.css">');
+      Object.defineProperty(element, 'sheet', {
+        value: { cssRules: [{ type: 3, cssText: '@import url("fonts.css");' }] },
+        configurable: true
+      });
+      assert.strictEqual(isImportStyles(element, adapter), true);
+    });
+
+    it('should detect link stylesheet with @import via adapter getSheet', () => {
+      const element = createElement('<link rel="stylesheet" href="styles.css">');
+      const customAdapter = Object.create(adapter);
+      customAdapter.getSheet = () => ({
+        cssRules: [{ type: 3, cssText: '@import url("fonts.css");' }]
+      });
+      assert.strictEqual(isImportStyles(element, customAdapter), true);
+    });
+
+    it('should detect link stylesheet with @import in textContent', () => {
+      const element = createElement('<link rel="stylesheet" href="styles.css">');
+      const customAdapter = Object.create(adapter);
+      customAdapter.getTextContent = () => '@import url("fonts.css");';
+      assert.strictEqual(isImportStyles(element, customAdapter), true);
+    });
+
+    it('should NOT detect link stylesheet with @import when media="print"', () => {
+      const element = createElement('<link rel="stylesheet" href="styles.css" media="print">');
+      Object.defineProperty(element, 'sheet', {
+        value: { cssRules: [{ type: 3, cssText: '@import url("fonts.css");' }] },
+        configurable: true
+      });
+      assert.strictEqual(isImportStyles(element, adapter), false);
+    });
+
+    it('should handle CORS SecurityError when accessing cssRules gracefully', () => {
+      const element = createElement('<link rel="stylesheet" href="styles.css">');
+      Object.defineProperty(element, 'sheet', {
+        value: {
+          get cssRules() {
+            throw new Error('SecurityError: Blocked cross-origin access');
+          }
+        },
+        configurable: true
+      });
+      assert.strictEqual(isImportStyles(element, adapter), false);
+    });
+
+    it('should NOT detect link with non-stylesheet rel', () => {
+      const element = createElement('<link rel="preload" as="style" href="styles.css">');
+      Object.defineProperty(element, 'sheet', {
+        value: { cssRules: [{ type: 3, cssText: '@import url("fonts.css");' }] },
+        configurable: true
+      });
       assert.strictEqual(isImportStyles(element, adapter), false);
     });
 

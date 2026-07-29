@@ -241,6 +241,21 @@ describe('BrowserAdapter', () => {
     });
   });
 
+  describe('getSheet', () => {
+    it('should return null for null node', () => {
+      setup();
+      assert.equal(adapter.getSheet(null), null);
+    });
+
+    it('should return node.sheet if present', () => {
+      setup();
+      const el = createElement('<link rel="stylesheet" href="styles.css">');
+      const mockSheet = { cssRules: [] };
+      Object.defineProperty(el, 'sheet', { value: mockSheet, configurable: true });
+      assert.equal(adapter.getSheet(el), mockSheet);
+    });
+  });
+
   describe('stringify', () => {
     it('should stringify element with single attribute', () => {
       setup();

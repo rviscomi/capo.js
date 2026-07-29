@@ -101,20 +101,57 @@ export function isAsyncScript(element, adapter) {
 }
 
 /**
- * Check if element is a style element containing CSS import rules
+ * Check if element is a style element or stylesheet containing CSS import rules
  * @param {any} element
  * @param {AdapterInterface} adapter
  * @returns {boolean}
  */
 export function isImportStyles(element, adapter) {
   const importRe = /@import/;
+  const tagName = adapter.getTagName(element);
 
-  if (adapter.getTagName(element) === 'style') {
+  if (tagName === 'style') {
     const media = adapter.getAttribute(element, 'media');
     if (media && media.toLowerCase().trim() === 'print') {
       return false;
     }
     return importRe.test(adapter.getTextContent(element));
+  }
+
+  if (tagName === 'link') {
+    const rel = adapter.getAttribute(element, 'rel');
+    if (rel?.toLowerCase() === 'stylesheet') {
+      const media = adapter.getAttribute(element, 'media');
+      if (media && media.toLowerCase().trim() === 'print') {
+        return false;
+      }
+
+      const sheet = adapter.getSheet(element);
+      if (sheet) {
+        try {
+          const cssRules = sheet.cssRules || sheet.rules;
+          if (cssRules) {
+            for (const rule of cssRules) {
+              if (
+                rule.type === 3 ||
+                (typeof CSSImportRule !== 'undefined' && rule instanceof CSSImportRule) ||
+                (rule.cssText && importRe.test(rule.cssText))
+              ) {
+                return true;
+              }
+            }
+          }
+        } catch (e) {
+          // Ignore CORS security errors when accessing cross-origin cssRules
+        }
+      }
+
+      // Check textContent in case a custom adapter or non-browser parser populated CSS text on link
+      const textContent = adapter.getTextContent(element);
+      if (textContent && importRe.test(textContent)) {
+        return true;
+      }
+    }
   }
 
   return false;

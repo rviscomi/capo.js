@@ -177,6 +177,19 @@ export class BrowserAdapter extends AdapterInterface {
   }
 
   /**
+   * Get style sheet object for a style or link element
+   * @override
+   * @param {any} node - Element node
+   * @returns {CSSStyleSheet | null}
+   */
+  getSheet(node) {
+    if (!node) {
+      return null;
+    }
+    return node.sheet || null;
+  }
+
+  /**
    * Stringify element for logging/debugging
    * @override
    * @param {any} node - Element node
