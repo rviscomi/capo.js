@@ -60,6 +60,7 @@ import { getValidationWarnings, getCustomValidations } from './lib/validation.js
  * @typedef {Object} AnalyzeHeadOptions
  * @property {boolean} [includeValidation=true] - Whether to include document-level validation warnings
  * @property {boolean} [includeCustomValidations=true] - Whether to include element-level custom validations
+ * @property {string|null} [pageOrigin=null] - Page origin for validation context (e.g., origin trial validation)
  */
 
 /**
@@ -81,6 +82,7 @@ export function analyzeHead(headNode, adapter, options = {}) {
   const {
     includeValidation = true,
     includeCustomValidations = true,
+    pageOrigin = null,
   } = options;
 
   // Pass 1: Compute weights for all elements
@@ -93,7 +95,7 @@ export function analyzeHead(headNode, adapter, options = {}) {
 
   // Pass 3: Get element-level custom validations
   const customValidations = includeCustomValidations
-    ? getElementValidations(headNode, adapter)
+    ? getElementValidations(headNode, adapter, pageOrigin)
     : [];
 
   return {
@@ -109,16 +111,17 @@ export function analyzeHead(headNode, adapter, options = {}) {
  * 
  * @param {any} headNode - The <head> element
  * @param {AdapterInterface} adapter - HTMLAdapter implementation
+ * @param {string|null} [pageOrigin=null] - Page origin for validation
  * @returns {Array<CustomValidation>}
  * @private
  */
-function getElementValidations(headNode, adapter) {
+function getElementValidations(headNode, adapter, pageOrigin = null) {
   /** @type {Array<CustomValidation>} */
   const customValidations = [];
   const children = adapter.getChildren(headNode);
 
   for (const element of children) {
-    const validation = getCustomValidations(element, adapter, headNode);
+    const validation = getCustomValidations(element, adapter, headNode, pageOrigin);
 
     if (validation && validation.warnings && validation.warnings.length > 0) {
       customValidations.push({

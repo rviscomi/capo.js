@@ -82,8 +82,8 @@ const head = dom.window.document.querySelector('head');
 // 2. Use the built-in BrowserAdapter
 const adapter = new BrowserAdapter();
 
-// 3. Analyze
-const results = analyzeHead(head, adapter);
+// 3. Analyze (optionally pass pageOrigin for Origin Trial validation in non-browser/CLI environments)
+const results = analyzeHead(head, adapter, { pageOrigin: 'https://example.com' });
 
 console.log(results.weights);
 ```

@@ -402,6 +402,52 @@ describe('validation.js', () => {
     });
   });
 
+  describe('validateOriginTrial', () => {
+    function createTestToken(payload) {
+      const jsonStr = JSON.stringify(payload);
+      const jsonBuf = new TextEncoder().encode(jsonStr);
+      const fullBuf = new Uint8Array(69 + jsonBuf.length);
+      const view = new DataView(fullBuf.buffer);
+      view.setUint32(65, jsonBuf.length, false);
+      fullBuf.set(jsonBuf, 69);
+      return btoa(String.fromCharCode(...fullBuf));
+    }
+
+    it('should validate token origin against pageOrigin when specified', () => {
+      const token = createTestToken({ origin: "https://rviscomi.dev:443", isSubdomain: false, isThirdParty: false, expiry: 2000000000 });
+      const element = createElement(`<meta http-equiv="origin-trial" content="${token}">`);
+      
+      // When pageOrigin matches token origin, no origin warnings
+      const validRes = getCustomValidations(element, adapter, null, 'https://rviscomi.dev');
+      assert.strictEqual(validRes.warnings?.length || 0, 0);
+
+      // When pageOrigin differs from token origin, warning is emitted
+      const invalidRes = getCustomValidations(element, adapter, null, 'https://rviscomi.github.io');
+      assert.ok(invalidRes.warnings.some(w => w.includes('invalid third-party origin')));
+    });
+
+    it('should allow subdomain origin trial token when isSubdomain is true and page is a subdomain', () => {
+      const ytToken = createTestToken({ origin: "https://youtube.com:443", isSubdomain: true, isThirdParty: false, expiry: 2000000000 });
+      const element = createElement(`<meta http-equiv="origin-trial" content="${ytToken}">`);
+      const validRes = getCustomValidations(element, adapter, null, 'https://www.youtube.com');
+      assert.strictEqual(validRes.warnings?.length || 0, 0);
+    });
+
+    it('should NOT allow subdomain token if page is parent domain instead of subdomain', () => {
+      const token = createTestToken({ origin: "https://sub.example.com:443", isSubdomain: true, isThirdParty: false, expiry: 2000000000 });
+      const element = createElement(`<meta http-equiv="origin-trial" content="${token}">`);
+      const res = getCustomValidations(element, adapter, null, 'https://example.com');
+      assert.ok(res.warnings.some(w => w.includes('invalid third-party origin')));
+    });
+
+    it('should still warn for expired tokens even when pageOrigin matches', () => {
+      const expiredToken = createTestToken({ origin: "https://rviscomi.dev:443", isSubdomain: false, isThirdParty: false, expiry: 1000000000 });
+      const element = createElement(`<meta http-equiv="origin-trial" content="${expiredToken}">`);
+      const res = getCustomValidations(element, adapter, null, 'https://rviscomi.dev');
+      assert.ok(res.warnings.some(w => w.includes('expired')));
+    });
+  });
+
   describe('validateContentType', () => {
     it('should warn about duplicate charset declarations', () => {
       const { head } = createDocument(dedent`
