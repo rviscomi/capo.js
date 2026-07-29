@@ -7,6 +7,8 @@ import VirtualConsole from "./VirtualConsole.astro";
 <script>
   import { run } from "../lib/capo.js";
   import { fetchGist, exchangeCodeForToken, createGist } from "../lib/gist.js";
+  import { highlightHTML } from "../lib/CapoWidgetElement.js";
+  import type { VirtualConsole } from "../lib/VirtualConsole.js";
 
   // GitHub OAuth settings - loaded from Astro environment files (.env.development / .env.production)
   const GITHUB_CLIENT_ID = import.meta.env.PUBLIC_GITHUB_CLIENT_ID;
@@ -15,13 +17,31 @@ import VirtualConsole from "./VirtualConsole.astro";
 
   document.addEventListener("DOMContentLoaded", init);
 
-  let markup, input, virtualConsole, url, shareBtn;
-  let lastFetchedUrl = "",
-    lastFetchedUrlHtml = "";
+  let markup: HTMLTextAreaElement | null = null;
+  let input: HTMLFormElement | null = null;
+  let virtualConsole: VirtualConsole | null = null;
+  let url: HTMLInputElement | null = null;
+  let shareBtn: HTMLButtonElement | null = null;
+  let highlightPre: HTMLElement | null = null;
+  let codeEl: HTMLElement | null = null;
+  let lastFetchedUrl = "";
+  let lastFetchedUrlHtml = "";
   let activeTabName = "HTML";
-  let activeFetchController = null;
-  let activeFetchPromise = null;
-  let activeFetchUrl = null;
+  let activeFetchController: AbortController | null = null;
+  let activeFetchPromise: Promise<string> | null = null;
+  let activeFetchUrl: string | null = null;
+
+  function syncHighlight() {
+    if (!markup || !codeEl) return;
+    codeEl.innerHTML = highlightHTML(markup.value) + "\n";
+    syncScroll();
+  }
+
+  function syncScroll() {
+    if (!markup || !highlightPre) return;
+    highlightPre.scrollTop = markup.scrollTop;
+    highlightPre.scrollLeft = markup.scrollLeft;
+  }
 
   async function init() {
     const root = document.querySelector("#capo-client");
@@ -30,8 +50,16 @@ import VirtualConsole from "./VirtualConsole.astro";
     input = root.querySelector("#input");
     virtualConsole = root.querySelector("virtual-console");
     markup = root.querySelector("#markup");
+    highlightPre = root.querySelector(".capo-widget-highlight");
+    codeEl = root.querySelector(".capo-widget-code");
     url = root.querySelector("#url");
     shareBtn = root.querySelector("#share");
+
+    if (markup) {
+      markup.addEventListener("input", syncHighlight);
+      markup.addEventListener("scroll", syncScroll);
+      syncHighlight();
+    }
 
     await handleOAuthCallback();
     const loadedGist = await initGist();
@@ -48,20 +76,19 @@ import VirtualConsole from "./VirtualConsole.astro";
     }
 
     if (shareBtn) {
-      shareBtn.addEventListener("click", handleShare);
+      shareBtn.addEventListener("click", () => handleShare());
     }
   }
 
-  function findTab(name) {
+  function findTab(name: string): HTMLElement | null {
     const root = document.querySelector("#capo-client");
     if (!root) return null;
     const target = name.trim().toUpperCase();
-    return Array.from(root.querySelectorAll("[role=tab]")).find(
-      (tab) => (tab.textContent || "").trim().toUpperCase().includes(target)
-    );
+    const tabs = Array.from(root.querySelectorAll<HTMLElement>("[role=tab]"));
+    return tabs.find((tab) => (tab.textContent || "").trim().toUpperCase().includes(target)) || null;
   }
 
-  function switchTab(name) {
+  function switchTab(name: string) {
     activeTabName = name;
     const tab = findTab(name);
     if (tab) {
@@ -72,7 +99,7 @@ import VirtualConsole from "./VirtualConsole.astro";
   async function initUrl() {
     const thisUrl = new URL(location.href);
     const urlParam = thisUrl.searchParams.get("url");
-    if (!urlParam) {
+    if (!urlParam || !url) {
       return;
     }
     url.value = urlParam;
@@ -99,20 +126,29 @@ import VirtualConsole from "./VirtualConsole.astro";
     switchTab("HTML");
 
     try {
-      markup.value = "Loading Gist...";
+      if (markup) {
+        markup.value = "Loading Gist...";
+        syncHighlight();
+      }
       const content = await fetchGist(gistParam);
-      markup.value = content;
+      if (markup) {
+        markup.value = content;
+        syncHighlight();
+      }
       await handleSubmit();
       return true;
-    } catch (e) {
+    } catch (e: any) {
       console.error("Capo error loading gist", e);
-      markup.value = `Error loading Gist: ${e.message}`;
+      if (markup) {
+        markup.value = `Error loading Gist: ${e.message}`;
+        syncHighlight();
+      }
       return false;
     }
   }
 
-  let notificationTimeout;
-  function showNotification(message, isError = false) {
+  let notificationTimeout: ReturnType<typeof setTimeout>;
+  function showNotification(message: string, isError = false) {
     const notificationEl = document.querySelector("#notification");
     if (!notificationEl) return;
 
@@ -160,10 +196,10 @@ import VirtualConsole from "./VirtualConsole.astro";
             lastFetchedUrlHtml = savedLastHtml;
           }
 
-          if (tab === "URL" && savedUrl) {
+          if (tab === "URL" && savedUrl && url) {
             url.value = savedUrl;
             switchTab("URL");
-          } else if (tab === "HTML" && savedMarkup) {
+          } else if (tab === "HTML" && savedMarkup && markup) {
             markup.value = savedMarkup;
             switchTab("HTML");
           }
@@ -172,32 +208,33 @@ import VirtualConsole from "./VirtualConsole.astro";
           console.error("Failed to process pending share", err);
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("OAuth token exchange failed", e);
       showNotification(`GitHub authentication failed: ${e.message}`, true);
     } finally {
       thisUrl.searchParams.delete("code");
-      history.replaceState(null, null, thisUrl);
+      history.replaceState(null, "", thisUrl);
     }
   }
 
-  function getSelectedTab() {
-    const urlPanel = url.closest('[role="tabpanel"]');
+  function getSelectedTab(): "URL" | "HTML" {
+    const urlPanel = url?.closest('[role="tabpanel"]');
     if (urlPanel && !urlPanel.hasAttribute("hidden")) {
       return "URL";
     }
     return "HTML";
   }
 
-  async function handleShare(targetTab) {
-    const selectedTab = (typeof targetTab === "string" ? targetTab : null) || getSelectedTab();
-    let htmlContent;
+  async function handleShare(targetTab?: string) {
+    if (!shareBtn) return;
+    const selectedTab = targetTab || getSelectedTab();
+    let htmlContent: string | undefined;
 
     const originalContent = shareBtn.innerHTML;
 
     if (selectedTab === "URL") {
-      if (!url.value || !url.validity.valid) {
-        showNotification(`Invalid URL "${url.value}"`, true);
+      if (!url || !url.value || !url.validity.valid) {
+        showNotification(`Invalid URL "${url?.value || ""}"`, true);
         return;
       }
       try {
@@ -206,14 +243,14 @@ import VirtualConsole from "./VirtualConsole.astro";
           shareBtn.textContent = "Fetching HTML...";
         }
         htmlContent = await getStaticHTML(url.value);
-      } catch (e) {
+      } catch (e: any) {
         showNotification(`Failed to fetch URL HTML: ${e.message}`, true);
         shareBtn.disabled = false;
         shareBtn.innerHTML = originalContent;
         return;
       }
     } else {
-      htmlContent = markup.value;
+      htmlContent = markup?.value;
     }
 
     if (!htmlContent || htmlContent.trim() === "") {
@@ -228,8 +265,8 @@ import VirtualConsole from "./VirtualConsole.astro";
           "capo_pending_share",
           JSON.stringify({
             tab: selectedTab,
-            url: selectedTab === "URL" ? url.value : null,
-            markup: selectedTab === "HTML" ? markup.value : null,
+            url: selectedTab === "URL" ? url?.value : null,
+            markup: selectedTab === "HTML" ? markup?.value : null,
             lastFetchedUrl: lastFetchedUrl,
             lastFetchedUrlHtml: lastFetchedUrlHtml,
           }),
@@ -250,17 +287,19 @@ import VirtualConsole from "./VirtualConsole.astro";
       shareBtn.textContent = "Saving Gist...";
       const gistId = await createGist(htmlContent, token);
 
-      markup.value = htmlContent;
+      if (markup) {
+        markup.value = htmlContent;
+      }
 
       const shareUrl = new URL(location.href);
-      if (selectedTab === "URL" && url.value) {
+      if (selectedTab === "URL" && url?.value) {
         shareUrl.searchParams.set("url", url.value);
       } else {
         shareUrl.searchParams.delete("url");
       }
       shareUrl.searchParams.set("gist", gistId);
 
-      history.replaceState(null, null, shareUrl);
+      history.replaceState(null, "", shareUrl);
 
       await navigator.clipboard.writeText(shareUrl.toString()).catch(() => {});
 
@@ -269,10 +308,12 @@ import VirtualConsole from "./VirtualConsole.astro";
       showNotification("Gist created and permalink copied to clipboard!");
 
       setTimeout(() => {
-        shareBtn.classList.remove("success");
-        shareBtn.innerHTML = originalContent;
+        if (shareBtn) {
+          shareBtn.classList.remove("success");
+          shareBtn.innerHTML = originalContent;
+        }
       }, 3500);
-    } catch (e) {
+    } catch (e: any) {
       if (e.name === "AbortError") return;
       if (e.message === "Unauthorized") {
         localStorage.removeItem("capo_github_token");
@@ -288,41 +329,42 @@ import VirtualConsole from "./VirtualConsole.astro";
     }
   }
 
-  function setUrl(urlParam) {
+  function setUrl(urlParam: string) {
     const thisUrl = new URL(location.href);
     thisUrl.searchParams.delete("gist");
     thisUrl.searchParams.set("url", urlParam);
-    history.replaceState(null, null, thisUrl);
+    history.replaceState(null, "", thisUrl);
   }
 
   async function handleSubmit() {
     try {
       const html = await getHtml();
+      if (!virtualConsole) return;
       virtualConsole.clear();
       const selectedTab = getSelectedTab();
-      const pageOrigin = selectedTab === "URL" && url.value ? new URL(url.value).origin : null;
+      const pageOrigin = selectedTab === "URL" && url?.value ? new URL(url.value).origin : null;
       run(html, virtualConsole, { pageOrigin });
-    } catch (e) {
+    } catch (e: any) {
       if (e.name === "AbortError") return;
       console.error("Capo error", e);
       showNotification(`Error: ${e.message}`, true);
     }
   }
 
-  async function getHtml() {
-    let html;
+  async function getHtml(): Promise<string> {
+    let html: string | undefined;
     const selectedTab = getSelectedTab();
 
     if (selectedTab === "URL") {
-      if (!url.value || !url.validity.valid) {
-        throw new Error(`Invalid URL "${url.value}"`);
+      if (!url || !url.value || !url.validity.valid) {
+        throw new Error(`Invalid URL "${url?.value || ""}"`);
       }
       if (url.value != url.getAttribute("placeholder")) {
         setUrl(url.value);
       }
       html = await getStaticHTML(url.value);
     } else {
-      html = markup.value;
+      html = markup?.value;
     }
 
     if (!html) {
@@ -332,7 +374,7 @@ import VirtualConsole from "./VirtualConsole.astro";
     return html;
   }
 
-  async function getStaticHTML(targetUrl) {
+  async function getStaticHTML(targetUrl: string): Promise<string> {
     if (lastFetchedUrl === targetUrl && lastFetchedUrlHtml) {
       return lastFetchedUrlHtml;
     }
@@ -352,7 +394,7 @@ import VirtualConsole from "./VirtualConsole.astro";
       const proxy = new URL("https://capo.rviscomi.workers.dev/");
       proxy.searchParams.set("url", targetUrl);
 
-      const response = await fetch(proxy, { signal: activeFetchController.signal });
+      const response = await fetch(proxy, { signal: activeFetchController?.signal });
 
       if (response.status == 502) {
         throw new Error(`502 Gateway Error. The URL ${targetUrl} cannot be fetched. (Possibly too many redirects)`);
@@ -370,7 +412,7 @@ import VirtualConsole from "./VirtualConsole.astro";
       lastFetchedUrlHtml = text;
 
       return text;
-    })();
+    } )();
 
     try {
       return await activeFetchPromise;
@@ -391,11 +433,88 @@ import VirtualConsole from "./VirtualConsole.astro";
     gap: 1.5rem;
   }
 
-  textarea {
-    display: block;
+  .capo-widget-code-container {
+    display: grid;
+    grid-template-columns: 1fr;
     width: 100%;
-    height: 200px;
-    font-family: monospace !important;
+    min-height: 150px;
+    max-height: 400px;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    background-color: var(--sl-color-black);
+    overflow: hidden;
+  }
+
+  :root[data-theme='light'] .capo-widget-code-container {
+    background-color: var(--sl-color-gray-6);
+  }
+
+  .capo-widget-highlight,
+  .capo-widget-input {
+    grid-area: 1 / 1 / 2 / 2;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0.75rem !important;
+    font-family: var(--sl-font-mono, monospace) !important;
+    font-size: 0.875rem !important;
+    line-height: 1.4 !important;
+    tab-size: 2;
+    white-space: pre !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    box-sizing: border-box;
+  }
+
+  .capo-widget-highlight {
+    pointer-events: none;
+    border: 1px solid transparent;
+    color: var(--sl-color-gray-2);
+    overflow: hidden;
+  }
+
+  .capo-widget-input {
+    min-height: 150px;
+    max-height: 400px;
+    background: transparent !important;
+    color: transparent !important;
+    caret-color: var(--sl-color-white, #ffffff);
+    border: 1px solid transparent;
+    resize: none;
+    overflow: auto;
+  }
+
+  :root[data-theme='light'] .capo-widget-input {
+    caret-color: var(--sl-color-gray-1, #000000);
+  }
+
+  .capo-widget-input:focus {
+    outline: none;
+  }
+
+  .capo-widget-code-container:focus-within {
+    border-color: var(--sl-color-text-accent);
+  }
+
+  /* Syntax Highlighting Colors matching VirtualConsole */
+  :global(.capo-widget-code .tag) {
+    color: #ff79c6;
+    font-weight: bold;
+  }
+  :global(.capo-widget-code .attr) {
+    color: #50fa7b;
+  }
+  :global(.capo-widget-code .val) {
+    color: #f1fa8c;
+  }
+
+  :root[data-theme='light'] :global(.capo-widget-code .tag) {
+    color: #881280;
+  }
+  :root[data-theme='light'] :global(.capo-widget-code .attr) {
+    color: #994500;
+  }
+  :root[data-theme='light'] :global(.capo-widget-code .val) {
+    color: #1a1aa6;
   }
 
   .actions {
@@ -468,13 +587,15 @@ import VirtualConsole from "./VirtualConsole.astro";
   <form id="input">
     <Tabs>
       <TabItem label="HTML">
-        <!-- prettier-ignore -->
-        <textarea id="markup" placeholder="Enter HTML"><title>test</title>
-<meta charset="utf-8">
-<meta name="description" content="Try capo.js">
+        <div class="capo-widget-code-container">
+          <pre class="capo-widget-highlight" aria-hidden="true"><code class="capo-widget-code"></code></pre>
+          <textarea id="markup" class="capo-widget-input" placeholder="Enter HTML" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">&lt;title&gt;test&lt;/title&gt;
+&lt;meta charset="utf-8"&gt;
+&lt;meta name="description" content="Try capo.js"&gt;
 &lt;style&gt;&lt;/style&gt;
-<meta http-equiv="origin-trial" content="AuNyVoVDAnYrBa2cL89WmgDSi1Os1UAt4SmcY1vXSJKDlIlBNfD4SEpIfg3LNDexEWv6N2kHnJ17MT4cVmRhQgIAAABueyJvcmlnaW4iOiJodHRwczovL3J2aXNjb21pLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiQmFja0ZvcndhcmRDYWNoZU5vdFJlc3RvcmVkUmVhc29ucyIsImV4cGlyeSI6MTY5MTUzOTE5OX0=">
+&lt;meta http-equiv="origin-trial" content="AuNyVoVDAnYrBa2cL89WmgDSi1Os1UAt4SmcY1vXSJKDlIlBNfD4SEpIfg3LNDexEWv6N2kHnJ17MT4cVmRhQgIAAABueyJvcmlnaW4iOiJodHRwczovL3J2aXNjb21pLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiQmFja0ZvcndhcmRDYWNoZU5vdFJlc3RvcmVkUmVhc29ucyIsImV4cGlyeSI6MTY5MTUzOTE5OX0="&gt;
 &lt;script&gt;&lt;/script&gt;</textarea>
+        </div>
       </TabItem>
       <TabItem label="URL">
         <input id="url" type="url" value="https://www.example.com/" placeholder="https://www.example.com/" />

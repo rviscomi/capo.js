@@ -24,3 +24,6 @@ jobs:
     - name: Run docs tests
       run: npm test
       working-directory: ./docs
+    - name: Run docs check
+      run: npm run check
+      working-directory: ./docs
