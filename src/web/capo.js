@@ -16,7 +16,7 @@ const FORCED_OPTIONS = {
  * 
  * @param {string} input HTML string
  * @param {any} output Mock console implementation
- * @param {import("../lib/options.js").OptionsInit & { pageOrigin?: string }} [userOptions={}] Capo options
+ * @param {import("../lib/options.js").OptionsInit & { pageOrigin?: string | null }} [userOptions={}] Capo options
  */
 export function run(input, output, userOptions={}) {
   const pageOrigin = userOptions.pageOrigin || null;

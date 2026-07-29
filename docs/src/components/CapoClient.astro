@@ -342,7 +342,7 @@ import VirtualConsole from "./VirtualConsole.astro";
       if (!virtualConsole) return;
       virtualConsole.clear();
       const selectedTab = getSelectedTab();
-      const pageOrigin = selectedTab === "URL" && url?.value ? new URL(url.value).origin : null;
+      const pageOrigin = selectedTab === "URL" && url?.value ? new URL(url.value).origin : undefined;
       run(html, virtualConsole, { pageOrigin });
     } catch (e: any) {
       if (e.name === "AbortError") return;
