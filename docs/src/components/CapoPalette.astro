@@ -1,6 +1,6 @@
 ---
 const { colors } = Astro.props;
-const bgcolors = JSON.parse(colors).map(color => {
+const bgcolors = JSON.parse(colors).map((color: string) => {
   return `background-color: ${color};`;
 });
 ---
@@ -20,7 +20,7 @@ const bgcolors = JSON.parse(colors).map(color => {
 </style>
 
 <div>
-  {bgcolors.map(style => (
+  {bgcolors.map((style: string) => (
     <span style={style}></span>
   ))}
 </div>
