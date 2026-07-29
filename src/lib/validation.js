@@ -106,9 +106,10 @@ function isDuplicateBase(element, adapter) {
  * Check if an element has any validation warning
  * @param {any} element
  * @param {AdapterInterface} adapter
+ * @param {string|null} [pageOrigin=null]
  * @returns {boolean}
  */
-export function hasValidationWarning(element, adapter) {
+export function hasValidationWarning(element, adapter, pageOrigin = null) {
   // Element itself is not valid.
   if (!isValidElement(element, adapter)) {
     return true;
@@ -155,7 +156,7 @@ export function hasValidationWarning(element, adapter) {
   }
 
   // Origin trial expired, or invalid origin.
-  if (isInvalidOriginTrial(element, adapter)) {
+  if (isInvalidOriginTrial(element, adapter, pageOrigin)) {
     return true;
   }
 
@@ -252,14 +253,15 @@ export function getValidationWarnings(head, adapter) {
  * @param {any} element
  * @param {AdapterInterface} adapter
  * @param {any} [parentElement=null]
+ * @param {string|null} [pageOrigin=null]
  * @returns {CustomValidationResult}
  */
-export function getCustomValidations(element, adapter, parentElement = null) {
+export function getCustomValidations(element, adapter, parentElement = null, pageOrigin = null) {
   /** @type {CustomValidationResult[]} */
   const results = [];
 
   if (isOriginTrial(element, adapter)) {
-    results.push(validateOriginTrial(element, adapter));
+    results.push(validateOriginTrial(element, adapter, pageOrigin));
   }
 
   if (isMetaCSP(element, adapter)) {
@@ -383,23 +385,25 @@ function validateCSP(element, adapter) {
 /**
  * @param {any} element
  * @param {AdapterInterface} adapter
+ * @param {string|null} [pageOrigin=null]
  * @returns {boolean}
  */
-function isInvalidOriginTrial(element, adapter) {
+function isInvalidOriginTrial(element, adapter, pageOrigin = null) {
   if (!isOriginTrial(element, adapter)) {
     return false;
   }
 
-  const { warnings } = validateOriginTrial(element, adapter);
+  const { warnings } = validateOriginTrial(element, adapter, pageOrigin);
   return (warnings?.length ?? 0) > 0;
 }
 
 /**
  * @param {any} element
  * @param {AdapterInterface} adapter
+ * @param {string|null} [pageOrigin=null]
  * @returns {CustomValidationResult}
  */
-function validateOriginTrial(element, adapter) {
+function validateOriginTrial(element, adapter, pageOrigin = null) {
   /** @type {CustomValidationResult} */
   const metadata = {
     ruleId: 'no-invalid-origin-trial',
@@ -419,9 +423,10 @@ function validateOriginTrial(element, adapter) {
     metadata.warnings?.push("Invalid origin trial token: expired");
   }
   
-  if (typeof document !== 'undefined' && document.location && document.location.href) {
-    if (!isSameOrigin(metadata.payload.origin, document.location.href)) {
-      const subdomain = isSubdomain(metadata.payload.origin, document.location.href);
+  const targetOrigin = pageOrigin || (typeof document !== 'undefined' && document.location && document.location.href);
+  if (targetOrigin) {
+    if (!isSameOrigin(metadata.payload.origin, targetOrigin)) {
+      const subdomain = isSubdomain(metadata.payload.origin, targetOrigin);
       if (subdomain && !metadata.payload.isSubdomain) {
         metadata.warnings?.push("Invalid origin trial token: invalid subdomain");
       } else if (!subdomain && !metadata.payload.isThirdParty) {
@@ -458,13 +463,13 @@ function isSameOrigin(a, b) {
 }
 
 /**
- * @param {string} a
- * @param {string} b
+ * @param {string} tokenOrigin - Origin from origin trial token (e.g., https://youtube.com:443)
+ * @param {string} pageUrl - Page URL or origin (e.g., https://www.youtube.com)
  * @returns {boolean}
  */
-function isSubdomain(a, b) {
-  const urlA = new URL(a);
-  const urlB = new URL(b);
+function isSubdomain(tokenOrigin, pageUrl) {
+  const urlA = new URL(tokenOrigin);
+  const urlB = new URL(pageUrl);
   return urlB.host.endsWith(`.${urlA.host}`);
 }
 

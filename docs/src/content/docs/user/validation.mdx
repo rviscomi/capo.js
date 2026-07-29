@@ -170,6 +170,8 @@ capo.js decodes these tokens and validates their metadata to ensure that:
 
 :::caution[Origin trial validation with static evaluation]
 Embedded third parties may dynamically inject origin trial `<meta>` elements in order for them to make use of experimental features. By default, capo.js will only evaluate elements in the static `<head>`, so these elements will not be validated. Enable the [dynamic evaluation](/capo.js/user/config/#static-and-dynamic-evaluation) option to validate them.
+
+When evaluating HTML programmatically or in non-browser environments (e.g. linters or external URL fetchers), pass the `pageOrigin` option to `analyzeHead(headNode, adapter, { pageOrigin: 'https://example.com' })` so origin trial tokens are validated against the target page origin instead of `document.location`.
 :::
 
 If capo.js detects an invalid origin trial token, it will log a validation warning:

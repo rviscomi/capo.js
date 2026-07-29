@@ -299,7 +299,9 @@ import VirtualConsole from "./VirtualConsole.astro";
     try {
       const html = await getHtml();
       virtualConsole.clear();
-      run(html, virtualConsole);
+      const selectedTab = getSelectedTab();
+      const pageOrigin = selectedTab === "URL" && url.value ? new URL(url.value).origin : null;
+      run(html, virtualConsole, { pageOrigin });
     } catch (e) {
       if (e.name === "AbortError") return;
       console.error("Capo error", e);
