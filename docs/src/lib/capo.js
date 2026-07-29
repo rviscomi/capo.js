@@ -222,7 +222,7 @@ function $c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter) {
     const siblings = adapter.getSiblings(element);
     return siblings.some((sibling)=>adapter.getTagName(sibling) === 'base');
 }
-function $c322f9a5057eaf5c$export$eeefd08c3a6f8db7(element, adapter) {
+function $c322f9a5057eaf5c$export$eeefd08c3a6f8db7(element, adapter, pageOrigin = null) {
     // Element itself is not valid.
     if (!$c322f9a5057eaf5c$export$a8257692ac88316c(element, adapter)) return true;
     // Children are not valid.
@@ -242,7 +242,7 @@ function $c322f9a5057eaf5c$export$eeefd08c3a6f8db7(element, adapter) {
     // Invalid character encoding.
     if ($c322f9a5057eaf5c$var$isInvalidContentType(element, adapter)) return true;
     // Origin trial expired, or invalid origin.
-    if ($c322f9a5057eaf5c$var$isInvalidOriginTrial(element, adapter)) return true;
+    if ($c322f9a5057eaf5c$var$isInvalidOriginTrial(element, adapter, pageOrigin)) return true;
     // Preload is unnecessary.
     if ($c322f9a5057eaf5c$var$isUnnecessaryPreload(element, adapter)) return true;
     // Preload is missing crossorigin.
@@ -301,9 +301,9 @@ function $c322f9a5057eaf5c$export$b01ab94d0cd042a0(head, adapter) {
     });
     return validationWarnings;
 }
-function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element, adapter, parentElement = null) {
+function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element, adapter, parentElement = null, pageOrigin = null) {
     /** @type {CustomValidationResult[]} */ const results = [];
-    if ((0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element, adapter)) results.push($c322f9a5057eaf5c$var$validateOriginTrial(element, adapter));
+    if ((0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element, adapter)) results.push($c322f9a5057eaf5c$var$validateOriginTrial(element, adapter, pageOrigin));
     if ((0, $ee7e0c73e51ebfda$export$14b1a2f64a600585)(element, adapter)) results.push($c322f9a5057eaf5c$var$validateCSP(element, adapter));
     if ($c322f9a5057eaf5c$var$isDefaultStyle(element, adapter)) results.push($c322f9a5057eaf5c$var$validateDefaultStyle(element, adapter));
     if ($c322f9a5057eaf5c$var$isMetaViewport(element, adapter)) results.push($c322f9a5057eaf5c$var$validateMetaViewport(element, adapter));
@@ -372,17 +372,19 @@ function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element, adapter, parentEleme
 /**
  * @param {any} element
  * @param {AdapterInterface} adapter
+ * @param {string|null} [pageOrigin=null]
  * @returns {boolean}
- */ function $c322f9a5057eaf5c$var$isInvalidOriginTrial(element, adapter) {
+ */ function $c322f9a5057eaf5c$var$isInvalidOriginTrial(element, adapter, pageOrigin = null) {
     if (!(0, $ee7e0c73e51ebfda$export$38a04d482ec50f88)(element, adapter)) return false;
-    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter);
+    const { warnings: warnings } = $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter, pageOrigin);
     return (warnings?.length ?? 0) > 0;
 }
 /**
  * @param {any} element
  * @param {AdapterInterface} adapter
+ * @param {string|null} [pageOrigin=null]
  * @returns {CustomValidationResult}
- */ function $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter) {
+ */ function $c322f9a5057eaf5c$var$validateOriginTrial(element, adapter, pageOrigin = null) {
     /** @type {CustomValidationResult} */ const metadata = {
         ruleId: 'no-invalid-origin-trial',
         payload: null,
@@ -396,9 +398,10 @@ function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element, adapter, parentEleme
         return metadata;
     }
     if (metadata.payload.expiry < new Date()) metadata.warnings?.push("Invalid origin trial token: expired");
-    if (typeof document !== 'undefined' && document.location && document.location.href) {
-        if (!$c322f9a5057eaf5c$var$isSameOrigin(metadata.payload.origin, document.location.href)) {
-            const subdomain = $c322f9a5057eaf5c$var$isSubdomain(metadata.payload.origin, document.location.href);
+    const targetOrigin = pageOrigin || typeof document !== 'undefined' && document.location && document.location.href;
+    if (targetOrigin) {
+        if (!$c322f9a5057eaf5c$var$isSameOrigin(metadata.payload.origin, targetOrigin)) {
+            const subdomain = $c322f9a5057eaf5c$var$isSubdomain(metadata.payload.origin, targetOrigin);
             if (subdomain && !metadata.payload.isSubdomain) metadata.warnings?.push("Invalid origin trial token: invalid subdomain");
             else if (!subdomain && !metadata.payload.isThirdParty) metadata.warnings?.push("Invalid origin trial token: invalid third-party origin");
         }
@@ -428,12 +431,12 @@ function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element, adapter, parentEleme
     return new URL(a).origin === new URL(b).origin;
 }
 /**
- * @param {string} a
- * @param {string} b
+ * @param {string} tokenOrigin - Origin from origin trial token (e.g., https://youtube.com:443)
+ * @param {string} pageUrl - Page URL or origin (e.g., https://www.youtube.com)
  * @returns {boolean}
- */ function $c322f9a5057eaf5c$var$isSubdomain(a, b) {
-    const urlA = new URL(a);
-    const urlB = new URL(b);
+ */ function $c322f9a5057eaf5c$var$isSubdomain(tokenOrigin, pageUrl) {
+    const urlA = new URL(tokenOrigin);
+    const urlB = new URL(pageUrl);
     return urlB.host.endsWith(`.${urlA.host}`);
 }
 /**
@@ -915,13 +918,13 @@ function $c322f9a5057eaf5c$export$6c93e2175c028eeb(element, adapter, parentEleme
 
 
 function $4638c35e8aec1c56$export$66aa292af6e88fd9(headNode, adapter, options = {}) {
-    const { includeValidation: includeValidation = true, includeCustomValidations: includeCustomValidations = true } = options;
+    const { includeValidation: includeValidation = true, includeCustomValidations: includeCustomValidations = true, pageOrigin: pageOrigin = null } = options;
     // Pass 1: Compute weights for all elements
     const weights = $ee7e0c73e51ebfda$export$5cc4a311ddbe699c(headNode, adapter);
     // Pass 2: Get document-level validation warnings
     const validationWarnings = includeValidation ? (0, $c322f9a5057eaf5c$export$b01ab94d0cd042a0)(headNode, adapter) : [];
     // Pass 3: Get element-level custom validations
-    const customValidations = includeCustomValidations ? $4638c35e8aec1c56$var$getElementValidations(headNode, adapter) : [];
+    const customValidations = includeCustomValidations ? $4638c35e8aec1c56$var$getElementValidations(headNode, adapter, pageOrigin) : [];
     return {
         weights: weights,
         validationWarnings: validationWarnings,
@@ -934,13 +937,14 @@ function $4638c35e8aec1c56$export$66aa292af6e88fd9(headNode, adapter, options = 
  * 
  * @param {any} headNode - The <head> element
  * @param {AdapterInterface} adapter - HTMLAdapter implementation
+ * @param {string|null} [pageOrigin=null] - Page origin for validation
  * @returns {Array<CustomValidation>}
  * @private
- */ function $4638c35e8aec1c56$var$getElementValidations(headNode, adapter) {
+ */ function $4638c35e8aec1c56$var$getElementValidations(headNode, adapter, pageOrigin = null) {
     /** @type {Array<CustomValidation>} */ const customValidations = [];
     const children = adapter.getChildren(headNode);
     for (const element of children){
-        const validation = (0, $c322f9a5057eaf5c$export$6c93e2175c028eeb)(element, adapter, headNode);
+        const validation = (0, $c322f9a5057eaf5c$export$6c93e2175c028eeb)(element, adapter, headNode, pageOrigin);
         if (validation && validation.warnings && validation.warnings.length > 0) customValidations.push({
             ruleId: validation.ruleId,
             element: element,
@@ -1719,13 +1723,16 @@ const $3536df9ffc9a62b8$var$FORCED_OPTIONS = {
     preferredAssessmentMode: (0, $5daa40bf356478d7$export$c019608e5b5bb4cb).AssessmentMode.DYNAMIC
 };
 function $3536df9ffc9a62b8$export$889ea624f2cb2c57(input, output, userOptions = {}) {
-    userOptions = Object.assign(userOptions, $3536df9ffc9a62b8$var$FORCED_OPTIONS);
+    const pageOrigin = userOptions.pageOrigin || null;
+    userOptions = Object.assign({}, userOptions, $3536df9ffc9a62b8$var$FORCED_OPTIONS);
     const options = new (0, $5daa40bf356478d7$export$c019608e5b5bb4cb)(userOptions);
     const io = new (0, $33f7359dc421be0c$export$8f8422ac5947a789)(null, options, output);
     io.initFromHTML(input);
     const headElement = io.getHead();
     const adapter = new (0, $6e48536853157d9f$export$e467cc3399500025)();
-    const result = (0, $4638c35e8aec1c56$export$66aa292af6e88fd9)(headElement, adapter);
+    const result = (0, $4638c35e8aec1c56$export$66aa292af6e88fd9)(headElement, adapter, {
+        pageOrigin: pageOrigin
+    });
     io.logAnalysis(result);
 }
 
