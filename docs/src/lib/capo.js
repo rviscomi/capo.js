@@ -62,10 +62,30 @@ function $ee7e0c73e51ebfda$export$20e2051ffd813ee3(element, adapter) {
 }
 function $ee7e0c73e51ebfda$export$be443fc6335656f0(element, adapter) {
     const importRe = /@import/;
-    if (adapter.getTagName(element) === 'style') {
+    const tagName = adapter.getTagName(element);
+    if (tagName === 'style') {
         const media = adapter.getAttribute(element, 'media');
         if (media && media.toLowerCase().trim() === 'print') return false;
         return importRe.test(adapter.getTextContent(element));
+    }
+    if (tagName === 'link') {
+        const rel = adapter.getAttribute(element, 'rel');
+        if (rel?.toLowerCase() === 'stylesheet') {
+            const media = adapter.getAttribute(element, 'media');
+            if (media && media.toLowerCase().trim() === 'print') return false;
+            const sheet = adapter.getSheet(element);
+            if (sheet) try {
+                const cssRules = sheet.cssRules || sheet.rules;
+                if (cssRules) for (const rule of cssRules){
+                    if (rule.type === 3 || typeof CSSImportRule !== 'undefined' && rule instanceof CSSImportRule || rule.cssText && importRe.test(rule.cssText)) return true;
+                }
+            } catch (e) {
+            // Ignore CORS security errors when accessing cross-origin cssRules
+            }
+            // Check textContent in case a custom adapter or non-browser parser populated CSS text on link
+            const textContent = adapter.getTextContent(element);
+            if (textContent && importRe.test(textContent)) return true;
+        }
     }
     return false;
 }
@@ -1096,6 +1116,13 @@ class $7afc5bf68bcc75e1$export$d1d100ae3c773a95 {
         return null;
     }
     /**
+   * Get style sheet object for a style or link element (optional)
+   * @param {any} node - Element node
+   * @returns {any | null}
+   */ getSheet(node) {
+        return null;
+    }
+    /**
    * Stringify element for logging/debugging
    * @param {any} node - Element node
    * @returns {string} - String representation like "<meta charset='utf-8'>"
@@ -1224,6 +1251,15 @@ class $6e48536853157d9f$export$e467cc3399500025 extends (0, $7afc5bf68bcc75e1$ex
    */ getLocation(node) {
         // Not available in browser DOM
         return null;
+    }
+    /**
+   * Get style sheet object for a style or link element
+   * @override
+   * @param {any} node - Element node
+   * @returns {CSSStyleSheet | null}
+   */ getSheet(node) {
+        if (!node) return null;
+        return node.sheet || null;
     }
     /**
    * Stringify element for logging/debugging

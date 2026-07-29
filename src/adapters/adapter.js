@@ -139,6 +139,15 @@ export class AdapterInterface {
   }
 
   /**
+   * Get style sheet object for a style or link element (optional)
+   * @param {any} node - Element node
+   * @returns {any | null}
+   */
+  getSheet(node) {
+    return null;
+  }
+
+  /**
    * Stringify element for logging/debugging
    * @param {any} node - Element node
    * @returns {string} - String representation like "<meta charset='utf-8'>"
