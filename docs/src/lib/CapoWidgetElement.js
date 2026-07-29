@@ -1,4 +1,4 @@
-import { run } from './capo.js';
+import { run } from '../../../src/web/capo.js';
 
 export function escapeHTML(str) {
   return str

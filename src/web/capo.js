@@ -1,7 +1,7 @@
-import { analyzeHead } from "@rviscomi/capo.js";
-import { BrowserAdapter } from "@rviscomi/capo.js/adapters/browser";
-import { IO } from "@rviscomi/capo.js/lib/io";
-import { Options } from "@rviscomi/capo.js/lib/options";
+import { analyzeHead } from "../index.js";
+import { BrowserAdapter } from "../adapters/browser.js";
+import { IO } from "../lib/io.js";
+import { Options } from "../lib/options.js";
 
 
 const FORCED_OPTIONS = {
@@ -16,7 +16,7 @@ const FORCED_OPTIONS = {
  * 
  * @param {string} input HTML string
  * @param {any} output Mock console implementation
- * @param {import("@rviscomi/capo.js/lib/options").OptionsInit & { pageOrigin?: string }} [userOptions={}] Capo options
+ * @param {import("../lib/options.js").OptionsInit & { pageOrigin?: string | null }} [userOptions={}] Capo options
  */
 export function run(input, output, userOptions={}) {
   const pageOrigin = userOptions.pageOrigin || null;

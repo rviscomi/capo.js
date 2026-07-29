@@ -5,7 +5,7 @@ import VirtualConsole from "./VirtualConsole.astro";
 ---
 
 <script>
-  import { run } from "../lib/capo.js";
+  import { run } from "../../../src/web/capo.js";
   import { fetchGist, exchangeCodeForToken, createGist } from "../lib/gist.js";
   import { highlightHTML } from "../lib/CapoWidgetElement.js";
   import type { VirtualConsole } from "../lib/VirtualConsole.js";
@@ -342,7 +342,7 @@ import VirtualConsole from "./VirtualConsole.astro";
       if (!virtualConsole) return;
       virtualConsole.clear();
       const selectedTab = getSelectedTab();
-      const pageOrigin = selectedTab === "URL" && url?.value ? new URL(url.value).origin : null;
+      const pageOrigin = selectedTab === "URL" && url?.value ? new URL(url.value).origin : undefined;
       run(html, virtualConsole, { pageOrigin });
     } catch (e: any) {
       if (e.name === "AbortError") return;

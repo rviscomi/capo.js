@@ -1,7 +1,7 @@
-import { analyzeHead } from "@rviscomi/capo.js";
-import { BrowserAdapter } from "@rviscomi/capo.js/adapters/browser";
-import { IO } from "@rviscomi/capo.js/lib/io";
-import { Options } from "@rviscomi/capo.js/lib/options";
+import { analyzeHead } from "../index.js";
+import { BrowserAdapter } from "../adapters/browser.js";
+import { IO } from "../lib/io.js";
+import { Options } from "../lib/options.js";
 
 /**
  * @param {any} obj
