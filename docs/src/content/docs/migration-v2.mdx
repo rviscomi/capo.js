@@ -12,7 +12,7 @@ The library has been refactored to provide a more direct and modern API. The pre
 **Before (v1):**
 
 ```javascript
-import { rules, validation } from '@rviscomi/capo.js';
+import { rules, validation } from "@rviscomi/capo.js";
 
 const weight = rules.getWeight(element);
 const isValid = validation.isValidElement(element);
@@ -21,7 +21,7 @@ const isValid = validation.isValidElement(element);
 **After (v2):**
 
 ```javascript
-import { getWeight, isValidElement, BrowserAdapter } from '@rviscomi/capo.js';
+import { getWeight, isValidElement, BrowserAdapter } from "@rviscomi/capo.js";
 
 const adapter = new BrowserAdapter();
 const weight = getWeight(element, adapter);
@@ -46,7 +46,7 @@ capo.js now supports a flexible adapter system, allowing it to run on different 
 - **Custom adapters**: Consumers can implement their own adapters by extending the base `AdapterInterface` class. This enables capo.js to work with different parsers (like JSDOM or ASTs), unlocking its use in static analysis tools.
 
 ```javascript
-import { BrowserAdapter, analyzeHead } from '@rviscomi/capo.js';
+import { BrowserAdapter, analyzeHead } from "@rviscomi/capo.js";
 
 const adapter = new BrowserAdapter();
 const results = analyzeHead(document.head, adapter);
@@ -59,4 +59,3 @@ const results = analyzeHead(document.head, adapter);
 ### Virtual console
 
 The demo page now includes a virtual console, making it easier to see Capo output right in the docs, without needing to open the browser console.
-

@@ -74,14 +74,7 @@ function print(result) {
  * @param {any} params.customValidations
  * @returns {HTMLSpanElement}
  */
-function getCapoHeadElement({
-  weight,
-  color,
-  selector,
-  html,
-  isValid,
-  customValidations,
-}) {
+function getCapoHeadElement({ weight, color, selector, html, isValid, customValidations }) {
   const span = document.createElement("span");
   span.classList.add("capo-head-element");
   span.classList.toggle("invalid", !isValid);
@@ -101,7 +94,7 @@ async function handleCapoClick(event) {
   const target = /** @type {HTMLElement} */ (event.target);
   if (!target || !target.dataset) return;
   const { weight, selector, html } = target.dataset;
-  const customValidations = JSON.parse(target.dataset.customValidations || '{}');
+  const customValidations = JSON.parse(target.dataset.customValidations || "{}");
   const isValid = !target.classList.contains("invalid");
 
   await chrome.storage.local.set({

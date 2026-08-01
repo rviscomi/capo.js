@@ -1,13 +1,13 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
-const DEFAULT_SRC = 'src/extension';
-const DEFAULT_DIST = 'dist';
+const DEFAULT_SRC = "src/extension";
+const DEFAULT_DIST = "dist";
 
 // Files to exclude from copying (Parcel handles these)
-const EXCLUDE = ['capo.js', 'options.js'];
+const EXCLUDE = ["capo.js", "options.js"];
 
 /**
  * @param {string} src
@@ -29,7 +29,7 @@ export function copyDir(src, dest, srcBase = src) {
       copyDir(srcPath, destPath, srcBase);
     } else {
       // Don't copy manifest.json directly, we handle it separately
-      if (src === srcBase && entry.name === 'manifest.json') {
+      if (src === srcBase && entry.name === "manifest.json") {
         continue;
       }
       fs.copyFileSync(srcPath, destPath);
@@ -48,15 +48,13 @@ export function transformManifestForFirefox(manifest) {
       id: "capo@rviscomi.github.io",
       strict_min_version: "142.0",
       data_collection_permissions: {
-        required: [
-          "none"
-        ]
-      }
-    }
+        required: ["none"],
+      },
+    },
   };
   if (firefoxManifest.background && firefoxManifest.background.service_worker) {
     firefoxManifest.background = {
-      scripts: [firefoxManifest.background.service_worker]
+      scripts: [firefoxManifest.background.service_worker],
     };
   }
   return firefoxManifest;
@@ -79,30 +77,27 @@ export function transformManifestForChrome(manifest) {
  * @param {boolean} [options.zip]
  */
 export function buildExtension({ src = DEFAULT_SRC, dist = DEFAULT_DIST, zip = true } = {}) {
-  const distChrome = path.join(dist, 'chrome');
-  const distFirefox = path.join(dist, 'firefox');
+  const distChrome = path.join(dist, "chrome");
+  const distFirefox = path.join(dist, "firefox");
 
   // 1. Copy all static files
   copyDir(src, distChrome);
   copyDir(src, distFirefox);
 
   // 2. Handle manifest.json
-  const manifestPath = path.join(src, 'manifest.json');
+  const manifestPath = path.join(src, "manifest.json");
   if (fs.existsSync(manifestPath)) {
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 
     const firefoxManifest = transformManifestForFirefox(manifest);
-    fs.writeFileSync(path.join(distFirefox, 'manifest.json'), JSON.stringify(firefoxManifest, null, 2));
+    fs.writeFileSync(path.join(distFirefox, "manifest.json"), JSON.stringify(firefoxManifest, null, 2));
 
     const chromeManifest = transformManifestForChrome(manifest);
-    fs.writeFileSync(path.join(distChrome, 'manifest.json'), JSON.stringify(chromeManifest, null, 2));
+    fs.writeFileSync(path.join(distChrome, "manifest.json"), JSON.stringify(chromeManifest, null, 2));
   }
 
   // 3. Copy compiled JS files from chrome to firefox (since Parcel deduplicates identical targets)
-  const compiledFiles = [
-    'capo.js',
-    'options/options.js'
-  ];
+  const compiledFiles = ["capo.js", "options/options.js"];
   for (const file of compiledFiles) {
     const srcFile = path.join(distChrome, file);
     const destFile = path.join(distFirefox, file);
@@ -112,19 +107,19 @@ export function buildExtension({ src = DEFAULT_SRC, dist = DEFAULT_DIST, zip = t
     }
   }
 
-  console.log('Static extension files copied and manifests generated.');
+  console.log("Static extension files copied and manifests generated.");
 
   // 4. Zip the extensions
   if (zip) {
     try {
-      console.log('Zipping extensions...');
+      console.log("Zipping extensions...");
       // -r: recursive, -q: quiet, -FS: sync (update/delete as needed)
       execSync(`cd ${distChrome} && zip -r -q ../chrome.zip .`);
-      console.log('Created dist/chrome.zip');
+      console.log("Created dist/chrome.zip");
       execSync(`cd ${distFirefox} && zip -r -q ../firefox.zip .`);
-      console.log('Created dist/firefox.zip');
+      console.log("Created dist/firefox.zip");
     } catch (error) {
-      console.error('Failed to zip extensions:', (/** @type {Error} */ (error)).message);
+      console.error("Failed to zip extensions:", /** @type {Error} */ (error).message);
     }
   }
 }

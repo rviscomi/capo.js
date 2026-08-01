@@ -5,10 +5,9 @@ tableOfContents:
   maxHeadingLevel: 4
 ---
 
-import InlineCapoWeightBars from '../../../components/InlineCapoWeightBars.astro';
-import CapoWidget from '../../../components/CapoWidget.astro';
-import { Tabs, TabItem } from '@astrojs/starlight/components';
-
+import InlineCapoWeightBars from "../../../components/InlineCapoWeightBars.astro";
+import CapoWidget from "../../../components/CapoWidget.astro";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 Elements are categorized into 11 groups. Each group has an associated weight to determine the optimal sort order. Elements within the same group are considered equal weight and displayed in the order they're found in the document.
 
@@ -78,7 +77,6 @@ Due to a known [performance bug](https://bugs.chromium.org/p/chromium/issues/det
 To effectively mitigate all possible security risks, this declaration should be set before any resource content, so capo.js recommends placing it in the top position.
 
 Note that the meta tag version of CSP has functional limitations compared to the HTTP header, such as lack of support for the `report-to` directive.
-
 
 #### `origin-trial`
 
@@ -207,7 +205,6 @@ Prefetch and prerender hints tell the browser to prepare for resources that migh
 Because they are not needed for the current page, capo.js recommends placing them at the bottom of the `<head>` to ensure they don't compete with resources needed for the current page.
 
 While `dns-prefetch` also deals with connection setup like [`preconnect`](#link-relpreconnect), it is placed here because it is a speculative hint for future navigations or low-priority resources, whereas `preconnect` is for resources needed immediately.
-
 
 ## <InlineCapoWeightBars weight="1" /> 1. Everything else
 

@@ -1,14 +1,14 @@
-import * as colors from './colors.js';
+import * as colors from "./colors.js";
 
 /**
  * @typedef {'static' | 'dynamic'} AssessmentModeValue
- * 
+ *
  * @typedef {Object} OptionsInit
  * @property {AssessmentModeValue} [preferredAssessmentMode]
  * @property {boolean} [validation]
  * @property {string | string[]} [palette]
  * @property {string} [loggingPrefix]
- * 
+ *
  * @typedef {Object} OptionsValue
  * @property {string} preferredAssessmentMode
  * @property {boolean} validation
@@ -24,7 +24,7 @@ export class Options {
     preferredAssessmentMode = Options.AssessmentMode.STATIC,
     validation = true,
     palette = colors.DEFAULT,
-    loggingPrefix = 'Capo: '
+    loggingPrefix = "Capo: ",
   } = {}) {
     /** @type {string} */
     this.preferredAssessmentMode = Options.AssessmentMode.STATIC;
@@ -33,7 +33,7 @@ export class Options {
     /** @type {string[]} */
     this.palette = colors.DEFAULT;
     /** @type {string} */
-    this.loggingPrefix = 'Capo: ';
+    this.loggingPrefix = "Capo: ";
 
     this.setPreferredAssessmentMode(preferredAssessmentMode);
     this.setValidation(validation);
@@ -46,8 +46,8 @@ export class Options {
    */
   static get AssessmentMode() {
     return {
-      STATIC: 'static',
-      DYNAMIC: 'dynamic'
+      STATIC: "static",
+      DYNAMIC: "dynamic",
     };
   }
 
@@ -84,7 +84,9 @@ export class Options {
    */
   setPreferredAssessmentMode(preferredAssessmentMode) {
     if (!this.isValidAssessmentMode(preferredAssessmentMode)) {
-      throw new Error(`Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`);
+      throw new Error(
+        `Invalid option: preferred assessment mode, expected AssessmentMode.STATIC or AssessmentMode.DYNAMIC, got "${preferredAssessmentMode}".`,
+      );
     }
 
     this.preferredAssessmentMode = preferredAssessmentMode;
@@ -99,7 +101,7 @@ export class Options {
     if (!prefersStatic) {
       mode = Options.AssessmentMode.DYNAMIC;
     }
-    
+
     this.setPreferredAssessmentMode(mode);
   }
 
@@ -119,14 +121,16 @@ export class Options {
    */
   setPalette(palette) {
     if (!this.isValidPalette(palette)) {
-      throw new Error(`Invalid option: palette, expected [${Object.keys(colors.Palettes).join('|')}] or an array of colors, got "${palette}".`);
+      throw new Error(
+        `Invalid option: palette, expected [${Object.keys(colors.Palettes).join("|")}] or an array of colors, got "${palette}".`,
+      );
     }
 
-    if (typeof palette === 'string') {
+    if (typeof palette === "string") {
       this.palette = colors.Palettes[palette];
       return;
     }
-    
+
     this.palette = palette;
   }
 
@@ -154,7 +158,7 @@ export class Options {
    * @returns {boolean}
    */
   isValidValidation(validation) {
-    return typeof validation === 'boolean';
+    return typeof validation === "boolean";
   }
 
   /**
@@ -162,15 +166,15 @@ export class Options {
    * @returns {boolean}
    */
   isValidPalette(palette) {
-    if (typeof palette === 'string') {
+    if (typeof palette === "string") {
       return Object.keys(colors.Palettes).includes(palette);
     }
-    
+
     if (!Array.isArray(palette)) {
       return false;
     }
 
-    return palette.length === 11 && palette.every(color => typeof color === 'string');
+    return palette.length === 11 && palette.every((color) => typeof color === "string");
   }
 
   /**
@@ -178,7 +182,7 @@ export class Options {
    * @returns {boolean}
    */
   isValidLoggingPrefix(loggingPrefix) {
-    return typeof loggingPrefix === 'string';
+    return typeof loggingPrefix === "string";
   }
 
   /**
@@ -186,7 +190,7 @@ export class Options {
    * @returns {boolean}
    */
   isPreferredPalette(palette) {
-    return JSON.stringify(this.palette) == JSON.stringify(palette);
+    return JSON.stringify(this.palette) === JSON.stringify(palette);
   }
 
   /**
@@ -197,8 +201,7 @@ export class Options {
       preferredAssessmentMode: this.preferredAssessmentMode,
       validation: this.validation,
       palette: this.palette,
-      loggingPrefix: this.loggingPrefix
+      loggingPrefix: this.loggingPrefix,
     };
   }
-
 }

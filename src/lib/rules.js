@@ -14,18 +14,18 @@ export const ElementWeights = {
   PRELOAD: 3,
   DEFER_SCRIPT: 2,
   PREFETCH_PRERENDER: 1,
-  OTHER: 0
+  OTHER: 0,
 };
 
 /** @type {string[]} */
 export const META_HTTP_EQUIV_KEYWORDS = [
-  'accept-ch',
-  'content-security-policy',
-  'content-type',
-  'default-style',
-  'delegate-ch',
-  'origin-trial',
-  'x-dns-prefetch-control'
+  "accept-ch",
+  "content-security-policy",
+  "content-type",
+  "default-style",
+  "delegate-ch",
+  "origin-trial",
+  "x-dns-prefetch-control",
 ];
 
 /**
@@ -36,30 +36,30 @@ export const META_HTTP_EQUIV_KEYWORDS = [
  */
 export function isMeta(element, adapter) {
   const tagName = adapter.getTagName(element);
-  
-  if (tagName === 'base') {
+
+  if (tagName === "base") {
     return true;
   }
-  
-  if (tagName !== 'meta') {
+
+  if (tagName !== "meta") {
     return false;
   }
-  
-  if (adapter.hasAttribute(element, 'charset')) {
+
+  if (adapter.hasAttribute(element, "charset")) {
     return true;
   }
-  
-  const name = adapter.getAttribute(element, 'name');
-  if (name && name.toLowerCase() === 'viewport') {
+
+  const name = adapter.getAttribute(element, "name");
+  if (name && name.toLowerCase() === "viewport") {
     return true;
   }
-  
-  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+
+  const httpEquiv = adapter.getAttribute(element, "http-equiv");
   if (httpEquiv) {
     const normalizedValue = httpEquiv.toLowerCase();
     return META_HTTP_EQUIV_KEYWORDS.includes(normalizedValue);
   }
-  
+
   return false;
 }
 
@@ -70,7 +70,7 @@ export function isMeta(element, adapter) {
  * @returns {boolean}
  */
 export function isTitle(element, adapter) {
-  return adapter.getTagName(element) === 'title';
+  return adapter.getTagName(element) === "title";
 }
 
 /**
@@ -80,12 +80,12 @@ export function isTitle(element, adapter) {
  * @returns {boolean}
  */
 export function isPreconnect(element, adapter) {
-  if (adapter.getTagName(element) !== 'link') {
+  if (adapter.getTagName(element) !== "link") {
     return false;
   }
-  
-  const rel = adapter.getAttribute(element, 'rel');
-  return rel?.toLowerCase() === 'preconnect';
+
+  const rel = adapter.getAttribute(element, "rel");
+  return rel?.toLowerCase() === "preconnect";
 }
 
 /**
@@ -95,9 +95,11 @@ export function isPreconnect(element, adapter) {
  * @returns {boolean}
  */
 export function isAsyncScript(element, adapter) {
-  return adapter.getTagName(element) === 'script' &&
-    adapter.hasAttribute(element, 'src') && 
-    adapter.hasAttribute(element, 'async');
+  return (
+    adapter.getTagName(element) === "script" &&
+    adapter.hasAttribute(element, "src") &&
+    adapter.hasAttribute(element, "async")
+  );
 }
 
 /**
@@ -109,9 +111,9 @@ export function isAsyncScript(element, adapter) {
 export function isImportStyles(element, adapter) {
   const importRe = /@import/;
 
-  if (adapter.getTagName(element) === 'style') {
-    const media = adapter.getAttribute(element, 'media');
-    if (media && media.toLowerCase().trim() === 'print') {
+  if (adapter.getTagName(element) === "style") {
+    const media = adapter.getAttribute(element, "media");
+    if (media && media.toLowerCase().trim() === "print") {
       return false;
     }
     return importRe.test(adapter.getTextContent(element));
@@ -127,30 +129,30 @@ export function isImportStyles(element, adapter) {
  * @returns {boolean}
  */
 export function isSyncScript(element, adapter) {
-  if (adapter.getTagName(element) !== 'script') {
+  if (adapter.getTagName(element) !== "script") {
     return false;
   }
-  
-  if (adapter.hasAttribute(element, 'src') && adapter.hasAttribute(element, 'defer')) {
+
+  if (adapter.hasAttribute(element, "src") && adapter.hasAttribute(element, "defer")) {
     return false;
   }
-  
-  if (adapter.hasAttribute(element, 'src')) {
-    const type = adapter.getAttribute(element, 'type');
-    if (type && type.toLowerCase() === 'module') {
+
+  if (adapter.hasAttribute(element, "src")) {
+    const type = adapter.getAttribute(element, "type");
+    if (type && type.toLowerCase() === "module") {
       return false;
     }
   }
-  
-  if (adapter.hasAttribute(element, 'src') && adapter.hasAttribute(element, 'async')) {
+
+  if (adapter.hasAttribute(element, "src") && adapter.hasAttribute(element, "async")) {
     return false;
   }
-  
-  const type = adapter.getAttribute(element, 'type');
-  if (type && type.toLowerCase().includes('json')) {
+
+  const type = adapter.getAttribute(element, "type");
+  if (type && type.toLowerCase().includes("json")) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -162,26 +164,26 @@ export function isSyncScript(element, adapter) {
  */
 export function isSyncStyles(element, adapter) {
   const tagName = adapter.getTagName(element);
-  
-  if (tagName === 'style') {
-    const media = adapter.getAttribute(element, 'media');
-    if (media && media.toLowerCase().trim() === 'print') {
+
+  if (tagName === "style") {
+    const media = adapter.getAttribute(element, "media");
+    if (media && media.toLowerCase().trim() === "print") {
       return false;
     }
     return true;
   }
-  
-  if (tagName === 'link') {
-    const rel = adapter.getAttribute(element, 'rel');
-    if (rel?.toLowerCase() === 'stylesheet') {
-      const media = adapter.getAttribute(element, 'media');
-      if (media && media.toLowerCase().trim() === 'print') {
+
+  if (tagName === "link") {
+    const rel = adapter.getAttribute(element, "rel");
+    if (rel?.toLowerCase() === "stylesheet") {
+      const media = adapter.getAttribute(element, "media");
+      if (media && media.toLowerCase().trim() === "print") {
         return false;
       }
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -192,17 +194,17 @@ export function isSyncStyles(element, adapter) {
  * @returns {boolean}
  */
 export function isPreload(element, adapter) {
-  if (adapter.getTagName(element) !== 'link') {
+  if (adapter.getTagName(element) !== "link") {
     return false;
   }
-  
-  const rel = adapter.getAttribute(element, 'rel');
+
+  const rel = adapter.getAttribute(element, "rel");
   if (!rel) {
     return false;
   }
-  
+
   const relLower = rel.toLowerCase();
-  return relLower === 'preload' || relLower === 'modulepreload';
+  return relLower === "preload" || relLower === "modulepreload";
 }
 
 /**
@@ -212,23 +214,23 @@ export function isPreload(element, adapter) {
  * @returns {boolean}
  */
 export function isDeferScript(element, adapter) {
-  if (adapter.getTagName(element) !== 'script') {
+  if (adapter.getTagName(element) !== "script") {
     return false;
   }
-  
-  if (!adapter.hasAttribute(element, 'src')) {
+
+  if (!adapter.hasAttribute(element, "src")) {
     return false;
   }
-  
-  if (adapter.hasAttribute(element, 'defer')) {
+
+  if (adapter.hasAttribute(element, "defer")) {
     return true;
   }
-  
-  const type = adapter.getAttribute(element, 'type');
-  if (type && type.toLowerCase() === 'module') {
-    return !adapter.hasAttribute(element, 'async');
+
+  const type = adapter.getAttribute(element, "type");
+  if (type && type.toLowerCase() === "module") {
+    return !adapter.hasAttribute(element, "async");
   }
-  
+
   return false;
 }
 
@@ -239,19 +241,17 @@ export function isDeferScript(element, adapter) {
  * @returns {boolean}
  */
 export function isPrefetchPrerender(element, adapter) {
-  if (adapter.getTagName(element) !== 'link') {
+  if (adapter.getTagName(element) !== "link") {
     return false;
   }
-  
-  const rel = adapter.getAttribute(element, 'rel');
+
+  const rel = adapter.getAttribute(element, "rel");
   if (!rel) {
     return false;
   }
-  
+
   const relLower = rel.toLowerCase();
-  return relLower === 'prefetch' || 
-         relLower === 'dns-prefetch' || 
-         relLower === 'prerender';
+  return relLower === "prefetch" || relLower === "dns-prefetch" || relLower === "prerender";
 }
 
 /**
@@ -261,12 +261,12 @@ export function isPrefetchPrerender(element, adapter) {
  * @returns {boolean}
  */
 export function isOriginTrial(element, adapter) {
-  if (adapter.getTagName(element) !== 'meta') {
+  if (adapter.getTagName(element) !== "meta") {
     return false;
   }
-  
-  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
-  return httpEquiv?.toLowerCase() === 'origin-trial';
+
+  const httpEquiv = adapter.getAttribute(element, "http-equiv");
+  return httpEquiv?.toLowerCase() === "origin-trial";
 }
 
 /**
@@ -276,18 +276,17 @@ export function isOriginTrial(element, adapter) {
  * @returns {boolean}
  */
 export function isMetaCSP(element, adapter) {
-  if (adapter.getTagName(element) !== 'meta') {
+  if (adapter.getTagName(element) !== "meta") {
     return false;
   }
-  
-  const httpEquiv = adapter.getAttribute(element, 'http-equiv');
+
+  const httpEquiv = adapter.getAttribute(element, "http-equiv");
   if (!httpEquiv) {
     return false;
   }
-  
+
   const httpEquivLower = httpEquiv.toLowerCase();
-  return httpEquivLower === 'content-security-policy' || 
-         httpEquivLower === 'content-security-policy-report-only';
+  return httpEquivLower === "content-security-policy" || httpEquivLower === "content-security-policy-report-only";
 }
 
 /** @type {Record<string, (element: any, adapter: AdapterInterface) => boolean>} */
@@ -301,7 +300,7 @@ export const ElementDetectors = {
   SYNC_STYLES: isSyncStyles,
   PRELOAD: isPreload,
   DEFER_SCRIPT: isDeferScript,
-  PREFETCH_PRERENDER: isPrefetchPrerender
+  PREFETCH_PRERENDER: isPrefetchPrerender,
 };
 
 /**
@@ -329,14 +328,14 @@ export function getWeight(element, adapter) {
 export function getHeadWeights(head, adapter) {
   const headChildren = adapter.getChildren(head);
   return headChildren
-    .filter(element => {
+    .filter((element) => {
       const tagName = adapter.getTagName(element);
-      return tagName && tagName !== '';
+      return tagName && tagName !== "";
     })
-    .map(element => {
+    .map((element) => {
       return {
         element,
-        weight: getWeight(element, adapter)
+        weight: getWeight(element, adapter),
       };
     });
 }

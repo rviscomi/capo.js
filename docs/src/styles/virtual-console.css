@@ -7,7 +7,7 @@ virtual-console {
   --vc-error-color: #ff6384;
   --vc-error-border: #ff6384;
 
-  :root[data-theme='light'] & {
+  :root[data-theme="light"] & {
     --vc-warn-bg: #fffbe5;
     --vc-warn-color: #333;
     --vc-warn-border: #ee9c6d;
@@ -29,7 +29,9 @@ virtual-console {
     border-left: 4px solid var(--vc-error-border);
   }
 
-  & > .log, & > .warn, & > .error {
+  & > .log,
+  & > .warn,
+  & > .error {
     margin-top: 1rem;
     width: 100%;
   }
@@ -39,7 +41,9 @@ virtual-console {
       transform: rotate(90deg);
     }
 
-    .log, .warn, .error {
+    .log,
+    .warn,
+    .error {
       margin-top: 0;
       margin-left: -4px;
     }
@@ -63,7 +67,7 @@ virtual-console {
     }
 
     &::before {
-      content: '▶';
+      content: "▶";
       display: inline-block;
       margin-right: 0.5rem;
       transition: transform 0.2s;
@@ -110,7 +114,8 @@ virtual-console {
     word-break: break-word !important;
   }
 
-  a.vc-link, a.vc-link:visited {
+  a.vc-link,
+  a.vc-link:visited {
     color: var(--sl-color-text-accent, #50fa7b);
     text-decoration: underline;
     overflow-wrap: anywhere;
@@ -131,7 +136,7 @@ virtual-console {
   --vc-token-key: #8be9fd;
 
   /* Starlight light mode support */
-  :root[data-theme='light'] & {
+  :root[data-theme="light"] & {
     --vc-token-tag: #881280;
     --vc-token-attr: #994500;
     --vc-token-val: #1a1aa6;
@@ -147,14 +152,30 @@ virtual-console {
     margin: 0 0.5rem;
   }
 
-  .tag { color: var(--vc-token-tag); }
-  .attr { color: var(--vc-token-attr); }
-  .val { color: var(--vc-token-val); }
-  .string { color: var(--vc-token-string); }
-  .number { color: var(--vc-token-number); }
-  .boolean { color: var(--vc-token-boolean); }
-  .null { color: var(--vc-token-null); }
-  .key { color: var(--vc-token-key); }
+  .tag {
+    color: var(--vc-token-tag);
+  }
+  .attr {
+    color: var(--vc-token-attr);
+  }
+  .val {
+    color: var(--vc-token-val);
+  }
+  .string {
+    color: var(--vc-token-string);
+  }
+  .number {
+    color: var(--vc-token-number);
+  }
+  .boolean {
+    color: var(--vc-token-boolean);
+  }
+  .null {
+    color: var(--vc-token-null);
+  }
+  .key {
+    color: var(--vc-token-key);
+  }
 
   .color-bar {
     display: flex;

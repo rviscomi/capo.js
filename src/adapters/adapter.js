@@ -1,6 +1,6 @@
 /**
  * @file Base adapter interface for HTML tree operations
- * 
+ *
  * This file defines the contract that all adapters must implement.
  * Adapters abstract away environment-specific operations (browser DOM vs AST nodes)
  * to make capo.js core logic reusable across different contexts.
@@ -17,31 +17,31 @@
 
 /** @type {readonly string[]} */
 const REQUIRED_METHODS = [
-  'isElement',
-  'getTagName',
-  'getAttribute',
-  'hasAttribute',
-  'getAttributeNames',
-  'getTextContent',
-  'getChildren',
-  'getParent',
-  'getSiblings',
-  'stringify',
+  "isElement",
+  "getTagName",
+  "getAttribute",
+  "hasAttribute",
+  "getAttributeNames",
+  "getTextContent",
+  "getChildren",
+  "getParent",
+  "getSiblings",
+  "stringify",
 ];
 
 /**
  * Base adapter interface
- * 
+ *
  * Actual adapters should implement all these methods.
  * This serves as both documentation and a reference implementation.
- * 
+ *
  * @example
  * import { BrowserAdapter } from './browser.js';
  * import { ParserAdapter } from './parser.js';
- * 
+ *
  * // For browser DOM:
  * const adapter = new BrowserAdapter();
- * 
+ *
  * // For ESLint HTML parser AST:
  * const adapter = new ParserAdapter();
  */
@@ -52,7 +52,7 @@ export class AdapterInterface {
    * @returns {boolean}
    */
   isElement(node) {
-    throw new Error('isElement() not implemented');
+    throw new Error("isElement() not implemented");
   }
 
   /**
@@ -61,7 +61,7 @@ export class AdapterInterface {
    * @returns {string} - Tag name like 'meta', 'link', 'script'
    */
   getTagName(node) {
-    throw new Error('getTagName() not implemented');
+    throw new Error("getTagName() not implemented");
   }
 
   /**
@@ -71,7 +71,7 @@ export class AdapterInterface {
    * @returns {string | null} - Attribute value or null if not found
    */
   getAttribute(node, attrName) {
-    throw new Error('getAttribute() not implemented');
+    throw new Error("getAttribute() not implemented");
   }
 
   /**
@@ -81,7 +81,7 @@ export class AdapterInterface {
    * @returns {boolean} - True if attribute exists
    */
   hasAttribute(node, attrName) {
-    throw new Error('hasAttribute() not implemented');
+    throw new Error("hasAttribute() not implemented");
   }
 
   /**
@@ -90,7 +90,7 @@ export class AdapterInterface {
    * @returns {string[]} - Array of attribute names
    */
   getAttributeNames(node) {
-    throw new Error('getAttributeNames() not implemented');
+    throw new Error("getAttributeNames() not implemented");
   }
 
   /**
@@ -99,7 +99,7 @@ export class AdapterInterface {
    * @returns {string} - Text content
    */
   getTextContent(node) {
-    throw new Error('getTextContent() not implemented');
+    throw new Error("getTextContent() not implemented");
   }
 
   /**
@@ -108,7 +108,7 @@ export class AdapterInterface {
    * @returns {any[]} - Array of child element nodes (excluding text/comment nodes)
    */
   getChildren(node) {
-    throw new Error('getChildren() not implemented');
+    throw new Error("getChildren() not implemented");
   }
 
   /**
@@ -117,7 +117,7 @@ export class AdapterInterface {
    * @returns {any | null} - Parent element node, or null if no parent
    */
   getParent(node) {
-    throw new Error('getParent() not implemented');
+    throw new Error("getParent() not implemented");
   }
 
   /**
@@ -126,7 +126,7 @@ export class AdapterInterface {
    * @returns {any[]} - Array of sibling element nodes (excluding the node itself)
    */
   getSiblings(node) {
-    throw new Error('getSiblings() not implemented');
+    throw new Error("getSiblings() not implemented");
   }
 
   /**
@@ -139,12 +139,21 @@ export class AdapterInterface {
   }
 
   /**
+   * Get character position for a node (optional, for validation)
+   * @param {any} node - Element node
+   * @returns {number | null}
+   */
+  getCharacterPosition(node) {
+    return null;
+  }
+
+  /**
    * Stringify element for logging/debugging
    * @param {any} node - Element node
    * @returns {string} - String representation like "<meta charset='utf-8'>"
    */
   stringify(node) {
-    throw new Error('stringify() not implemented');
+    throw new Error("stringify() not implemented");
   }
 }
 
@@ -154,11 +163,11 @@ export class AdapterInterface {
  * @throws {Error} If adapter is missing required methods
  */
 export function validateAdapter(adapter) {
-  if (!adapter || typeof adapter !== 'object') {
-    throw new Error('Adapter must be an object');
+  if (!adapter || typeof adapter !== "object") {
+    throw new Error("Adapter must be an object");
   }
   for (const method of REQUIRED_METHODS) {
-    if (typeof /** @type {Record<string, any>} */ (adapter)[method] !== 'function') {
+    if (typeof (/** @type {Record<string, any>} */ (adapter)[method]) !== "function") {
       throw new Error(`Adapter missing required method: ${method}()`);
     }
   }
