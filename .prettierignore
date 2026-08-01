@@ -1,0 +1,8 @@
+dist/
+docs/.astro/
+docs/dist/
+docs/node_modules/
+node_modules/
+package-lock.json
+*.zip
+.parcel-cache/

@@ -3,11 +3,7 @@
   "name": "Capo: get your ﹤𝚑𝚎𝚊𝚍﹥ in order",
   "description": "Visualize the optimal ordering of ﹤𝚑𝚎𝚊𝚍﹥ elements on any web page",
   "version": "2.2.0",
-  "permissions": [
-    "scripting",
-    "activeTab",
-    "storage"
-  ],
+  "permissions": ["scripting", "activeTab", "storage"],
   "action": {
     "default_icon": "images/icon128.png",
     "default_popup": "capo.html"

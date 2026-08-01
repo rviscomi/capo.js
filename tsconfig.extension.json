@@ -7,9 +7,6 @@
     "emitDeclarationOnly": false,
     "types": ["chrome-types"]
   },
-  "include": [
-    "src/extension/**/*.js",
-    "src/web/**/*.js"
-  ],
+  "include": ["src/extension/**/*.js", "src/web/**/*.js"],
   "exclude": []
 }

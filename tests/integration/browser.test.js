@@ -1,17 +1,17 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
-import dedent from 'dedent';
-import { createDocument } from '../setup.js';
-import { getHeadWeights } from '../../src/lib/rules.js';
-import { getValidationWarnings } from '../../src/lib/validation.js';
-import { BrowserAdapter } from '../../src/adapters/browser.js';
+import { describe, it } from "node:test";
+import assert from "node:assert";
+import dedent from "dedent";
+import { createDocument } from "../setup.js";
+import { getHeadWeights } from "../../src/lib/rules.js";
+import { getValidationWarnings } from "../../src/lib/validation.js";
+import { BrowserAdapter } from "../../src/adapters/browser.js";
 
 // Create adapter instance for all tests
 const adapter = new BrowserAdapter();
 
-describe('Browser Integration Tests', () => {
-  describe('Full document analysis', () => {
-    it('should analyze optimal head structure', () => {
+describe("Browser Integration Tests", () => {
+  describe("Full document analysis", () => {
+    it("should analyze optimal head structure", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,14 +31,14 @@ describe('Browser Integration Tests', () => {
       assert.strictEqual(weights.length, 9);
 
       // Should have no validation warnings
-      assert.strictEqual(warnings.length, 0, 'Optimal head should have no warnings');
+      assert.strictEqual(warnings.length, 0, "Optimal head should have no warnings");
 
       // Verify weight ordering (higher weights = higher priority)
-      const weightValues = weights.map(w => w.weight);
-      assert.ok(weightValues[0] >= weightValues[1], 'Elements should be in descending weight order');
+      const weightValues = weights.map((w) => w.weight);
+      assert.ok(weightValues[0] >= weightValues[1], "Elements should be in descending weight order");
     });
 
-    it('should analyze suboptimal head structure', () => {
+    it("should analyze suboptimal head structure", () => {
       const { head } = createDocument(dedent`
         <script src="blocking.js"></script>
         <link rel="stylesheet" href="styles.css">
@@ -53,16 +53,16 @@ describe('Browser Integration Tests', () => {
       assert.strictEqual(weights.length, 4);
 
       // Charset should be first (weight 10)
-      const charsetWeight = weights.find(w => w.element.matches('[charset]'));
-      assert.ok(charsetWeight, 'Should find charset element');
+      const charsetWeight = weights.find((w) => w.element.matches("[charset]"));
+      assert.ok(charsetWeight, "Should find charset element");
       assert.strictEqual(charsetWeight.weight, 10);
 
       // But it's not first in DOM order, so there should be ordering issues
       const firstElement = weights[0].element;
-      assert.ok(!firstElement.matches('[charset]'), 'Charset is not first in DOM');
+      assert.ok(!firstElement.matches("[charset]"), "Charset is not first in DOM");
     });
 
-    it('should detect multiple validation issues', () => {
+    it("should detect multiple validation issues", () => {
       const { head } = createDocument(dedent`
         <title>First Title</title>
         <title>Second Title</title>
@@ -79,16 +79,16 @@ describe('Browser Integration Tests', () => {
       assert.ok(warnings.length >= 3, `Expected at least 3 warnings, got ${warnings.length}`);
 
       // Check for specific warning types
-      const hasMultipleTitles = warnings.some(w => w.warning.includes('title'));
-      const hasMultipleBases = warnings.some(w => w.warning.includes('base'));
-      const hasCSPWarning = warnings.some(w => w.warning.includes('CSP'));
+      const hasMultipleTitles = warnings.some((w) => w.warning.includes("title"));
+      const hasMultipleBases = warnings.some((w) => w.warning.includes("base"));
+      const hasCSPWarning = warnings.some((w) => w.warning.includes("CSP"));
 
-      assert.ok(hasMultipleTitles, 'Should warn about multiple titles');
-      assert.ok(hasMultipleBases || hasCSPWarning, 'Should warn about multiple bases or CSP');
+      assert.ok(hasMultipleTitles, "Should warn about multiple titles");
+      assert.ok(hasMultipleBases || hasCSPWarning, "Should warn about multiple bases or CSP");
     });
 
-    it('should handle empty head', () => {
-      const { head } = createDocument('');
+    it("should handle empty head", () => {
+      const { head } = createDocument("");
 
       const weights = getHeadWeights(head, adapter);
       const warnings = getValidationWarnings(head, adapter);
@@ -97,16 +97,16 @@ describe('Browser Integration Tests', () => {
       assert.strictEqual(weights.length, 0);
 
       // Should warn about missing required elements
-      assert.ok(warnings.length > 0, 'Empty head should have warnings');
-      
-      const hasTitleWarning = warnings.some(w => w.warning.includes('title'));
-      const hasViewportWarning = warnings.some(w => w.warning.includes('viewport'));
-      
-      assert.ok(hasTitleWarning, 'Should warn about missing title');
-      assert.ok(hasViewportWarning, 'Should warn about missing viewport');
+      assert.ok(warnings.length > 0, "Empty head should have warnings");
+
+      const hasTitleWarning = warnings.some((w) => w.warning.includes("title"));
+      const hasViewportWarning = warnings.some((w) => w.warning.includes("viewport"));
+
+      assert.ok(hasTitleWarning, "Should warn about missing title");
+      assert.ok(hasViewportWarning, "Should warn about missing viewport");
     });
 
-    it('should handle head with only invalid elements', () => {
+    it("should handle head with only invalid elements", () => {
       const { head } = createDocument(dedent`
         <div>Invalid content</div>
         <span>More invalid</span>
@@ -117,15 +117,15 @@ describe('Browser Integration Tests', () => {
       const warnings = getValidationWarnings(head, adapter);
 
       // Invalid elements should still be counted
-      assert.ok(weights.length >= 3, 'Should count invalid elements');
+      assert.ok(weights.length >= 3, "Should count invalid elements");
 
       // Should warn about missing required elements
-      assert.ok(warnings.length > 0, 'Should have warnings');
+      assert.ok(warnings.length > 0, "Should have warnings");
     });
   });
 
-  describe('Real-world examples', () => {
-    it('should analyze performance-optimized head', () => {
+  describe("Real-world examples", () => {
+    it("should analyze performance-optimized head", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -143,17 +143,15 @@ describe('Browser Integration Tests', () => {
       const weights = getHeadWeights(head, adapter);
       const warnings = getValidationWarnings(head, adapter);
 
-      assert.ok(weights.length > 0, 'Should analyze all elements');
-      
+      assert.ok(weights.length > 0, "Should analyze all elements");
+
       // Well-optimized head might have some warnings (preload for app.js that's also defer-loaded)
       // but should have minimal critical issues
-      const criticalWarnings = warnings.filter(w => 
-        w.warning.includes('title') || w.warning.includes('charset')
-      );
-      assert.strictEqual(criticalWarnings.length, 0, 'Should have no critical warnings');
+      const criticalWarnings = warnings.filter((w) => w.warning.includes("title") || w.warning.includes("charset"));
+      assert.strictEqual(criticalWarnings.length, 0, "Should have no critical warnings");
     });
 
-    it('should analyze typical blog head', () => {
+    it("should analyze typical blog head", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width">
@@ -171,17 +169,16 @@ describe('Browser Integration Tests', () => {
       const warnings = getValidationWarnings(head, adapter);
 
       // Should have all elements
-      assert.ok(weights.length >= 10, 'Should detect all meta tags and links');
+      assert.ok(weights.length >= 10, "Should detect all meta tags and links");
 
       // Should have no critical warnings for well-formed blog
-      const hasCriticalIssues = warnings.some(w => 
-        w.warning.includes('Expected exactly 1 <title>') || 
-        w.warning.includes('charset')
+      const hasCriticalIssues = warnings.some(
+        (w) => w.warning.includes("Expected exactly 1 <title>") || w.warning.includes("charset"),
       );
-      assert.strictEqual(hasCriticalIssues, false, 'Well-formed blog should have no critical issues');
+      assert.strictEqual(hasCriticalIssues, false, "Well-formed blog should have no critical issues");
     });
 
-    it('should analyze e-commerce head', () => {
+    it("should analyze e-commerce head", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
@@ -199,19 +196,19 @@ describe('Browser Integration Tests', () => {
       const weights = getHeadWeights(head, adapter);
       const warnings = getValidationWarnings(head, adapter);
 
-      assert.ok(weights.length >= 11, 'Should detect all elements');
+      assert.ok(weights.length >= 11, "Should detect all elements");
 
       // E-commerce sites might have some warnings but should be functional
       // Check that maximum-scale=5 doesn't trigger accessibility warning
-      const hasMaxScaleWarning = warnings.some(w => 
-        w.warning.includes('maximum-scale') && w.warning.includes('accessibility')
+      const hasMaxScaleWarning = warnings.some(
+        (w) => w.warning.includes("maximum-scale") && w.warning.includes("accessibility"),
       );
-      assert.strictEqual(hasMaxScaleWarning, false, 'maximum-scale=5 should be allowed');
+      assert.strictEqual(hasMaxScaleWarning, false, "maximum-scale=5 should be allowed");
     });
   });
 
-  describe('Element ordering analysis', () => {
-    it('should identify optimal ordering', () => {
+  describe("Element ordering analysis", () => {
+    it("should identify optimal ordering", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width">
@@ -229,7 +226,7 @@ describe('Browser Integration Tests', () => {
       for (let i = 0; i < weights.length - 1; i++) {
         const current = weights[i].weight;
         const next = weights[i + 1].weight;
-        
+
         // If next weight is higher than current, that's a violation
         if (next > current) {
           violations++;
@@ -241,7 +238,7 @@ describe('Browser Integration Tests', () => {
       assert.ok(violations <= 1, `Should have minimal ordering violations, found ${violations}`);
     });
 
-    it('should identify suboptimal ordering', () => {
+    it("should identify suboptimal ordering", () => {
       const { head } = createDocument(dedent`
         <link rel="stylesheet" href="styles.css">
         <script src="app.js"></script>
@@ -260,12 +257,12 @@ describe('Browser Integration Tests', () => {
         }
       }
 
-      assert.ok(hasOrderingIssue, 'Should detect ordering issues');
+      assert.ok(hasOrderingIssue, "Should detect ordering issues");
     });
   });
 
-  describe('Edge cases', () => {
-    it('should handle malformed HTML', () => {
+  describe("Edge cases", () => {
+    it("should handle malformed HTML", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8">
         <title>Test
@@ -274,10 +271,10 @@ describe('Browser Integration Tests', () => {
 
       // Should still process elements despite malformed HTML
       const weights = getHeadWeights(head, adapter);
-      assert.ok(weights.length > 0, 'Should process malformed HTML');
+      assert.ok(weights.length > 0, "Should process malformed HTML");
     });
 
-    it('should handle elements with unusual attributes', () => {
+    it("should handle elements with unusual attributes", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8" data-custom="value">
         <title data-lang="en">Title</title>
@@ -285,10 +282,10 @@ describe('Browser Integration Tests', () => {
       `);
 
       const weights = getHeadWeights(head, adapter);
-      assert.strictEqual(weights.length, 3, 'Should handle custom attributes');
+      assert.strictEqual(weights.length, 3, "Should handle custom attributes");
     });
 
-    it('should handle mixed case element names', () => {
+    it("should handle mixed case element names", () => {
       const { head } = createDocument(dedent`
         <META charset="utf-8">
         <TITLE>Title</TITLE>
@@ -296,10 +293,10 @@ describe('Browser Integration Tests', () => {
       `);
 
       const weights = getHeadWeights(head, adapter);
-      assert.strictEqual(weights.length, 3, 'Should handle mixed case');
+      assert.strictEqual(weights.length, 3, "Should handle mixed case");
     });
 
-    it('should handle base64 data URIs', () => {
+    it("should handle base64 data URIs", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8">
         <title>Title</title>
@@ -307,10 +304,10 @@ describe('Browser Integration Tests', () => {
       `);
 
       const weights = getHeadWeights(head, adapter);
-      assert.ok(weights.length >= 3, 'Should handle data URIs');
+      assert.ok(weights.length >= 3, "Should handle data URIs");
     });
 
-    it('should handle empty attributes', () => {
+    it("should handle empty attributes", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8">
         <title>Title</title>
@@ -319,12 +316,12 @@ describe('Browser Integration Tests', () => {
       `);
 
       const weights = getHeadWeights(head, adapter);
-      assert.ok(weights.length >= 4, 'Should handle empty attributes');
+      assert.ok(weights.length >= 4, "Should handle empty attributes");
     });
   });
 
-  describe('Validation integration', () => {
-    it('should validate and analyze together', () => {
+  describe("Validation integration", () => {
+    it("should validate and analyze together", () => {
       const { head } = createDocument(dedent`
         <meta charset="utf-8">
         <title>Title</title>
@@ -336,19 +333,19 @@ describe('Browser Integration Tests', () => {
       const warnings = getValidationWarnings(head, adapter);
 
       // Should have elements
-      assert.ok(weights.length > 0, 'Should have weighted elements');
+      assert.ok(weights.length > 0, "Should have weighted elements");
 
       // Should have no warnings for valid document
-      assert.strictEqual(warnings.length, 0, 'Valid document should have no warnings');
+      assert.strictEqual(warnings.length, 0, "Valid document should have no warnings");
 
       // Each element should have a weight
       weights.forEach(({ element, weight }) => {
-        assert.ok(element, 'Should have element reference');
-        assert.ok(typeof weight === 'number', 'Should have numeric weight');
+        assert.ok(element, "Should have element reference");
+        assert.ok(typeof weight === "number", "Should have numeric weight");
       });
     });
 
-    it('should correlate warnings with elements', () => {
+    it("should correlate warnings with elements", () => {
       const { head } = createDocument(dedent`
         <title>First</title>
         <title>Second</title>
@@ -358,14 +355,14 @@ describe('Browser Integration Tests', () => {
       const weights = getHeadWeights(head, adapter);
       const warnings = getValidationWarnings(head, adapter);
 
-      assert.ok(warnings.length > 0, 'Should have warnings');
+      assert.ok(warnings.length > 0, "Should have warnings");
 
       // Check that warnings have the expected structure
-      warnings.forEach(warning => {
-        assert.ok(warning.warning, 'Should have warning text');
+      warnings.forEach((warning) => {
+        assert.ok(warning.warning, "Should have warning text");
         // Some warnings have elements array, some have element, some have neither
         // Just verify the warning object is well-formed
-        assert.ok(typeof warning === 'object', 'Warning should be an object');
+        assert.ok(typeof warning === "object", "Warning should be an object");
       });
     });
   });

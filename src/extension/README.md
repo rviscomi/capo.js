@@ -9,17 +9,19 @@ This extension is built from source using Node.js and Parcel. Follow these steps
 ### Requirements
 
 - **Operating System:** macOS, Linux, or Windows.
-- **Environment:** 
+- **Environment:**
   - **Node.js:** v18.0.0 or higher (v22.x recommended).
   - **npm:** v9.0.0 or higher (v10.x recommended).
 
 ### 1. Installation of Prerequisites
 
 If Node.js and npm are not installed:
+
 - **macOS (via Homebrew):** `brew install node`
 - **Windows / Linux:** Download the installer from [nodejs.org](https://nodejs.org/).
 
 Verify installation:
+
 ```bash
 node -v
 npm -v
@@ -42,6 +44,7 @@ npm run build
 ```
 
 This runs:
+
 - `npm run build:cjs`: Compiles CommonJS bundles using `esbuild`.
 - `parcel build`: Compiles, bundles, and minifies the extension source code (`src/extension/capo.js` and `src/extension/options.js`) using `Parcel`.
 - `node scripts/build-extension.js`: Copies static files, generates the Firefox-compatible manifest, and packages them.
@@ -49,5 +52,6 @@ This runs:
 ### 4. Locate Build Outputs
 
 Once the build is complete:
+
 - The compiled Firefox extension files will be in `dist/firefox/`.
 - The final zip package submitted to Mozilla is located at `dist/firefox.zip`.

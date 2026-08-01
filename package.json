@@ -95,12 +95,14 @@
     "build": "npm run build:cjs && npm run build:types && parcel build && node scripts/build-extension.js",
     "package:source": "zip -r -q dist/source.zip . -x \"node_modules/*\" \"dist/*\" \".git/*\" \".parcel-cache/*\" \"docs/node_modules/*\" \"docs/.astro/*\" \"docs/dist/*\" \".github/*\" \"*/.DS_Store\" \".DS_Store\"",
     "build:cjs": "esbuild src/index.js src/analyzer.js src/adapters/adapter.js src/adapters/index.js src/adapters/browser.js src/lib/rules.js src/lib/validation.js src/lib/io.js src/lib/options.js src/lib/colors.js src/adapters/test-suite.js --bundle --platform=node --format=cjs --outdir=dist --out-extension:.js=.cjs",
-    "test": "node --test tests/**/*.test.js",
-    "test:watch": "node --test --watch tests/**/*.test.js",
-    "test:coverage": "node --test --experimental-test-coverage tests/**/*.test.js",
+    "test": "node --test tests/*.test.js tests/**/*.test.js",
+    "test:watch": "node --test --watch tests/*.test.js tests/**/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage tests/*.test.js tests/**/*.test.js",
     "test:rules": "node --test tests/lib/rules.test.js",
     "test:validation": "node --test tests/lib/validation.test.js",
-    "test:integration": "node --test tests/integration/*.test.js"
+    "test:integration": "node --test tests/integration/*.test.js",
+    "format:check": "prettier --check .",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@parcel/cache": "^2.16.4",
@@ -111,6 +113,7 @@
     "esbuild": "^0.28.1",
     "jsdom": "^29.1.1",
     "parcel": "^2.16.4",
+    "prettier": "^3.5.3",
     "typescript": "^7.0.2"
   }
 }

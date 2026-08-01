@@ -1,23 +1,23 @@
 /**
  * @file Browser DOM adapter
- * 
+ *
  * Wraps native DOM Element APIs to implement the HTMLAdapter interface.
  * This adapter is used in browser environments where capo.js operates
  * on actual DOM elements.
  */
 
-import { AdapterInterface } from './adapter.js';
+import { AdapterInterface } from "./adapter.js";
 
 /**
  * Browser DOM adapter
- * 
+ *
  * Wraps native DOM Element APIs for use with capo.js core logic.
- * 
+ *
  * @extends AdapterInterface
  * @example
  * import { BrowserAdapter } from './adapters/browser.js';
  * import { analyzeHead } from '../analyzer.js';
- * 
+ *
  * const adapter = new BrowserAdapter();
  * const head = document.querySelector('head');
  * const result = analyzeHead(head, adapter);
@@ -43,10 +43,10 @@ export class BrowserAdapter extends AdapterInterface {
    */
   getTagName(node) {
     if (!node || !node.tagName) {
-      return '';
+      return "";
     }
     const name = node.tagName.toLowerCase();
-    if (name === 'static-head') return 'head';
+    if (name === "static-head") return "head";
     return name;
   }
 
@@ -58,7 +58,7 @@ export class BrowserAdapter extends AdapterInterface {
    * @returns {string | null} - Attribute value or null if not found
    */
   getAttribute(node, attrName) {
-    if (!node || typeof node.getAttribute !== 'function') {
+    if (!node || typeof node.getAttribute !== "function") {
       return null;
     }
     return node.getAttribute(attrName);
@@ -72,7 +72,7 @@ export class BrowserAdapter extends AdapterInterface {
    * @returns {boolean} - True if attribute exists
    */
   hasAttribute(node, attrName) {
-    if (!node || typeof node.hasAttribute !== 'function') {
+    if (!node || typeof node.hasAttribute !== "function") {
       return false;
     }
     return node.hasAttribute(attrName);
@@ -85,7 +85,7 @@ export class BrowserAdapter extends AdapterInterface {
    * @returns {string[]} - Array of attribute names
    */
   getAttributeNames(node) {
-    if (!node || typeof node.getAttributeNames !== 'function') {
+    if (!node || typeof node.getAttributeNames !== "function") {
       return [];
     }
     return node.getAttributeNames();
@@ -99,9 +99,9 @@ export class BrowserAdapter extends AdapterInterface {
    */
   getTextContent(node) {
     if (!node) {
-      return '';
+      return "";
     }
-    return node.textContent || '';
+    return node.textContent || "";
   }
 
   /**
@@ -114,12 +114,12 @@ export class BrowserAdapter extends AdapterInterface {
     if (!node) {
       return [];
     }
-    if (this.getTagName(node) === 'noscript') {
-      const content = node.innerHTML || '';
+    if (this.getTagName(node) === "noscript") {
+      const content = node.innerHTML || "";
       if (content.trim()) {
-        const doc = node.ownerDocument || (typeof document !== 'undefined' ? document : null);
+        const doc = node.ownerDocument || (typeof document !== "undefined" ? document : null);
         if (doc) {
-          const temp = doc.createElement('div');
+          const temp = doc.createElement("div");
           temp.innerHTML = content;
           return Array.from(temp.children);
         }
@@ -158,21 +158,38 @@ export class BrowserAdapter extends AdapterInterface {
     if (!parent) {
       return [];
     }
-    return Array.from(parent.children).filter(child => child !== node);
+    return Array.from(parent.children).filter((child) => child !== node);
   }
 
   /**
    * Get source location for a node (optional, for linting)
-   * 
+   *
    * Browser DOM elements don't have source location information,
    * so this always returns null.
-   * 
+   *
    * @override
    * @param {any} node - Element node
    * @returns {null}
    */
   getLocation(node) {
     // Not available in browser DOM
+    return null;
+  }
+
+  /**
+   * Get character position for a node (optional, for validation)
+   * @override
+   * @param {any} node - Element node
+   * @returns {number | null}
+   */
+  getCharacterPosition(node) {
+    if (!node || !node.ownerDocument || !node.ownerDocument.documentElement) {
+      return null;
+    }
+    const outerHTML = node.ownerDocument.documentElement.outerHTML;
+    if (outerHTML && node.outerHTML) {
+      return outerHTML.indexOf(node.outerHTML) + node.outerHTML.length;
+    }
     return null;
   }
 
@@ -184,25 +201,25 @@ export class BrowserAdapter extends AdapterInterface {
    */
   stringify(node) {
     if (!node || !node.nodeName) {
-      return '[invalid node]';
+      return "[invalid node]";
     }
 
     const tagName = this.getTagName(node);
     const attrNames = this.getAttributeNames(node);
-    
+
     if (attrNames.length === 0) {
       return `<${tagName}>`;
     }
 
     // Build attribute string
     const attrs = attrNames
-      .map(attr => {
+      .map((attr) => {
         const value = this.getAttribute(node, attr);
         // Escape value for display
-        const escapedValue = value ? value.replace(/"/g, '&quot;') : '';
+        const escapedValue = value ? value.replace(/"/g, "&quot;") : "";
         return `${attr}="${escapedValue}"`;
       })
-      .join(' ');
+      .join(" ");
 
     return `<${tagName} ${attrs}>`;
   }

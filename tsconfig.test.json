@@ -7,13 +7,6 @@
     "emitDeclarationOnly": false,
     "rootDir": "."
   },
-  "include": [
-    "src/**/*.js",
-    "tests/**/*.js"
-  ],
-  "exclude": [
-    "src/extension/**",
-    "src/web/**",
-    "worker.js"
-  ]
+  "include": ["src/**/*.js", "tests/**/*.js"],
+  "exclude": ["src/extension/**", "src/web/**", "worker.js"]
 }

@@ -1,16 +1,16 @@
 /**
  * Core DOM-agnostic analyzer for capo.js
  * Provides single-pass analysis of HTML <head> elements
- * 
+ *
  * @module analyzer
  */
 
-import * as rules from './lib/rules.js';
-import { getValidationWarnings, getCustomValidations } from './lib/validation.js';
+import * as rules from "./lib/rules.js";
+import { getValidationWarnings, getCustomValidations } from "./lib/validation.js";
 
 /**
  * @typedef {import('./adapters/adapter.js').AdapterInterface} AdapterInterface
- * 
+ *
  * @typedef {Object} WeightInfo
  * @property {any} element - The DOM/AST element
  * @property {number} weight - Computed weight (0-10)
@@ -74,29 +74,21 @@ import { getValidationWarnings, getCustomValidations } from './lib/validation.js
  * @example
  * const adapter = new BrowserAdapter();
  * const results = analyzeHead(head, adapter);
- * 
+ *
  * console.log(`Found ${results.weights.length} elements`);
  * console.log(`${results.validationWarnings.length} document warnings`);
  */
 export function analyzeHead(headNode, adapter, options = {}) {
-  const {
-    includeValidation = true,
-    includeCustomValidations = true,
-    pageOrigin = null,
-  } = options;
+  const { includeValidation = true, includeCustomValidations = true, pageOrigin = null } = options;
 
   // Pass 1: Compute weights for all elements
   const weights = rules.getHeadWeights(headNode, adapter);
 
   // Pass 2: Get document-level validation warnings
-  const validationWarnings = includeValidation
-    ? getValidationWarnings(headNode, adapter)
-    : [];
+  const validationWarnings = includeValidation ? getValidationWarnings(headNode, adapter) : [];
 
   // Pass 3: Get element-level custom validations
-  const customValidations = includeCustomValidations
-    ? getElementValidations(headNode, adapter, pageOrigin)
-    : [];
+  const customValidations = includeCustomValidations ? getElementValidations(headNode, adapter, pageOrigin) : [];
 
   return {
     weights,
@@ -108,7 +100,7 @@ export function analyzeHead(headNode, adapter, options = {}) {
 
 /**
  * Get custom validations for all elements in head
- * 
+ *
  * @param {any} headNode - The <head> element
  * @param {AdapterInterface} adapter - HTMLAdapter implementation
  * @param {string|null} [pageOrigin=null] - Page origin for validation
@@ -138,10 +130,10 @@ function getElementValidations(headNode, adapter, pageOrigin = null) {
 
 /**
  * Get weight category name from weight value
- * 
+ *
  * @param {number} weight - Weight value (0-10)
  * @returns {string} Category name
- * 
+ *
  * @example
  * getWeightCategory(10); // 'META'
  * getWeightCategory(9);  // 'TITLE'
@@ -154,15 +146,15 @@ export function getWeightCategory(weight) {
       return category;
     }
   }
-  return 'UNKNOWN';
+  return "UNKNOWN";
 }
 
 /**
  * Check if elements are in optimal order
- * 
+ *
  * @param {Array<WeightInfo>} weights - Weight information array
  * @returns {Array<OrderingViolation>} Array of ordering violations
- * 
+ *
  * @example
  * const weights = analyzeHead(head, adapter).weights;
  * const violations = checkOrdering(weights);
@@ -199,12 +191,12 @@ export function checkOrdering(weights) {
 /**
  * Analyze and return both weights and ordering violations
  * Convenience function that combines analyzeHead() and checkOrdering()
- * 
+ *
  * @param {any} headNode - The <head> element
  * @param {AdapterInterface} adapter - HTMLAdapter implementation
  * @param {AnalyzeHeadOptions} [options={}] - Analysis options
  * @returns {AnalysisResultWithOrdering} Combined analysis with weights, violations, and validations
- * 
+ *
  * @example
  * const analysis = analyzeHeadWithOrdering(head, adapter);
  * console.log(`${analysis.orderingViolations.length} ordering issues`);

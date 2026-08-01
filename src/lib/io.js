@@ -3,24 +3,24 @@ import { getInvalidBackgroundColor } from "./colors.js";
 /**
  * @typedef {import('./options.js').Options} Options
  * @typedef {import('../analyzer.js').AnalysisResult} AnalysisResult
- * 
+ *
  * @typedef {Object} ConsoleOutput
  * @property {(...args: any[]) => void} log
  * @property {(...args: any[]) => void} warn
  * @property {(...args: any[]) => void} error
  * @property {(...args: any[]) => void} groupCollapsed
  * @property {() => void} groupEnd
- * 
+ *
  * @typedef {Object} HeadWeightInfo
  * @property {any} [element]
  * @property {number} weight
  * @property {boolean} [isValid]
  * @property {Record<string, any>} [customValidations]
- * 
+ *
  * @typedef {Object} ElementVisualization
  * @property {string} visual
  * @property {string} style
- * 
+ *
  * @typedef {Object} HeadVisualization
  * @property {string} visual
  * @property {string[]} styles
@@ -32,7 +32,7 @@ export class IO {
    * @param {Options} options
    * @param {ConsoleOutput|any} [output=window.console]
    */
-  constructor(document, options, output = typeof window !== 'undefined' ? window.console : console) {
+  constructor(document, options, output = typeof window !== "undefined" ? window.console : console) {
     this.document = document;
     this.options = options;
     this.console = output;
@@ -103,7 +103,7 @@ export class IO {
     if (!this.isStaticHead) {
       this.console.warn(
         `${this.options.loggingPrefix}Unable to parse the static (server-rendered) <head>. Falling back to document.head`,
-        this.head
+        this.head,
       );
     }
   }
@@ -112,7 +112,7 @@ export class IO {
    * @returns {Promise<string>}
    */
   async getStaticHTML() {
-    const url = this.document?.location.href || '';
+    const url = this.document?.location.href || "";
     const response = await fetch(url);
     return await response.text();
   }
@@ -150,10 +150,10 @@ export class IO {
 
     const selector = this.stringifyElement(element);
     const candidates = Array.from(head.querySelectorAll(selector));
-    if (candidates.length == 0) {
+    if (candidates.length === 0) {
       return element;
     }
-    if (candidates.length == 1) {
+    if (candidates.length === 1) {
       return candidates[0];
     }
 
@@ -218,24 +218,26 @@ export class IO {
    */
   logAnalysis(result) {
     const headElement = this.getHead();
-    const headWeights = result.weights.map(w => {
-      const customValidation = result.customValidations.find(v => v.element === w.element);
-      const validationWarning = result.validationWarnings.find(v => v.element === w.element || (v.elements && v.elements.includes(w.element)));
+    const headWeights = result.weights.map((w) => {
+      const customValidation = result.customValidations.find((v) => v.element === w.element);
+      const validationWarning = result.validationWarnings.find(
+        (v) => v.element === w.element || (v.elements && v.elements.includes(w.element)),
+      );
       const isElementValid = !customValidation && !validationWarning;
       return {
         element: w.element,
         weight: w.weight,
         isValid: isElementValid,
-        customValidations: customValidation || {}
+        customValidations: customValidation || {},
       };
     });
 
     this.logValidationWarnings(result.validationWarnings);
 
     // Log custom validations (e.g. origin trials) at the top level
-    result.customValidations.forEach(v => {
+    result.customValidations.forEach((v) => {
       if (v.warnings.length > 0) {
-        this.console.warn(`${this.options.loggingPrefix}${v.warnings[0]}`, v.element, v.payload || '');
+        this.console.warn(`${this.options.loggingPrefix}${v.warnings[0]}`, v.element, v.payload || "");
       }
     });
 
@@ -298,7 +300,7 @@ export class IO {
 
     const { payload, warnings } = customValidations;
     if (payload && Object.keys(payload).length > 0) {
-      if (typeof payload.expiry == "string") {
+      if (typeof payload.expiry === "string") {
         // Deserialize origin trial expiration dates.
         payload.expiry = new Date(payload.expiry);
       }
@@ -392,7 +394,7 @@ export class IO {
       `${this.options.loggingPrefix}${groupName} %chead%c order\n${headViz.visual}`,
       "font-family: monospace",
       "font-family: inherit",
-      ...headViz.styles
+      ...headViz.styles,
     );
 
     headWeights.forEach(({ weight, element, isValid, customValidations }) => {

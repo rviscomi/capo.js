@@ -1,4 +1,5 @@
 # [rviscomi/capo.js](https://github.com/rviscomi/capo.js)
+
 _Get your `<head>` in order_
 
 Inspired by [Harry Roberts](https://twitter.com/csswizardry)' work on [ct.css](https://csswizardry.com/ct/) and [Vitaly Friedman](https://twitter.com/smashingmag)'s [Nordic.js 2022 presentation](https://youtu.be/uqLl-Yew2o8?t=2873):
@@ -62,16 +63,16 @@ Import only what you need for smaller bundle sizes:
 
 ```javascript
 // Import just the core analyzer
-import { analyzeHead, checkOrdering } from '@rviscomi/capo.js';
+import { analyzeHead, checkOrdering } from "@rviscomi/capo.js";
 
 // Import just adapters
-import { BrowserAdapter } from '@rviscomi/capo.js/adapters';
+import { BrowserAdapter } from "@rviscomi/capo.js/adapters";
 
 // Import rules API
-import { ElementWeights, getWeight } from '@rviscomi/capo.js/rules';
+import { ElementWeights, getWeight } from "@rviscomi/capo.js/rules";
 
 // Import validation API
-import { isValidElement, getValidationWarnings } from '@rviscomi/capo.js/validation';
+import { isValidElement, getValidationWarnings } from "@rviscomi/capo.js/validation";
 ```
 
 ### API Reference
@@ -110,6 +111,7 @@ Plus individual detector functions: `isMeta()`, `isTitle()`, `isPreconnect()`, e
 See the [migration guide](docs/src/content/docs/migration-v2.mdx) for detailed migration guide.
 
 **Key changes:**
+
 - All analysis functions now require an adapter parameter
 - New subpath exports for granular imports
 - Enhanced TypeScript support via JSDoc
@@ -120,12 +122,11 @@ See the [migration guide](docs/src/content/docs/migration-v2.mdx) for detailed m
 
 See the [extension docs](docs/src/content/docs/user/extension.mdx) for detailed usage instructions.
 
-
 ### Other
 
 Alternatively, you can use local overrides in DevTools to manually inject the capo.js script into the document so that it runs before anything else, eg the first child of `<body>`. Harry Roberts also has a nifty [video](https://www.youtube.com/watch?v=UOn0b5kn3jk) showing how to use this feature. This has some drawbacks as well, for example the inline script might be blocked by CSP.
 
-Another idea would be to use something like Cloudflare workers to inject the script into the HTML stream. To work around CSP issues, you can write the worker in such a way that it parses out the correct `nonce` and adds it to the inline script. _(Note: Not tested, but please share examples if you get it working! _😄_)_
+Another idea would be to use something like Cloudflare workers to inject the script into the HTML stream. To work around CSP issues, you can write the worker in such a way that it parses out the correct `nonce` and adds it to the inline script. _(Note: Not tested, but please share examples if you get it working! *😄*)_
 
 ## Summary view
 

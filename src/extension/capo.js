@@ -13,7 +13,7 @@ function sanitizeForStorage(obj, io) {
     return obj;
   }
   if (typeof obj === "object" && (obj.nodeType || (typeof Element !== "undefined" && obj instanceof Element))) {
-    return io ? io.stringifyElement(obj) : (obj.outerHTML || obj.tagName || String(obj));
+    return io ? io.stringifyElement(obj) : obj.outerHTML || obj.tagName || String(obj);
   }
   if (obj instanceof Date) {
     return obj.toString();
@@ -25,7 +25,12 @@ function sanitizeForStorage(obj, io) {
     /** @type {Record<string, any>} */
     const clean = {};
     for (const [key, value] of Object.entries(obj)) {
-      if (key === "element" && value && typeof value === "object" && (value.nodeType || (typeof Element !== "undefined" && value instanceof Element))) {
+      if (
+        key === "element" &&
+        value &&
+        typeof value === "object" &&
+        (value.nodeType || (typeof Element !== "undefined" && value instanceof Element))
+      ) {
         continue;
       }
       clean[key] = sanitizeForStorage(value, io);
@@ -48,18 +53,16 @@ async function run(io) {
   const headWeights = io.logAnalysis(result);
 
   return {
-    actual: headWeights.map(
-      ({ element, weight, isValid, customValidations }) => {
-        return {
-          weight,
-          color: io.getColor(weight),
-          selector: io.stringifyElement(element),
-          html: element.innerHTML,
-          isValid: Boolean(isValid),
-          customValidations: sanitizeForStorage(customValidations, io),
-        };
-      }
-    ),
+    actual: headWeights.map(({ element, weight, isValid, customValidations }) => {
+      return {
+        weight,
+        color: io.getColor(weight),
+        selector: io.stringifyElement(element),
+        html: element.innerHTML,
+        isValid: Boolean(isValid),
+        customValidations: sanitizeForStorage(customValidations, io),
+      };
+    }),
   };
 }
 

@@ -3,22 +3,21 @@ import { BrowserAdapter } from "../adapters/browser.js";
 import { IO } from "../lib/io.js";
 import { Options } from "../lib/options.js";
 
-
 const FORCED_OPTIONS = {
-  preferredAssessmentMode: Options.AssessmentMode.DYNAMIC
+  preferredAssessmentMode: Options.AssessmentMode.DYNAMIC,
 };
 
 /**
  * Interface for the capo.js web client.
- * 
+ *
  * For configuration options see:
  * https://rviscomi.github.io/capo.js/user/config/
- * 
+ *
  * @param {string} input HTML string
  * @param {any} output Mock console implementation
  * @param {import("../lib/options.js").OptionsInit & { pageOrigin?: string | null }} [userOptions={}] Capo options
  */
-export function run(input, output, userOptions={}) {
+export function run(input, output, userOptions = {}) {
   const pageOrigin = userOptions.pageOrigin || null;
   userOptions = Object.assign({}, userOptions, FORCED_OPTIONS);
 
