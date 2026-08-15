@@ -1,0 +1,48 @@
+name: Publish Extension to Web Stores
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run test suite
+        run: npm test
+
+      - name: Build extension packages
+        run: |
+          npm run build
+          npm run package:source
+
+      - name: Publish to Chrome Web Store
+        run: node scripts/publish-chrome.js
+        env:
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+
+      - name: Submit to Firefox Add-ons (AMO)
+        run: |
+          npx --yes web-ext sign \
+            --channel=listed \
+            --source-dir=dist/firefox \
+            --artifacts-dir=dist \
+            --upload-source-code=dist/source.zip \
+            --api-key="${{ secrets.FIREFOX_API_KEY }}" \
+            --api-secret="${{ secrets.FIREFOX_API_SECRET }}"
