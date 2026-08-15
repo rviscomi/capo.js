@@ -3,9 +3,9 @@ title: Capo for WordPress
 description: Automatically optimize your WordPress site's <head> tag ordering with the official Capo WordPress plugin.
 hero:
   actions:
-    - text: Install for WordPress
-      link: https://wordpress.org/plugins/capo-head-optimizer/
-      icon: rocket
+    - text: Download plugin (ZIP)
+      link: https://github.com/rviscomi/capo-wp/releases
+      icon: download
       variant: primary
     - text: View on GitHub
       link: https://github.com/rviscomi/capo-wp
@@ -17,6 +17,7 @@ import { Image } from "astro:assets";
 import CapoWpToolbar from "../../../assets/capo-wp-toolbar.png";
 import CapoWpBefore from "../../../assets/capo-wp-before.png";
 import CapoWpAfter from "../../../assets/capo-wp-after.png";
+import CapoWpSettings from "../../../assets/capo-wp-settings.png";
 
 The **Capo WordPress Plugin** brings the power of capo.js directly into WordPress. It automatically reorganizes the `<head>` of your WordPress pages on the fly, eliminating rendering bottlenecks and optimizing resource loading without touching theme templates.
 
@@ -31,10 +32,11 @@ Once activated, Capo works automatically on all frontend page requests. No manua
 <Tabs>
   <TabItem label="WordPress admin (recommended)">
     <Steps>
-      1. In your WordPress admin dashboard, navigate to **Plugins > Add New**.
-      2. Search for **Capo - Head Optimizer** (or download `capo.zip` from [GitHub releases](https://github.com/rviscomi/capo-wp/releases) and choose **Upload Plugin**).
-      3. Click **Install Now** and then **Activate**.
-      4. If you use a page caching plugin (such as WP Super Cache or WP Rocket), flush your cache.
+      1. Download `capo.zip` from the latest [GitHub releases](https://github.com/rviscomi/capo-wp/releases). *(Direct 1-click installation from the WordPress Plugin Directory will be available upon directory approval).*
+      2. In your WordPress admin dashboard, navigate to **Plugins > Add New > Upload Plugin**.
+      3. Choose the downloaded `capo.zip` file and click **Install Now**.
+      4. Click **Activate Plugin**.
+      5. If you use a page caching plugin (such as WP Super Cache or WP Rocket), flush your cache.
     </Steps>
   </TabItem>
 
@@ -185,8 +187,16 @@ You can test both URLs with the [Capo Browser Extension](/capo.js/user/extension
 
 Settings are accessible from **Settings > Capo** in the WordPress admin:
 
+<Image
+  src={CapoWpSettings}
+  alt="Capo Head Optimization settings page in WordPress admin"
+  loading="lazy"
+  decoding="auto"
+/>
+
 - **Enable Capo:** Master toggle to turn `<head>` reordering on or off.
 - **HTML Stats Comment:** When enabled, inserts a lightweight HTML comment in the `<head>` showing execution metrics (e.g. `<!-- Capo Head Optimizer: Reordered 24 elements in 0.8ms -->`).
+- **Testing & Verification:** Provides one-click link to test your home page in the live Capo web demo and explains how to use `?capo=off`.
 
 ---
 
