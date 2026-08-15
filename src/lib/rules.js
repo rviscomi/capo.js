@@ -149,8 +149,11 @@ export function isSyncScript(element, adapter) {
   }
 
   const type = adapter.getAttribute(element, "type");
-  if (type && type.toLowerCase().includes("json")) {
-    return false;
+  if (type) {
+    const normalizedType = type.toLowerCase().trim();
+    if (normalizedType.includes("json") || normalizedType === "speculationrules") {
+      return false;
+    }
   }
 
   return true;
@@ -235,13 +238,20 @@ export function isDeferScript(element, adapter) {
 }
 
 /**
- * Check if element is prefetch/dns-prefetch/prerender link
+ * Check if element is prefetch/dns-prefetch/prerender link or speculationrules script
  * @param {any} element
  * @param {AdapterInterface} adapter
  * @returns {boolean}
  */
 export function isPrefetchPrerender(element, adapter) {
-  if (adapter.getTagName(element) !== "link") {
+  const tagName = adapter.getTagName(element);
+
+  if (tagName === "script") {
+    const type = adapter.getAttribute(element, "type");
+    return type?.toLowerCase().trim() === "speculationrules";
+  }
+
+  if (tagName !== "link") {
     return false;
   }
 
