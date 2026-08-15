@@ -206,6 +206,10 @@ Because they are not needed for the current page, capo.js recommends placing the
 
 While `dns-prefetch` also deals with connection setup like [`preconnect`](#link-relpreconnect), it is placed here because it is a speculative hint for future navigations or low-priority resources, whereas `preconnect` is for resources needed immediately.
 
+### `<script type=speculationrules>`
+
+The [Speculation Rules API](https://developer.mozilla.org/docs/Web/HTML/Element/script/type/speculationrules) provides a modern, JSON-based declarative syntax for speculatively prefetching and prerendering future navigations. Like prefetch and prerender link tags, they are placed here so their speculative downloads do not compete for bandwidth with resources required for the current page.
+
 ## <InlineCapoWeightBars weight="1" /> 1. Everything else
 
 Any other elements found in the `<head>` that don't match the above categories are given the lowest weight.

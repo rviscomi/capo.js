@@ -201,6 +201,11 @@ describe("rules.js", () => {
       const element = createElement('<script type="application/json">{"key": "value"}</script>');
       assert.strictEqual(isSyncScript(element, adapter), false);
     });
+
+    it("should NOT detect speculationrules scripts", () => {
+      const element = createElement('<script type="speculationrules">{"prefetch": []}</script>');
+      assert.strictEqual(isSyncScript(element, adapter), false);
+    });
   });
 
   describe("isSyncStyles", () => {
@@ -305,6 +310,11 @@ describe("rules.js", () => {
       assert.strictEqual(isPrefetchPrerender(element, adapter), true);
     });
 
+    it("should detect speculationrules scripts", () => {
+      const element = createElement('<script type="speculationrules">{"prefetch": []}</script>');
+      assert.strictEqual(isPrefetchPrerender(element, adapter), true);
+    });
+
     it("should NOT detect preconnect links", () => {
       const element = createElement('<link rel="preconnect" href="https://fonts.googleapis.com">');
       assert.strictEqual(isPrefetchPrerender(element, adapter), false);
@@ -400,6 +410,11 @@ describe("rules.js", () => {
         html: '<link rel="prefetch" href="next.html">',
         expected: ElementWeights.PREFETCH_PRERENDER,
         type: "PREFETCH_PRERENDER",
+      },
+      {
+        html: '<script type="speculationrules">{"prefetch": []}</script>',
+        expected: ElementWeights.PREFETCH_PRERENDER,
+        type: "PREFETCH_PRERENDER (speculationrules)",
       },
       { html: '<meta name="description" content="test">', expected: ElementWeights.OTHER, type: "OTHER" },
       { html: '<link rel="icon" href="favicon.ico">', expected: ElementWeights.OTHER, type: "OTHER (icon)" },
