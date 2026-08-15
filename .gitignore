@@ -403,3 +403,4 @@ crx.zip
 .parcel-cache
 dist/
 *.tsbuildinfo
+.env
