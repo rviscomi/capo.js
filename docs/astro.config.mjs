@@ -60,6 +60,7 @@ export default defineConfig({
             },
             { label: "Validation", link: "/user/validation/" },
             { label: "Extension", link: "/user/extension/" },
+            { label: "WordPress plugin", link: "/user/wordpress/" },
           ],
         },
         {

@@ -1,0 +1,233 @@
+---
+title: Capo for WordPress
+description: Automatically optimize your WordPress site's <head> tag ordering with the official Capo WordPress plugin.
+hero:
+  actions:
+    - text: Download plugin (ZIP)
+      link: https://github.com/rviscomi/capo-wp/releases
+      icon: download
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/rviscomi/capo-wp
+      icon: external
+---
+
+import { Card, CardGrid, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+import CapoWpToolbar from "../../../assets/capo-wp-toolbar.png";
+import CapoWpBefore from "../../../assets/capo-wp-before.png";
+import CapoWpAfter from "../../../assets/capo-wp-after.png";
+import CapoWpSettings from "../../../assets/capo-wp-settings.png";
+
+The **Capo WordPress Plugin** brings the power of capo.js directly into WordPress. It automatically reorganizes the `<head>` of your WordPress pages on the fly, eliminating rendering bottlenecks and optimizing resource loading without touching theme templates.
+
+:::tip[Zero configuration]
+Once activated, Capo works automatically on all frontend page requests. No manual configuration or theme modifications are required.
+:::
+
+---
+
+## Installation
+
+<Tabs>
+  <TabItem label="WordPress admin (recommended)">
+    <Steps>
+      1. Download `capo.zip` from the latest [GitHub releases](https://github.com/rviscomi/capo-wp/releases). *(Direct 1-click installation from the WordPress Plugin Directory will be available upon directory approval).*
+      2. In your WordPress admin dashboard, navigate to **Plugins > Add New > Upload Plugin**.
+      3. Choose the downloaded `capo.zip` file and click **Install Now**.
+      4. Click **Activate Plugin**.
+      5. If you use a page caching plugin (such as WP Super Cache or WP Rocket), flush your cache.
+    </Steps>
+  </TabItem>
+
+  <TabItem label="WP-CLI">
+    Run the following commands in your WordPress document root:
+
+    ```bash
+    # Clone the repository into plugins
+    git clone https://github.com/rviscomi/capo-wp.git wp-content/plugins/capo
+
+    # Activate the plugin
+    wp plugin activate capo
+
+    # Flush page cache (example for WP Super Cache)
+    wp super-cache flush
+    ```
+
+  </TabItem>
+
+  <TabItem label="Composer">
+    If you manage your WordPress site with Composer:
+
+    ```bash
+    composer require rviscomi/capo-wp
+    wp plugin activate capo
+    ```
+
+  </TabItem>
+</Tabs>
+
+---
+
+## Why WordPress needs `<head>` optimization
+
+On a standard WordPress site, `wp_head()` is populated dynamically by:
+
+- WordPress Core (titles, styles, scripts, emojis, canonical links)
+- Active block themes or classic themes
+- SEO plugins (Yoast, Rank Math, AIOSEO)
+- Performance & analytics plugins (Site Kit, Google Tag Manager, custom trackers)
+- Page builders and third-party utility plugins
+
+Each plugin and theme outputs tags according to its own hook priority, which frequently results in:
+
+- ⚠️ **Delayed Page Titles:** Massive blocks of SEO metadata or JSON-LD structured data output _before_ the `<title>` tag.
+- ⚠️ **Render Blocking Bottlenecks:** Synchronous scripts and fonts placed before critical pragma directives and stylesheets.
+
+**Capo for WordPress solves this automatically.** By intercepting the rendered response using output buffering, Capo parses and sorts the `<head>` elements in strict adherence to the Capo priority spectrum before sending HTML to the client or page cache.
+
+### See the difference
+
+#### Before: Unoptimized `<head>`
+
+Without Capo, elements in `<head>` are output in arbitrary order. Critical directives, titles, and preconnects are scattered after external stylesheets and scripts:
+
+<Image
+  src={CapoWpBefore}
+  alt="Capo actual head order vs sorted head order before optimization"
+  loading="lazy"
+  decoding="auto"
+/>
+
+#### After: Optimized `<head>`
+
+With Capo active, the actual `<head>` order matches the optimal sorted order 1:1:
+
+<Image
+  src={CapoWpAfter}
+  alt="Capo actual head order matching sorted head order after optimization"
+  loading="lazy"
+  decoding="auto"
+/>
+
+---
+
+## Key features
+
+<CardGrid>
+  <Card title="Zero configuration" icon="star">
+    Works out of the box with optimal sorting rules. Just install, activate, and your `<head>` is instantly optimized.
+  </Card>
+  <Card title="Deterministic stable sort" icon="random">
+    Equal-weight elements retain their exact relative order, preserving standard cascade precedence and same-tier script execution sequence.
+  </Card>
+  <Card title="Full cache compatibility" icon="rocket">
+    Integrates seamlessly with WP Super Cache, WP Rocket, W3 Total Cache, and LiteSpeed Cache. Cached pages serve pre-sorted HTML with 0ms runtime overhead.
+  </Card>
+  <Card title="Site Health integration" icon="information">
+    Includes automated diagnostic checks in **Tools > Site Health** with `<head>` hygiene warnings and element breakdowns.
+  </Card>
+  <Card title="Live toolbar diagnostics" icon="setting">
+    Displays real-time execution timing and validation warnings in the WordPress Admin Toolbar for logged-in administrators.
+  </Card>
+  <Card title="Instant bypass mode" icon="magnifier">
+    Test before-and-after performance instantly by appending `?capo=off` to any frontend URL.
+  </Card>
+</CardGrid>
+
+---
+
+## How it works
+
+Capo intercepts the rendered page output using standard PHP output buffering. It parses `<head>` tags into discrete tokens, assigns each element a priority weight according to the [Capo rules](/capo.js/user/rules/), and outputs them in optimal sequence before delivering HTML to the browser (or your page caching plugin).
+
+:::note[Deterministic stable sorting]
+Capo uses a **deterministic stable sort** for all elements sharing the same priority weight (such as multiple standard stylesheets at Weight 4, or multiple synchronous scripts at Weight 5). Elements across different weight tiers are reorganized intentionally according to browser rendering priorities.
+:::
+
+---
+
+## Diagnostics & tools
+
+Capo includes built-in diagnostics to help you monitor and verify `<head>` health:
+
+### 1. Admin toolbar diagnostics
+
+When logged in as an administrator, Capo adds a live status node to the WordPress Admin Toolbar:
+
+<Image src={CapoWpToolbar} alt="Capo live diagnostics in WordPress Admin Toolbar" loading="eager" decoding="auto" />
+
+- **⚡ Capo:** Indicates normal operation with execution time and element count (e.g. `⚡ Reordered 69 elements in 0.6ms`).
+- **⚠️ Capo (X warnings):** Highlights detected `<head>` hygiene issues with a scrollable dropdown detailing each warning.
+
+### 2. WordPress Site Health check
+
+Navigate to **Tools > Site Health > Status**. Capo registers a diagnostic test under **Performance**:
+
+- **Optimization Status:** Confirms output buffering and active reordering.
+- **`<head>` Element Breakdown:** Shows total elements processed and distribution across weights.
+- **Hygiene Warnings:** Highlights potential issues such as:
+  - Missing or duplicate `<meta name="viewport">`
+  - Missing `<title>` tags
+  - Expired or malformed Origin Trial tokens (with decoded expiry dates)
+  - Elements that belong in `<body>` instead of `<head>`
+
+### 3. Testing with bypass mode
+
+To compare your site's HTML before and after Capo without deactivating the plugin, append `?capo=off` to any frontend URL:
+
+- **Optimized (Default):** `https://example.com/`
+- **Unoptimized Raw Output:** `https://example.com/?capo=off`
+
+You can test both URLs with the [Capo Browser Extension](/capo.js/user/extension/) or in the [Capo.js Web Demo](/capo.js/user/demo/).
+
+---
+
+## Configuration & settings
+
+Settings are accessible from **Settings > Capo** in the WordPress admin:
+
+<Image
+  src={CapoWpSettings}
+  alt="Capo Head Optimization settings page in WordPress admin"
+  loading="lazy"
+  decoding="auto"
+/>
+
+- **Enable Capo:** Master toggle to turn `<head>` reordering on or off.
+- **HTML Stats Comment:** When enabled, inserts a lightweight HTML comment in the `<head>` showing execution metrics (e.g. `<!-- Capo Head Optimizer: Reordered 24 elements in 0.8ms -->`).
+- **Testing & Verification:** Provides one-click link to test your home page in the live Capo web demo and explains how to use `?capo=off`.
+
+---
+
+## Frequently asked questions
+
+### Does Capo break script dependencies or stylesheet cascade?
+
+**No.** Capo uses a deterministic stable sort within each priority tier:
+
+- **Stylesheet cascade is preserved:** All standard stylesheets and style blocks share the same priority (Weight 4), so their sequential order is strictly maintained.
+- **Script execution order is preserved:** Synchronous scripts (Weight 5) and deferred scripts (Weight 2) maintain their exact relative order within their respective groups.
+
+Capo groups elements into their optimal critical rendering path tiers (such as discovering critical meta directives and preconnects first, and preventing CSSOM parser stalls) while preserving the internal dependency order of your styles and scripts.
+
+### Does Capo add server response latency (TTFB)?
+
+**Negligible.** The PHP tokenizer runs in under 1ms on average. Furthermore, when used alongside a page caching plugin, the reordered HTML is cached on disk/memory, resulting in **0ms overhead** for cached page requests.
+
+### Does Capo work with full-page caching plugins?
+
+**Yes.** Capo runs during output buffering before page cache plugins capture the final HTML output. Your cache plugin stores the already-optimized `<head>`.
+
+### How is the WordPress plugin kept up to date with capo.js?
+
+The WordPress plugin repository maintains continuous 1:1 test parity with `@rviscomi/capo.js`. When rules or validation checks are updated in core capo.js, they are synced into the PHP engine.
+
+---
+
+## Resources & links
+
+- [Capo WordPress Plugin on GitHub](https://github.com/rviscomi/capo-wp)
+- [Capo.js GitHub Repository](https://github.com/rviscomi/capo.js)
+- [Capo.js Browser Extension](/capo.js/user/extension/)
+- [Capo Rules Specification](/capo.js/user/rules/)

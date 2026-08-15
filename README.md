@@ -120,7 +120,18 @@ See the [migration guide](docs/src/content/docs/migration-v2.mdx) for detailed m
 
 ![Capo.js Browser extension](https://github.com/rviscomi/capo.js/assets/1120896/389bcec0-567d-448f-9897-eee5ca373e6b)
 
-See the [extension docs](docs/src/content/docs/user/extension.mdx) for detailed usage instructions.
+See the [extension docs](https://rviscomi.github.io/capo.js/user/extension/) for detailed usage instructions.
+
+### WordPress plugin
+
+Automatically reorganize your WordPress site's `<head>` tags on the server via output buffering using the official [Capo WordPress Plugin](https://github.com/rviscomi/capo-wp).
+
+- ⚡ **Zero configuration**: Plug and play `<head>` optimization
+- 🔄 **Deterministic stable sort**: Preserves CSS cascade and script execution order
+- 🚀 **Full page cache compatibility**: Works with WP Super Cache, WP Rocket, LiteSpeed, etc.
+- 🩺 **Site Health integration**: Built-in diagnostics under Tools > Site Health and Admin Toolbar
+
+Read the [WordPress plugin documentation](https://rviscomi.github.io/capo.js/user/wordpress/) for full installation and usage details.
 
 ### Other
 
