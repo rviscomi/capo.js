@@ -1,19 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-const {
-  CHROME_CLIENT_ID,
-  CHROME_CLIENT_SECRET,
-  CHROME_REFRESH_TOKEN,
-  CHROME_EXTENSION_ID,
-} = process.env;
+const { CHROME_CLIENT_ID, CHROME_CLIENT_SECRET, CHROME_REFRESH_TOKEN, CHROME_EXTENSION_ID } = process.env;
 
-const requiredEnv = [
-  "CHROME_CLIENT_ID",
-  "CHROME_CLIENT_SECRET",
-  "CHROME_REFRESH_TOKEN",
-  "CHROME_EXTENSION_ID",
-];
+const requiredEnv = ["CHROME_CLIENT_ID", "CHROME_CLIENT_SECRET", "CHROME_REFRESH_TOKEN", "CHROME_EXTENSION_ID"];
 
 const missingEnv = requiredEnv.filter((name) => !process.env[name]);
 if (missingEnv.length > 0) {
@@ -57,17 +47,14 @@ async function uploadPackage(accessToken) {
   console.log(`📦 Uploading package (${ZIP_PATH}) to Chrome Web Store item ${CHROME_EXTENSION_ID}...`);
   const zipBuffer = fs.readFileSync(ZIP_PATH);
 
-  const res = await fetch(
-    `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${CHROME_EXTENSION_ID}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "x-goog-api-version": "2",
-      },
-      body: zipBuffer,
-    }
-  );
+  const res = await fetch(`https://www.googleapis.com/upload/chromewebstore/v1.1/items/${CHROME_EXTENSION_ID}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "x-goog-api-version": "2",
+    },
+    body: zipBuffer,
+  });
 
   const data = await res.json();
   if (!res.ok || data.uploadState !== "SUCCESS") {
@@ -80,17 +67,14 @@ async function uploadPackage(accessToken) {
 
 async function publishItem(accessToken) {
   console.log(`🚀 Submitting item ${CHROME_EXTENSION_ID} for review / publishing...`);
-  const res = await fetch(
-    `https://www.googleapis.com/chromewebstore/v1.1/items/${CHROME_EXTENSION_ID}/publish`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "x-goog-api-version": "2",
-        "Content-Length": "0",
-      },
-    }
-  );
+  const res = await fetch(`https://www.googleapis.com/chromewebstore/v1.1/items/${CHROME_EXTENSION_ID}/publish`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "x-goog-api-version": "2",
+      "Content-Length": "0",
+    },
+  });
 
   const data = await res.json();
   if (!res.ok || (Array.isArray(data.status) && !data.status.includes("OK"))) {
