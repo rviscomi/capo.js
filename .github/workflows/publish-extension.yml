@@ -44,5 +44,7 @@ jobs:
             --source-dir=dist/firefox \
             --artifacts-dir=dist \
             --upload-source-code=dist/source.zip \
+            --approval-timeout=0 \
             --api-key="${{ secrets.FIREFOX_API_KEY }}" \
             --api-secret="${{ secrets.FIREFOX_API_SECRET }}"
+
