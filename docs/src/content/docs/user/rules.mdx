@@ -122,13 +122,19 @@ capo.js recommends placing the `<title>` element early in the document to ensure
 
 Additionally, placing the `<title>` after the [`<meta charset>`](#meta-charset) ensures that any special characters in the title are rendered correctly.
 
-## <InlineCapoWeightBars weight="9" /> 9. Preconnect hints
+## <InlineCapoWeightBars weight="9" /> 9. Critical resource hints
 
 ### `<link rel=preconnect>`
 
 Preconnect hints tell the browser to establish a connection to a domain as early as possible, reducing the latency of future requests to that domain.
 
 To maximize the benefit of preconnecting, capo.js recommends placing these hints early in the document, before any resources from that domain are requested.
+
+### `<link rel=preload fetchpriority=high>`
+
+High-priority preload hints (`<link rel="preload" fetchpriority="high">` or `<link rel="modulepreload" fetchpriority="high">`) tell the browser to download a critical resource (such as the LCP image or critical font) with maximum urgency.
+
+By elevating these preloads alongside preconnect hints, capo.js ensures that the browser's Preload Scanner discovers them in the initial ~14 KB TCP window (`initcwnd`), even on pages with extensive inline styles. Standard preloads without `fetchpriority="high"` remain in [**4. Standard preload hints**](#link-relpreload).
 
 ## <InlineCapoWeightBars weight="8" /> 8. Asynchronous scripts
 
@@ -182,7 +188,9 @@ Stylesheets explicitly marked for print media (e.g. `<link rel="stylesheet" medi
 
 Preload hints tell the browser to download a resource as soon as possible, as it will be needed soon.
 
-While helpful, they are generally less critical than actual resources (like styles and scripts) that are needed immediately. capo.js recommends placing them after critical resources, but before deferred scripts and prefetch hints, to ensure these resources start downloading as soon as possible.
+While helpful, standard preloads (without `fetchpriority="high"`) are generally less critical than actual resources (like styles and scripts) that are needed immediately. capo.js recommends placing them after critical resources, but before deferred scripts and prefetch hints, to ensure these resources start downloading as soon as possible without competing for bandwidth against critical stylesheets.
+
+Preloads explicitly configured with `fetchpriority="high"` are elevated to [**9. Critical resource hints**](#link-relpreload-fetchpriorityhigh).
 
 ## <InlineCapoWeightBars weight="3" /> 3. Deferred scripts
 

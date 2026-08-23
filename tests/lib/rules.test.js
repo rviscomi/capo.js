@@ -6,6 +6,7 @@ import {
   isMeta,
   isTitle,
   isPreconnect,
+  isHighPriorityPreload,
   isAsyncScript,
   isImportStyles,
   isSyncScript,
@@ -114,6 +115,45 @@ describe("rules.js", () => {
     it("should NOT detect other elements", () => {
       const element = createElement('<meta charset="utf-8">');
       assert.strictEqual(isPreconnect(element, adapter), false);
+    });
+  });
+
+  describe("isHighPriorityPreload", () => {
+    it("should detect high-priority preload links", () => {
+      const element = createElement('<link rel="preload" href="hero.webp" as="image" fetchpriority="high">');
+      assert.strictEqual(isHighPriorityPreload(element, adapter), true);
+    });
+
+    it("should detect high-priority modulepreload links", () => {
+      const element = createElement('<link rel="modulepreload" href="app.js" fetchpriority="high">');
+      assert.strictEqual(isHighPriorityPreload(element, adapter), true);
+    });
+
+    it("should detect high-priority preload with case variations", () => {
+      const element = createElement('<LINK REL="PRELOAD" HREF="hero.webp" AS="IMAGE" FETCHPRIORITY="HIGH">');
+      assert.strictEqual(isHighPriorityPreload(element, adapter), true);
+    });
+
+    it("should NOT detect preload links without fetchpriority", () => {
+      const element = createElement('<link rel="preload" href="font.woff2" as="font">');
+      assert.strictEqual(isHighPriorityPreload(element, adapter), false);
+    });
+
+    it("should NOT detect preload links with low or auto fetchpriority", () => {
+      const low = createElement('<link rel="preload" href="font.woff2" as="font" fetchpriority="low">');
+      const auto = createElement('<link rel="preload" href="font.woff2" as="font" fetchpriority="auto">');
+      assert.strictEqual(isHighPriorityPreload(low, adapter), false);
+      assert.strictEqual(isHighPriorityPreload(auto, adapter), false);
+    });
+
+    it("should NOT detect non-preload links even with fetchpriority=high", () => {
+      const stylesheet = createElement('<link rel="stylesheet" href="style.css" fetchpriority="high">');
+      assert.strictEqual(isHighPriorityPreload(stylesheet, adapter), false);
+    });
+
+    it("should NOT detect non-link elements even with fetchpriority=high", () => {
+      const script = createElement('<script src="app.js" fetchpriority="high"></script>');
+      assert.strictEqual(isHighPriorityPreload(script, adapter), false);
     });
   });
 
@@ -383,6 +423,16 @@ describe("rules.js", () => {
         type: "PRECONNECT",
       },
       {
+        html: '<link rel="preload" href="hero.webp" as="image" fetchpriority="high">',
+        expected: ElementWeights.PRECONNECT,
+        type: "PRECONNECT (high priority preload)",
+      },
+      {
+        html: '<link rel="modulepreload" href="app.js" fetchpriority="high">',
+        expected: ElementWeights.PRECONNECT,
+        type: "PRECONNECT (high priority modulepreload)",
+      },
+      {
         html: '<script src="analytics.js" async></script>',
         expected: ElementWeights.ASYNC_SCRIPT,
         type: "ASYNC_SCRIPT",
@@ -400,6 +450,16 @@ describe("rules.js", () => {
         type: "SYNC_STYLES (inline)",
       },
       { html: '<link rel="preload" href="font.woff2" as="font">', expected: ElementWeights.PRELOAD, type: "PRELOAD" },
+      {
+        html: '<link rel="preload" href="font.woff2" as="font" fetchpriority="low">',
+        expected: ElementWeights.PRELOAD,
+        type: "PRELOAD (low priority)",
+      },
+      {
+        html: '<link rel="preload" href="font.woff2" as="font" fetchpriority="auto">',
+        expected: ElementWeights.PRELOAD,
+        type: "PRELOAD (auto priority)",
+      },
       { html: '<script src="app.js" defer></script>', expected: ElementWeights.DEFER_SCRIPT, type: "DEFER_SCRIPT" },
       {
         html: '<script src="module.js" type="module"></script>',

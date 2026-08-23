@@ -28,6 +28,7 @@ export {
   isMeta,
   isTitle,
   isPreconnect,
+  isHighPriorityPreload,
   isAsyncScript,
   isImportStyles,
   isSyncScript,

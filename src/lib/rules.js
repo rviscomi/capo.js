@@ -74,7 +74,27 @@ export function isTitle(element, adapter) {
 }
 
 /**
- * Check if element is a preconnect link
+ * Check if element is a high-priority preload link
+ * @param {any} element
+ * @param {AdapterInterface} adapter
+ * @returns {boolean}
+ */
+export function isHighPriorityPreload(element, adapter) {
+  if (adapter.getTagName(element) !== "link") {
+    return false;
+  }
+
+  const rel = adapter.getAttribute(element, "rel")?.toLowerCase();
+  if (rel !== "preload" && rel !== "modulepreload") {
+    return false;
+  }
+
+  const priority = adapter.getAttribute(element, "fetchpriority")?.toLowerCase();
+  return priority === "high";
+}
+
+/**
+ * Check if element is a preconnect or high-priority preload link
  * @param {any} element
  * @param {AdapterInterface} adapter
  * @returns {boolean}
@@ -85,7 +105,7 @@ export function isPreconnect(element, adapter) {
   }
 
   const rel = adapter.getAttribute(element, "rel");
-  return rel?.toLowerCase() === "preconnect";
+  return rel?.toLowerCase() === "preconnect" || isHighPriorityPreload(element, adapter);
 }
 
 /**

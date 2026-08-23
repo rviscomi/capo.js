@@ -24,6 +24,8 @@ describe("Package Exports", () => {
     assert.ok(capo.getHeadWeights, "Should export getHeadWeights");
     assert.ok(capo.isMeta, "Should export isMeta");
     assert.ok(capo.isTitle, "Should export isTitle");
+    assert.ok(capo.isPreconnect, "Should export isPreconnect");
+    assert.ok(capo.isHighPriorityPreload, "Should export isHighPriorityPreload");
   });
 
   it("should export validation API", async () => {
