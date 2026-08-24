@@ -46,4 +46,3 @@ jobs:
             --upload-source-code=dist/source.zip \
             --api-key="${{ secrets.FIREFOX_API_KEY }}" \
             --api-secret="${{ secrets.FIREFOX_API_SECRET }}"
-
