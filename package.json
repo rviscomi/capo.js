@@ -17,7 +17,10 @@
   "homepage": "https://rviscomi.github.io/capo.js/",
   "files": [
     "src",
-    "dist"
+    "dist",
+    "!dist/*.zip",
+    "!dist/chrome",
+    "!dist/firefox"
   ],
   "type": "module",
   "main": "dist/index.cjs",

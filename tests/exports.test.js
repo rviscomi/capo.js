@@ -5,6 +5,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert";
+import fs from "node:fs";
 
 describe("Package Exports", () => {
   it("should export core analyzer functions", async () => {
@@ -63,5 +64,12 @@ describe("Package Exports", () => {
     const adapters = await import("../src/adapters/index.js");
 
     assert.ok(adapters.BrowserAdapter, "Adapters export should work");
+  });
+
+  it("should exclude extension builds and archives from package files", async () => {
+    const pkg = JSON.parse(await fs.promises.readFile(new URL("../package.json", import.meta.url), "utf8"));
+    assert.ok(pkg.files.includes("!dist/*.zip"), "Should exclude dist/*.zip");
+    assert.ok(pkg.files.includes("!dist/chrome"), "Should exclude dist/chrome");
+    assert.ok(pkg.files.includes("!dist/firefox"), "Should exclude dist/firefox");
   });
 });
